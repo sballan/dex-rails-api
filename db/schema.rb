@@ -10,18 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_08_211805) do
+ActiveRecord::Schema.define(version: 2020_11_08_214409) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
     t.integer "to_id", null: false
+    t.string "text"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["from_id"], name: "index_links_on_from_id"
     t.index ["to_id"], name: "index_links_on_to_id"
   end
 
   create_table "pages", force: :cascade do |t|
     t.string "url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["url"], name: "index_pages_on_url", unique: true
+  end
+
+  create_table "queries", force: :cascade do |t|
+    t.string "text"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["text"], name: "index_queries_on_text", unique: true
   end
 
   add_foreign_key "links", "pages", column: "from_id"
