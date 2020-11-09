@@ -1,5 +1,6 @@
 class DownloadPageCommand
-  attr_accessor :page, :result
+  attr_reader :page, :result
+
   # @param [Page] page
   def initialize(page)
     @page = page
@@ -10,6 +11,7 @@ class DownloadPageCommand
   end
 
   def execute
+    require 'pry'; binding.pry
     mechanize_agent = Mechanize.new
     mechanize_agent.history.max_size = 5 # default is 50
     mechanize_agent.robots = true

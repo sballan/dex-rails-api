@@ -24,6 +24,9 @@ ActiveRecord::Schema.define(version: 2020_11_08_234615) do
 
   create_table "pages", force: :cascade do |t|
     t.string "url"
+    t.datetime "download_success"
+    t.datetime "download_failure"
+    t.datetime "download_invalid"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["url"], name: "index_pages_on_url", unique: true

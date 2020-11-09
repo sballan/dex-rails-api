@@ -6,7 +6,7 @@ class S3Client
   attr_reader :client
   def initialize(bucket, namespace = "")
     @bucket = bucket
-    @namespace = namespace
+    @namespace = namespace + '/'
 
     @client = Aws::S3::Client.new(
       access_key_id: ENV['DO_SPACES_KEY'],
@@ -33,7 +33,7 @@ class S3Client
   def read(key:)
     client.get_object({
                         bucket: @bucket,
-                        key: "#{@namespace}/#{key}"
+                        key: namespace + key
                       })
   end
 
