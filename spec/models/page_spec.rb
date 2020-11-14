@@ -1,5 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Page, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Page, type: :model do
+  let(:url) { 'http://www.google.com' }
+
+  it 'can be created with a url' do
+    expect(Page.create(url: url)).to be_truthy
+  end
 end

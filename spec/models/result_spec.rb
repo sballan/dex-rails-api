@@ -1,5 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Result, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Result, type: :model do
+  let(:query) { Query.create(text: "My Search Term") }
+  let(:page) { Page.create(url: "http://www.google.com") }
+  let(:kind) { "title" }
+
+  expect(Result.create(query: query, page: page, kind: kind)).to be_truthy
 end

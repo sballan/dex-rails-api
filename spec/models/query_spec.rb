@@ -1,5 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Query, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Query, type: :model do
+  let(:text) { "My Search Term"}
+
+  it "can be created with text" do
+    expect(Query.create(text: text)).to be_truthy
+  end
 end
