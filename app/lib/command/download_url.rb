@@ -23,17 +23,16 @@ module Command
       @result[:status] = :failure
       @error = e
     end
-  end
 
-  private
+    private
 
-  def mechanize_page
-    return @mechanize_page unless @mechanize_agent.nil?
+    def mechanize_page
+      return @mechanize_page unless @mechanize_page.nil?
 
-    mechanize_agent = Mechanize.new
-    mechanize_agent.history.max_size = 2 # default is 50
-    mechanize_agent.robots = true
-    mechanize_agent
-    @mechanize_page = mechanize_agent.get(url)
+      mechanize_agent = Mechanize.new
+      mechanize_agent.history.max_size = 2 # default is 50
+      mechanize_agent.robots = true
+      @mechanize_page = mechanize_agent.get(@url)
+    end
   end
 end

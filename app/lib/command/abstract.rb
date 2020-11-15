@@ -11,5 +11,13 @@ module Command
       throw "must override #{__method__}"
     end
 
+    def success?
+      result[:status] == :success
+    end
+
+    def failure?
+      result[:status] == :failure
+    end
+
   end
 end
