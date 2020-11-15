@@ -6,6 +6,8 @@ describe Result, type: :model do
     let(:page) { Page.create(url: "http://www.google.com") }
     let(:kind) { "title" }
 
-    expect(Result.create(query: query, page: page, kind: kind)).to be_truthy
+    it 'can be created with a query and a page' do
+      expect(Result.create(query: query, page: page, kind: kind)).to be_truthy
+    end
   end
 end
