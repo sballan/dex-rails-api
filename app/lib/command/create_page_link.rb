@@ -17,7 +17,7 @@ module Command
       end
 
       to_page = create_or_find_page_command.payload
-      create_or_find_link_command = Command::CreateOrFindLink.new(@page.id, to_page.id, text)
+      create_or_find_link_command = Command::CreateOrFindLink.new(@page.id, to_page.id, @text)
       run_nested(create_or_find_link_command)
 
       if(create_or_find_link_command.failure?)
@@ -25,7 +25,7 @@ module Command
         return
       end
 
-      link = create_or_find_link_command.paylaod
+      link = create_or_find_link_command.payload
       result.succeed!(link)
     rescue StandardError => e
       result.fail!(e)

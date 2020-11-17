@@ -10,14 +10,15 @@ module Command
 
     def run
       links.each do |link|
-        create_page_link_command = Command::CreatePageLink.new(page, link[:href], link[:text])
-        create_page_link_command.run
-        if create_page_link_command.failure?
-          result.results << create_page_link_command.result
-        end
+        create_page_link_command = Command::CreatePageLink.new(@page, link[:href], link[:text])
+        run_nested(create_page_link_command)
       end
 
-      fail! if results.results.any?(&:failure?)
+      if result.results.any?(&:failure?)
+        result.fail!
+      else
+        result.succeed!
+      end
     end
 
     private
