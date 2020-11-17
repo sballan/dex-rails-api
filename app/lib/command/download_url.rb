@@ -11,9 +11,10 @@ module Command
       raise 'Page is nil' if mechanize_page.nil?
       raise 'Only html pages are supported' unless mechanize_page.is_a?(Mechanize::Page)
 
-      page_file = StringIO.new mechanize_page.body.encode(
+      # NOTE: We read this into a string, which should be fine
+      page_file = StringIO.new(mechanize_page.body.encode(
         'UTF-8', invalid: :replace, undef: :replace, replace: ''
-      )
+      )).read
       result.succeed!(page_file)
     rescue Mechanize::RobotsDisallowedError, Mechanize::ResponseCodeError => e
       result.fail!(e)
