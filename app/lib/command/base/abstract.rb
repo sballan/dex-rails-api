@@ -13,6 +13,12 @@ module Command
         throw "must override #{__method__}"
       end
 
+      # @param [Command::Base::Abstract] command
+      def run_nested(command)
+        command.run
+        result.results << command.result
+      end
+
       def success?
         result.success?
       end

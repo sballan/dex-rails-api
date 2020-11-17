@@ -19,14 +19,14 @@ module Command
       def fail!(error = nil, results = [])
         @status = :failure
         @error = error
-        @results = results
+        @results.concat(results)
         finish!
       end
 
       def succeed!(payload = nil, results = [])
         @status = :success
         @payload = payload
-        @results = results
+        @results.concat(results)
         finish!
       end
 
