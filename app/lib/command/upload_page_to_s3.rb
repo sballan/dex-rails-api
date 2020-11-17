@@ -1,20 +1,16 @@
 module Command
-  class UploadPageToS3
+  class UploadPageToS3 < Command::Base::Abstract
     def initialize(page_id, page_content)
       @page_id = page_id
       @page_content = page_content
 
-      @result = {
-        status: :failure,
-        payload: nil
-      }
+      @result = Command::Base::Result.new
     end
 
     def run
-      client = S3Client.new(ENV['DEV_BUCKET'])
-      s3_key = "pages/#{@page_id}"
-      client.write_private(key: s3_key, body: @page_content)
-      @result[:status] = :success
+      client = S3Client.new(ENV['DEV_BUCKET'], 'pages')
+      client.write_private(key: @page_id, body: @page_content)
+      result.succeed!
     end
   end
 end

@@ -1,13 +1,10 @@
 module Command
-  class DownloadUrl < Command::Abstract
+  class DownloadUrl < Command::Base::Abstract
     def initialize(url)
       @url = url
       @mechanize_page = nil
 
-      @result = {
-          status: :failure,
-          payload: nil
-      }
+      @result = Command::Base::Result.new
     end
 
     def run
@@ -17,11 +14,9 @@ module Command
       page_file = StringIO.new mechanize_page.body.encode(
         'UTF-8', invalid: :replace, undef: :replace, replace: ''
       )
-      @result[:status] = :success
-      @result[:payload] = page_file
+      result.succeed!(page_file)
     rescue Mechanize::RobotsDisallowedError, Mechanize::ResponseCodeError => e
-      @result[:status] = :failure
-      @error = e
+      result.fail!(e)
     end
 
     private

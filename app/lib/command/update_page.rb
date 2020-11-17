@@ -1,12 +1,10 @@
 module Command
-  class UpdatePage < Command::Abstract
+  class UpdatePage < Command::Base::Abstract
     # @param [Page] page
     def initialize(page)
       @page = page
 
-      @result = {
-        status: :failure
-      }
+      @result = Command::Base::Result.new
     end
 
     def run
@@ -14,12 +12,10 @@ module Command
       download_url_command.run
 
       if download_url_command.success?
-        @page.download_success = DateTime.now.utc
+        upload_page_to_s3_command = Command::UploadPageToS3.new(@page.id, download_url_command.payload)
+        result.succeed!
       else
-        result[:status] = :failure
-        error = download_url_command.error
-        @page.download_failure = DateTime.now.utc
-        return
+        result.fail!(download_url_command.error, [download_url_command])
       end
     end
   end
