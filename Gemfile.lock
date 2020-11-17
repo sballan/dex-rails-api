@@ -232,6 +232,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   listen (~> 3.2)
   mechanize
+  nokogiri
   pg
   pry-rails
   puma (~> 4.1)
