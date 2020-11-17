@@ -9,18 +9,18 @@ module Command
 
     def run
       create_or_find_page_command = Command::CreateOrFindPage.new(@url)
-      create_or_find_page_command.run
+      run_nested(create_or_find_page_command)
 
       if(create_or_find_page_command.failure?)
-        result.fail!(create_or_find_page_command.error, [create_or_find_page_command])
+        result.fail!(create_or_find_page_command.error)
         return
       end
 
       # NOTE: Can probably do a better job here using create instead of create! with error catcher
       link = Link.create!(from: @page, to: create_or_find_page_command.payload, text: @text)
-      result.succeed!(link, [create_or_find_page_command])
+      result.succeed!(link)
     rescue StandardError => e
-      result.fail!(e, [create_or_find_page_command])
+      result.fail!(e)
     end
   end
 end

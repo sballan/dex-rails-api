@@ -9,22 +9,23 @@ module Command
 
     def run
       download_url_command = Command::DownloadUrl.new(@page.url)
-      download_url_command.run
+      run_nested(download_url_command)
 
       if download_url_command.failure?
-        result.fail!(download_url_command.error, [download_url_command])
+        result.fail!(download_url_command.error)
         return
       end
 
-      upload_page_to_s3_command = Command::UploadPageToS3.new(@page.id, download_url_command.payload)
-      upload_page_to_s3_command.run
+      page_file = download_url_command.payload
+      upload_page_to_s3_command = Command::UploadPageToS3.new(@page.id, page_file)
+      run_nested(upload_page_to_s3_command)
 
       if upload_page_to_s3_command.failure?
-        result.fail!(upload_page_to_s3_command.error, [download_url_command, upload_page_to_s3_command])
+        result.fail!(upload_page_to_s3_command.error)
         return
       end
 
-      result.succeed!(nil, [download_url_command, upload_page_to_s3_command])
+      result.succeed!
     end
   end
 end
