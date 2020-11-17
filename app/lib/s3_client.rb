@@ -19,7 +19,7 @@ class S3Client
   def write_private(key:, body:)
     client.put_object({
                         bucket: @bucket,
-                        key: "#{@namespace}/#{key}",
+                        key: @namespace + key.to_s,
                         body: body,
                         acl: 'private'
                       })
