@@ -8,7 +8,7 @@ module Command
         @started_at = DateTime.now.utc
         @finished_at = nil
         @payload = nil
-        @status = :failure
+        @status = nil
         @error = nil
         @results = []
       end
