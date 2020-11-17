@@ -30,6 +30,14 @@ module Command
         finish!
       end
 
+      def success?
+        status == :success
+      end
+
+      def failure?
+        status == :failure
+      end
+
       private
 
       def finish!

@@ -14,11 +14,11 @@ module Command
       end
 
       def success?
-        result.status == :success
+        result.success?
       end
 
       def failure?
-        result.status == :failure
+        result.failure?
       end
 
       def payload
