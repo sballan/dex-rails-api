@@ -4,7 +4,7 @@ module Command
       @page_id = page_id
       @page_content = page_content
 
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run

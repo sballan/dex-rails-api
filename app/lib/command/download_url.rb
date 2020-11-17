@@ -4,7 +4,7 @@ module Command
       @url = url
       @mechanize_page = nil
 
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run

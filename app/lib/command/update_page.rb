@@ -4,7 +4,7 @@ module Command
     def initialize(page)
       @page = page
 
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run

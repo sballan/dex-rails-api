@@ -3,7 +3,8 @@ module Command
     class Result
       attr_reader :started_at, :finished_at, :payload, :status, :error, :results
 
-      def initialize
+      def initialize(command_name)
+        @command_name = command_name
         @started_at = DateTime.now.utc
         @finished_at = nil
         @payload = nil

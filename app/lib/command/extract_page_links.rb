@@ -5,7 +5,7 @@ module Command
       @page_file = page_file
       @nokogiri_page = nil
 
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run

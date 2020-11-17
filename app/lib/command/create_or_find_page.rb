@@ -3,7 +3,7 @@ module Command
     def initialize(url)
       @url = url
 
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run

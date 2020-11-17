@@ -4,7 +4,7 @@ module Command
       @page = page
       @url = url
       @text = text
-      @result = Command::Base::Result.new
+      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run
@@ -16,8 +16,9 @@ module Command
         return
       end
 
+      to_page = create_or_find_page_command.payload
       # NOTE: Can probably do a better job here using create instead of create! with error catcher
-      link = Link.create!(from: @page, to: create_or_find_page_command.payload, text: @text)
+      link = Link.create!(from: @page, to: to_page, text: @text)
       result.succeed!(link)
     rescue StandardError => e
       result.fail!(e)
