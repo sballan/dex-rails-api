@@ -13,7 +13,7 @@ module Command
 
       if download_url_command.success?
         upload_page_to_s3_command = Command::UploadPageToS3.new(@page.id, download_url_command.payload)
-        result.succeed!
+        result.succeed!(nil, [upload_page_to_s3_command])
       else
         result.fail!(download_url_command.error, [download_url_command])
       end
