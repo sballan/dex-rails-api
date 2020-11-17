@@ -9,26 +9,29 @@ module Command
     end
 
     def run
-      links.each do |link|
+      links_to = extracted_links.map do |link|
         create_page_link_command = Command::CreatePageLink.new(@page, link[:href], link[:text])
         run_nested(create_page_link_command)
+        create_page_link_command.payload
       end
 
       if result.results.any?(&:failure?)
         result.fail!
-      else
-        result.succeed!
+        return
       end
+
+      @page.links_to = links_to
+      @page.save!
+      result.succeed!
+    rescue StandardError => e
+      result.fail!(e)
     end
 
     private
 
-    def links
+    def extracted_links
       nokogiri_page.css('a[href]').map do |a|
-        {
-          text: a.text,
-          href: a['href']
-        }
+        { text: a.text, href: a['href'] }
       end
     end
 
