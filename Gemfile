@@ -24,6 +24,8 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'
   gem 'dotenv-rails'
+  gem 'standard'
+  gem 'rubocop'
 end
 
 group :development do
