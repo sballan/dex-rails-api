@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_17_194357) do
+ActiveRecord::Schema.define(version: 2020_11_19_004217) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -25,6 +25,7 @@ ActiveRecord::Schema.define(version: 2020_11_17_194357) do
 
   create_table "pages", force: :cascade do |t|
     t.string "url"
+    t.string "title"
     t.datetime "download_success"
     t.datetime "download_failure"
     t.datetime "download_invalid"
@@ -46,6 +47,7 @@ ActiveRecord::Schema.define(version: 2020_11_17_194357) do
     t.integer "page_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index "\"query_id,\", \"page_id,\", \"kind\"", name: "index_results_on_query_id,_and_page_id,_and_kind", unique: true
     t.index ["page_id"], name: "index_results_on_page_id"
     t.index ["query_id"], name: "index_results_on_query_id"
   end
