@@ -31,7 +31,9 @@ module Command
 
     def extracted_links
       nokogiri_page.css('a[href]').map do |a|
-        { text: a.text, href: a['href'] }
+        text = a.text.strip
+        text = nil if text.empty?
+        { text: text, href: a['href'] }
       end
     end
 

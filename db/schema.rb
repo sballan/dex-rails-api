@@ -18,8 +18,8 @@ ActiveRecord::Schema.define(version: 2020_11_19_004217) do
     t.string "text"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index "\"to_id,\", \"from_id,\", \"text\"", name: "index_links_on_to_id,_and_from_id,_and_text", unique: true
     t.index ["from_id"], name: "index_links_on_from_id"
+    t.index ["to_id", "from_id", "text"], name: "index_links_on_to_id_and_from_id_and_text", unique: true
     t.index ["to_id"], name: "index_links_on_to_id"
   end
 
@@ -47,8 +47,8 @@ ActiveRecord::Schema.define(version: 2020_11_19_004217) do
     t.integer "page_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index "\"query_id,\", \"page_id,\", \"kind\"", name: "index_results_on_query_id,_and_page_id,_and_kind", unique: true
     t.index ["page_id"], name: "index_results_on_page_id"
+    t.index ["query_id", "page_id", "kind"], name: "index_results_on_query_id_and_page_id_and_kind", unique: true
     t.index ["query_id"], name: "index_results_on_query_id"
   end
 
