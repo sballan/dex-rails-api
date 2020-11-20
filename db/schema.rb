@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 2020_11_19_004217) do
   end
 
   create_table "queries", force: :cascade do |t|
-    t.string "text"
+    t.string "text", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["text"], name: "index_queries_on_text", unique: true
