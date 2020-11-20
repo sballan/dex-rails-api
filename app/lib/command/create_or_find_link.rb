@@ -16,8 +16,8 @@ module Command
     end
 
     def create_or_find_link
-      Link.create_or_find_by!(from_id: @from_page_id, to_id: @to_page_id, text: @text)
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+      Link.find_or_create_by!(from_id: @from_page_id, to_id: @to_page_id, text: @text)
+    rescue ActiveRecord::RecordInvalid => e
       Link.find_by!(from_id: @from_page_id, to_id: @to_page_id, text: @text)
     end
   end

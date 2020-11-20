@@ -8,21 +8,15 @@ module Command
 
     def run
       download_url_result = download_url
-      if download_url_result.failure?
-        return result.fail!(download_url_result.error)
-      end
-
-      create_or_find_page_result = create_or_find_page
-      if create_or_find_page_result.failure?
-        return result.fail!(create_or_find_page_result.error)
-      end
+      return result.fail!(download_url_result.error) if download_url_result.failure?
 
       page_file = download_url_result.payload
-      page = create_or_find_page_result.payload
-      extract_page_links_result = extract_page_links(page, page_file)
-      if extract_page_links_result.failure?
-        return result.fail!(extract_page_links_result.error)
-      end
+      process_page_file_result = process_page_file(page_file)
+      return result.fail!(process_page_file_result.error) if process_page_file_result.failure?
+
+      page = process_page_file_result.payload
+      create_page_queries_result = create_page_queries(page)
+      return result.fail!(create_page_queries_result.error) if create_page_queries_result.failure?
 
       result.succeed!
     end
@@ -35,16 +29,16 @@ module Command
       download_url_command.result
     end
 
-    def create_or_find_page
-      create_or_find_page_command = Command::CreateOrFindPage.new(@url)
-      run_nested(create_or_find_page_command)
-      create_or_find_page_command.result
+    def process_page_file(page_file)
+      process_page_file_command = Command::ProcessPageFile.new(@url, page_file)
+      run_nested(process_page_file_command)
+      process_page_file_command.result
     end
 
-    def extract_page_links(page, page_file)
-      extract_page_links_command = Command::ExtractPageLinks.new(page, page_file)
-      run_nested(extract_page_links_command)
-      extract_page_links_command.result
+    def create_page_queries(page)
+      create_page_queries_command = Command::CreatePageQueries.new(page)
+      run_nested(create_page_queries_command)
+      create_page_queries_command.result
     end
 
   end

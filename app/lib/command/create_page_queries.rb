@@ -11,6 +11,7 @@ module Command
       create_title_query
 
       @page.links_to.in_batches.each_record do |link|
+        next if link.text.blank?
         create_link_queries(link)
       end
 
