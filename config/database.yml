@@ -25,6 +25,7 @@ production:
   <<: *default
   adapter: postgresql
   database: dex-pages-rails-production
+  url: <%= ENV['DATABASE_URL'] %>
   encoding: unicode
   prepared_statements: false
   advisory_locks: false
