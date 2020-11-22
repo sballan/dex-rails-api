@@ -18,6 +18,7 @@ gem 'mechanize'
 gem 'nokogiri'
 gem 'aws-sdk-s3' # to use digital ocean spaces... terrible......
 gem "barnes"
+gem 'sidekiq'
 
 
 group :development, :test do
