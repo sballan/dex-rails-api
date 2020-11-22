@@ -1,7 +1,7 @@
 module Command
   module Base
     class Result
-      attr_reader :started_at, :finished_at, :payload, :status, :error, :results
+      attr_reader :started_at, :finished_at, :payload, :status, :error, :results, :command_name
 
       def initialize(command_name)
         @command_name = command_name
@@ -21,6 +21,7 @@ module Command
         @status = :failure
         @error = error
         @results.concat(results)
+        Rails.logger.warn "Command #{command_name} failed:\n #{error}"
         finish!
       end
 
