@@ -1,13 +1,12 @@
 module Command
   class CreateOrFindPage < Command::Base::Abstract
     def initialize(url, title = nil)
+      super()
       @url = url
       @title = title
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       page = Page.create_or_find_by!(url: @url)
 
       if page.title != @title
@@ -16,8 +15,6 @@ module Command
       end
 
       result.succeed!(page)
-    rescue StandardError => e
-      result.fail!(e)
     end
   end
 end

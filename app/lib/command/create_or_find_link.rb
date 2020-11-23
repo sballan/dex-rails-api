@@ -1,18 +1,15 @@
 module Command
   class CreateOrFindLink < Command::Base:: Abstract
     def initialize(from_page_id, to_page_id, text)
+      super()
       @from_page_id = from_page_id
       @to_page_id = to_page_id
       @text = text
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       link = create_or_find_link
       result.succeed!(link)
-    rescue StandardError => e
-      result.fail!(e)
     end
 
     def create_or_find_link
