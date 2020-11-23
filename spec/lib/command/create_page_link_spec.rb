@@ -18,7 +18,6 @@ describe Command::CreatePageLink do
     let(:command) { Command::CreatePageLink.new @page_from, @url, @text }
 
     it 'can run successfully' do
-      require 'pry'; binding.pry
       command.run
       expect(command).to be_success
     end
