@@ -1,11 +1,8 @@
 class ScrapeUrlCommandJob < ApplicationJob
   queue_as :default
 
-  def perform(url)
+  def perform(url, force=false)
     command = Command::ScrapeUrl.new(url)
-    command.run
-    unless command.success?
-      raise "Command failed!"
-    end
+    force ? command.run! : command.run
   end
 end
