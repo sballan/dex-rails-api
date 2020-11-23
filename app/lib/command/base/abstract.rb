@@ -34,9 +34,9 @@ module Command
 
       # @param [Command::Base::Abstract] command
       def run_nested!(command)
-        command.run!
+        command.run
         result.results << command.result
-        assert_success
+        command.assert_success
       end
 
       def success?
@@ -55,12 +55,11 @@ module Command
         result.error
       end
 
-      private
+      protected
 
       def assert_success
         unless success?
-          Rails.logger.error "Command (#{self.class.name}) did not succeed"
-          raise Errors::CommandFailure
+          raise Command::Base::Errors::CommandFailure, "Command (#{self.class.name}) did not succeed"
         end
       end
     end
