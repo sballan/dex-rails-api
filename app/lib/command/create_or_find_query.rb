@@ -5,7 +5,7 @@ module Command
       @text = text
     end
 
-    def run
+    def run_proc
       query = Query.create_or_find_by!(text: @text)
       result.succeed!(query)
     end

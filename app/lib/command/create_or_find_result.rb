@@ -7,7 +7,7 @@ module Command
       @kind = kind
     end
 
-    def run
+    def run_proc
       query = create_or_find_result
       result.succeed!(query)
     end
