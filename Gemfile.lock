@@ -96,6 +96,8 @@ GEM
     ffi (1.13.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
+    html2text (0.2.0)
+      nokogiri (~> 1.6)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (1.8.5)
@@ -135,6 +137,7 @@ GEM
     net-http-digest_auth (1.4.1)
     net-http-persistent (3.1.0)
       connection_pool (~> 2.2)
+    newrelic_rpm (6.7.0.359)
     nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
@@ -267,9 +270,11 @@ DEPENDENCIES
   bootsnap (>= 1.4.2)
   byebug
   dotenv-rails
+  html2text
   jbuilder (~> 2.7)
   listen (~> 3.2)
   mechanize
+  newrelic_rpm
   nokogiri
   pg
   pry-rails

@@ -17,8 +17,11 @@ gem 'pry-rails'
 gem 'mechanize'
 gem 'nokogiri'
 gem 'aws-sdk-s3' # to use digital ocean spaces... terrible......
-gem "barnes"
 gem 'sidekiq'
+gem 'html2text'
+
+gem "barnes"
+gem 'newrelic_rpm'
 
 
 group :development, :test do
