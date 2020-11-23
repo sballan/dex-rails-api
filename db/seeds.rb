@@ -1,4 +1,4 @@
-wiki_page = Page.create_or_find_by! url: "wikipedia.org"
+wiki_page = Page.create_or_find_by! url: "https://wikipedia.org"
 rails_page = Page.create_or_find_by! url: "https://rubyonrails.org"
 
 wiki_page.links_to.create! to: rails_page;
