@@ -1,34 +1,22 @@
 module Command
   class CreatePageLink < Command::Base::Abstract
-    def initialize(page, url, text = nil)
-      @page = page
+    def initialize(from_page, url, text = nil)
+      super()
+      @from_page = from_page
       @url = url
       @text = text
-      @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       create_or_find_page_command = Command::CreateOrFindPage.new(@url)
-      run_nested(create_or_find_page_command)
-
-      if(create_or_find_page_command.failure?)
-        result.fail!(create_or_find_page_command.error)
-        return
-      end
-
+      run_nested!(create_or_find_page_command)
       to_page = create_or_find_page_command.payload
-      create_or_find_link_command = Command::CreateOrFindLink.new(@page.id, to_page.id, @text)
-      run_nested(create_or_find_link_command)
 
-      if(create_or_find_link_command.failure?)
-        result.fail!(create_or_find_link_command.error)
-        return
-      end
-
+      create_or_find_link_command = Command::CreateOrFindLink.new(@from_page.id, to_page.id, @text)
+      run_nested!(create_or_find_link_command)
       link = create_or_find_link_command.payload
+
       result.succeed!(link)
-    rescue StandardError => e
-      result.fail!(e)
     end
   end
 end
