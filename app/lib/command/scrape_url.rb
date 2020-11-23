@@ -15,7 +15,7 @@ module Command
 
       process_mechanize_page(page, mechanize_page)
 
-      create_page_queries(page)
+      create_page_queries(page, mechanize_page)
 
       result.succeed!
     end
@@ -40,8 +40,8 @@ module Command
       process_page_file_command.result
     end
 
-    def create_page_queries(page)
-      create_page_queries_command = Command::CreatePageQueries.new(page)
+    def create_page_queries(page, mechanize_page=nil)
+      create_page_queries_command = Command::CreatePageQueries.new(page, mechanize_page)
       run_nested!(create_page_queries_command)
       create_page_queries_command.result
     end

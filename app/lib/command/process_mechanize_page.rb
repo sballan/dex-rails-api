@@ -43,8 +43,11 @@ module Command
     # @param [Mechanize::Page::Link] mechanize_link
     def create_page_link(mechanize_link)
       url = mechanize_link.resolved_uri.to_s
-      text = mechanize_link.text.strip.gsub(/\s/, " ")
-      text = nil if text.empty?
+
+      # Link text should be lowercase words separated by spaces, should not be empty, and must have at least 1 english letter
+      text = mechanize_link.text.strip.gsub(/\s/, " ").downcase
+      text = nil unless text.match?(/[a-zA-Z]+/)
+      text = nil if text.blank?
 
       create_page_link_command = Command::CreatePageLink.new(@page, url, text)
       run_nested(create_page_link_command)

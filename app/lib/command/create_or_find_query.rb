@@ -1,8 +1,9 @@
 module Command
   class CreateOrFindQuery < Command::Base::Abstract
+    # @param [String] text
     def initialize(text)
       super()
-      @text = text
+      @text = text.downcase
     end
 
     def run_proc
