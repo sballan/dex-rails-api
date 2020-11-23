@@ -5,18 +5,38 @@ module Command
       attr_reader :result
 
       def initialize
-        run
-        throw 'Abstract Class cannot be instantiated'
+        @result = Command::Base::Result.new(self.class.name)
+      end
+
+      def run_proc
+        throw "must override #{__method__}"
       end
 
       def run
-        throw "must override #{__method__}"
+        run!
+      rescue StandardError => e
+        Rails.logger.warn "Uncaught Error in #{self.class.name}:\n #{e}"
+        result.fail!(e)
+      rescue Errors::CommandFailure => e
+        result.fail!(e)
+      end
+
+      def run!
+        run_proc
+        assert_success
       end
 
       # @param [Command::Base::Abstract] command
       def run_nested(command)
         command.run
         result.results << command.result
+      end
+
+      # @param [Command::Base::Abstract] command
+      def run_nested!(command)
+        command.run!
+        result.results << command.result
+        assert_success
       end
 
       def success?
@@ -35,6 +55,14 @@ module Command
         result.error
       end
 
+      private
+
+      def assert_success
+        unless success?
+          Rails.logger.error "Command (#{self.class.name}) did not succeed"
+          raise Errors::CommandFailure
+        end
+      end
     end
   end
 end
