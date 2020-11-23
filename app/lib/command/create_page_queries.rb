@@ -3,15 +3,13 @@ module Command
     # @param [Page] page
     def initialize(page)
       @page = page
-
       @result = Command::Base::Result.new(self.class.name)
     end
 
     def run
       create_title_query
 
-      @page.links_to.in_batches.each_record do |link|
-        next if link.text.blank?
+      @page.links_to.where.not(text: [nil, ""]).in_batches.each_record do |link|
         create_link_queries(link)
       end
 
@@ -22,20 +20,20 @@ module Command
 
     def create_title_query
       create_or_find_query_command = Command::CreateOrFindQuery.new(@page.title)
-      run_nested(create_or_find_query_command)
+      run_nested!(create_or_find_query_command)
       query = create_or_find_query_command.payload
 
       create_or_find_result_command = Command::CreateOrFindResult.new(query, @page, 'title')
-      run_nested(create_or_find_result_command)
+      run_nested!(create_or_find_result_command)
     end
 
     def create_link_queries(link)
       create_or_find_query_command = Command::CreateOrFindQuery.new(link.text)
-      run_nested(create_or_find_query_command)
+      run_nested!(create_or_find_query_command)
       query = create_or_find_query_command.payload
 
       create_or_find_result_command = Command::CreateOrFindResult.new(query, @page, 'link')
-      run_nested(create_or_find_result_command)
+      run_nested!(create_or_find_result_command)
     end
   end
 end
