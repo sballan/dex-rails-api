@@ -1,18 +1,15 @@
 module Command
   class CreateOrFindResult < Command::Base::Abstract
     def initialize(query, page, kind)
+      super()
       @query = query
       @page = page
       @kind = kind
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run
       query = create_or_find_result
       result.succeed!(query)
-    rescue StandardError => e
-      result.fail!(e)
     end
 
     def create_or_find_result
