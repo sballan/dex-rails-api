@@ -7,37 +7,42 @@ module Command
     end
 
     def run
-      download_url_result = download_url
-      return result.fail!(download_url_result.error) if download_url_result.failure?
+      create_or_find_page_result = create_or_find_page
+      page = create_or_find_page_result.payload
 
-      page_file = download_url_result.payload
-      process_page_file_result = process_page_file(page_file)
-      return result.fail!(process_page_file_result.error) if process_page_file_result.failure?
+      download_mechanize_page_result = download_mechanize_page
+      mechanize_page = download_mechanize_page_result.payload
 
-      page = process_page_file_result.payload
-      create_page_queries_result = create_page_queries(page)
-      return result.fail!(create_page_queries_result.error) if create_page_queries_result.failure?
+      process_mechanize_page(page, mechanize_page)
+
+      create_page_queries(page)
 
       result.succeed!
     end
 
     private
 
-    def download_url
-      download_url_command = Command::DownloadUrl.new(@url)
-      run_nested(download_url_command)
-      download_url_command.result
+    def download_mechanize_page
+      download_mechanize_page_command = Command::DownloadMechanizePage.new(@url)
+      run_nested!(download_mechanize_page_command)
+      download_mechanize_page_command.result
     end
 
-    def process_page_file(page_file)
-      process_page_file_command = Command::ProcessPageFile.new(@url, page_file)
-      run_nested(process_page_file_command)
+    def create_or_find_page
+      create_or_find_page_command = Command::CreateOrFindPage.new(@url)
+      run_nested!(create_or_find_page_command)
+      create_or_find_page_command.result
+    end
+
+    def process_mechanize_page(page, mechanize_page)
+      process_page_file_command = Command::ProcessMechanizePage.new(page, mechanize_page)
+      run_nested!(process_page_file_command)
       process_page_file_command.result
     end
 
     def create_page_queries(page)
       create_page_queries_command = Command::CreatePageQueries.new(page)
-      run_nested(create_page_queries_command)
+      run_nested!(create_page_queries_command)
       create_page_queries_command.result
     end
 

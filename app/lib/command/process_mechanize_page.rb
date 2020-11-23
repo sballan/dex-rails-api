@@ -11,12 +11,12 @@ module Command
 
     def run
       title = @mechanize_page.title
-      page.title = title
-      page.save!
+      @page.title = title
+      @page.save!
 
       extract_page_links
 
-      result.succeed!(page)
+      result.succeed!(@page)
     end
 
     private
