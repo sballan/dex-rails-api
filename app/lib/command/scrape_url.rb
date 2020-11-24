@@ -24,7 +24,7 @@ module Command
 
     def download_mechanize_page
       download_mechanize_page_command = Command::DownloadMechanizePage.new(@url)
-      (download_mechanize_page_command.run_with_gc!
+      download_mechanize_page_command.run_with_gc!
       download_mechanize_page_command.result
     end
 
