@@ -24,25 +24,25 @@ module Command
 
     def download_mechanize_page
       download_mechanize_page_command = Command::DownloadMechanizePage.new(@url)
-      run_nested_with_gc!(download_mechanize_page_command)
+      (download_mechanize_page_command.run_with_gc!
       download_mechanize_page_command.result
     end
 
     def create_or_find_page
       create_or_find_page_command = Command::CreateOrFindPage.new(@url)
-      run_nested_with_gc!(create_or_find_page_command)
+      (create_or_find_page_command.run_with_gc!
       create_or_find_page_command.result
     end
 
     def process_mechanize_page(page, mechanize_page)
       process_page_file_command = Command::ProcessMechanizePage.new(page, mechanize_page)
-      run_nested_with_gc!(process_page_file_command)
+      process_page_file_command.run_with_gc!
       process_page_file_command.result
     end
 
     def create_page_queries(page, mechanize_page=nil)
       create_page_queries_command = Command::CreatePageQueries.new(page, mechanize_page)
-      run_nested_with_gc!(create_page_queries_command)
+      create_page_queries_command.run_with_gc!
       create_page_queries_command.result
     end
 
