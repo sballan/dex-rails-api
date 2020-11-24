@@ -39,6 +39,22 @@ module Command
         command.assert_success
       end
 
+      def run_with_gc
+        with_gc { run }
+      end
+
+      def run_with_gc!
+        with_gc { run! }
+      end
+
+      def run_nested_with_gc(*args)
+        with_gc { run_nested(*args) }
+      end
+
+      def run_nested_with_gc!(*args)
+        with_gc { run_nested!(*args) }
+      end
+
       def success?
         result.success?
       end
@@ -61,6 +77,12 @@ module Command
         unless success?
           raise Command::Base::Errors::CommandFailure, "Command (#{self.class.name}) did not succeed"
         end
+      end
+
+      def with_gc(&block)
+        GC.start(full_mark: true, immediate_sweep: true)
+        block.call
+        GC.start(full_mark: true, immediate_sweep: true)
       end
     end
   end

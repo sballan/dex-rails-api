@@ -3,13 +3,12 @@ module Command
     # @param [Page] page
     # @param [Mechanize::Page] mechanize_page
     def initialize(page, mechanize_page)
+      super()
       @page = page
       @mechanize_page = mechanize_page
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       title = @mechanize_page.title
       @page.title = title
       @page.save!
