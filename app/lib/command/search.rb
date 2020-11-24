@@ -11,7 +11,7 @@ module Command
 
       matches_set << @text
       matches_set.merge(text_words)
-      matches_set.merge(text_words.map {|w| "%#{sanitize_sql_like(w)}%"})
+      matches_set.merge(text_words.map {|w| "%#{ActiveRecord::Base.send(:sanitize_sql_like, w)}%"})
 
       result.succeed!(Page.for_query_text(matches_set.to_a).by_links_from_count)
     end
