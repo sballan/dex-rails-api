@@ -20,7 +20,6 @@ module Command
 
     private
 
-
     def extract_page_links
       links_to = @mechanize_page.links&.map do |mechanize_link|
         create_page_link_result = create_page_link(mechanize_link)

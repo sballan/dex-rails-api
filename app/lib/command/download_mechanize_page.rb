@@ -1,10 +1,9 @@
 module Command
   class DownloadMechanizePage < Command::Base::Abstract
     def initialize(url)
+      super()
       @url = url
       @mechanize_page = nil
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run_proc

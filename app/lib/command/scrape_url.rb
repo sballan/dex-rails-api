@@ -1,9 +1,8 @@
 module Command
   class ScrapeUrl < Command::Base::Abstract
     def initialize(url)
+      super()
       @url = url
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
     def run_proc
