@@ -6,11 +6,11 @@ module Command
     end
 
     def run_proc
-      create_or_find_page_result = create_or_find_page
-      page = create_or_find_page_result.payload
-
       download_mechanize_page_result = download_mechanize_page
       mechanize_page = download_mechanize_page_result.payload
+
+      create_or_find_page_result = create_or_find_page(mechanize_page.title)
+      page = create_or_find_page_result.payload
 
       process_mechanize_page(page, mechanize_page)
 
@@ -27,8 +27,8 @@ module Command
       download_mechanize_page_command.result
     end
 
-    def create_or_find_page
-      create_or_find_page_command = Command::CreateOrFindPage.new(@url)
+    def create_or_find_page(title=nil)
+      create_or_find_page_command = Command::CreateOrFindPage.new(@url, title)
       create_or_find_page_command.run_with_gc!
       create_or_find_page_command.result
     end
