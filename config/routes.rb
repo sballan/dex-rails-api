@@ -3,5 +3,5 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 
   get 'info', to: 'info#index'
-  root 'info#index'
+  root 'static#home'
 end

@@ -5,7 +5,7 @@ class ScrapeUrlCommandJob < ApplicationJob
     GC.start(full_mark: true, immediate_sweep: true)
 
     command = Command::ScrapeUrl.new(url)
-    force ? command.run! : command.run
+    force ? command.run_with_gc! : command.run_with_gc
 
     GC.start(full_mark: true, immediate_sweep: true)
   end
