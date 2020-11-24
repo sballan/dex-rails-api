@@ -6,7 +6,7 @@ module Command
       @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       create_or_find_page_result = create_or_find_page
       page = create_or_find_page_result.payload
 
