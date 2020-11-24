@@ -7,7 +7,7 @@ module Command
     end
 
     def run_proc
-      page = Page.create_or_find_by!(url: @url)
+      page = create_or_find_page
 
       if page.title != @title
         page.title = @title
@@ -15,6 +15,14 @@ module Command
       end
 
       result.succeed!(page)
+    end
+
+    private
+
+    def create_or_find_page
+      Page.find_or_create_by!(url: @url)
+    rescue ActiveRecord::RecordInvalid => e
+      Page.find_by!(url: @url)
     end
   end
 end
