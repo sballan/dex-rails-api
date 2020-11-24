@@ -16,7 +16,7 @@ class Page < ApplicationRecord
   }
 
   scope :for_query_text, ->(match_array) {
-    includes(:queries).merge(::Query.text_like_any(match_array)).references(:queries)
+    includes(:queries).merge(::Query.text_like_any(match_array)).references(:queries).group('queries.id')
   }
 
 end
