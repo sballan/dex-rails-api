@@ -30,7 +30,7 @@ module Command
 
     def create_or_find_page
       create_or_find_page_command = Command::CreateOrFindPage.new(@url)
-      (create_or_find_page_command.run_with_gc!
+      create_or_find_page_command.run_with_gc!
       create_or_find_page_command.result
     end
 
@@ -45,6 +45,5 @@ module Command
       create_page_queries_command.run_with_gc!
       create_page_queries_command.result
     end
-
   end
 end
