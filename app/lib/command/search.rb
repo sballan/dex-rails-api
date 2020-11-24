@@ -6,14 +6,14 @@ module Command
     end
 
     def run_proc
-      matches_array = []
+      matches_set = Set.new
       text_words = @text.split(/\s/)
 
-      matches_array << @text
-      matches_array.concat(text_words)
-      matches_array.concat(text_words.map {|w| "%#{w}%"})
+      matches_set << @text
+      matches_set.merge(text_words)
+      matches_set.merge(text_words.map {|w| "%#{sanitize_sql_like(w)}%"})
 
-      result.succeed!(Page.for_query_text(matches_array).by_links_from_count)
+      result.succeed!(Page.for_query_text(matches_set.to_a).by_links_from_count)
     end
   end
 end
