@@ -75,7 +75,8 @@ module Command
 
       def assert_success
         unless success?
-          raise Command::Base::Errors::CommandFailure, "Command (#{self.class.name}) did not succeed"
+          command_failure_message = "Command (#{self.class.name}) did not succeed (#{error.class})"
+          raise Command::Base::Errors::CommandFailure.new(command_failure_message, error)
         end
       end
 

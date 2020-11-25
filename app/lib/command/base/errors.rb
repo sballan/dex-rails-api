@@ -5,6 +5,11 @@ module Command
       end
 
       class CommandFailure < Generic
+        attr_reader :base_error
+        def initialize(message, base_error)
+          super(message)
+          @base_error = base_error
+        end
       end
     end
   end
