@@ -1,5 +1,5 @@
 module Command
-  class CreateOrFindLink < Command::Base:: Abstract
+  class CreateOrFindLink < Command::Base::Abstract
     def initialize(from_page_id, to_page_id, text)
       super()
       @from_page_id = from_page_id
