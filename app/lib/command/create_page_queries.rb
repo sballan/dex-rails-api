@@ -10,11 +10,17 @@ module Command
     def run_proc
       create_title_query
 
+      GC.start(full_mark: true, immediate_sweep: true)
+
       @page.links_to.where.not(text: [nil, ""]).in_batches.each_record do |link|
         create_link_queries(link)
       end
 
+      GC.start(full_mark: true, immediate_sweep: true)
+
       create_body_queries
+
+      GC.start(full_mark: true, immediate_sweep: true)
 
       result.succeed!
     end

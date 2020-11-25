@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_19_004217) do
+ActiveRecord::Schema.define(version: 2020_11_24_235834) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 2020_11_19_004217) do
     t.string "text", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "cached_at"
     t.index ["text"], name: "index_queries_on_text", unique: true
   end
 

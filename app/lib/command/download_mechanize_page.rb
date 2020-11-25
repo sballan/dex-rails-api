@@ -1,13 +1,12 @@
 module Command
   class DownloadMechanizePage < Command::Base::Abstract
     def initialize(url)
+      super()
       @url = url
       @mechanize_page = nil
-
-      @result = Command::Base::Result.new(self.class.name)
     end
 
-    def run
+    def run_proc
       raise 'Page is nil' if mechanize_page.nil?
       raise 'Only html pages are supported' unless mechanize_page.is_a?(Mechanize::Page)
 
