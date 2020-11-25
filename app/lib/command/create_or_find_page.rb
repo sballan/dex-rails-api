@@ -9,7 +9,7 @@ module Command
     def run_proc
       page = create_or_find_page
 
-      if page.title != @title
+      if @title.present? && page.title != @title
         page.title = @title
         page.save!
       end
