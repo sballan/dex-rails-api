@@ -3,7 +3,8 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 
   get 'info', to: 'info#index'
-  get 'search', to: 'search#index'
+  get 'search_db', to: 'search#search_db'
+  get 'search_cache', to: 'search#search_cache'
 
   root 'info#index'
 end
