@@ -33,7 +33,7 @@ class S3Client
   def read(key:)
     client.get_object({
                         bucket: @bucket,
-                        key: namespace + key
+                        key: @namespace + key
                       })
   end
 
