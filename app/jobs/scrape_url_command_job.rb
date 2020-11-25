@@ -1,5 +1,5 @@
 class ScrapeUrlCommandJob < ApplicationJob
-  queue_as :default
+  queue_as :scrape
 
   def perform(url, force=false)
     GC.start(full_mark: true, immediate_sweep: true)
