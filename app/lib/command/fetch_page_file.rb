@@ -9,6 +9,7 @@ module Command
       client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
       key = Base64.urlsafe_encode64(@url)
       body = client.read(key: key).body.read
+      Rails.logger.debug "Fetched from S3: #{@url}"
       result.succeed!(body)
     end
   end
