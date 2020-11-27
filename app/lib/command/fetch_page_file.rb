@@ -1,13 +1,14 @@
 module Command
   class FetchPageFile < Command::Base::Abstract
-    def initialize(page_id)
+    def initialize(url)
       super()
-      @page_id = page_id
+      @url = url
     end
 
     def run_proc
       client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
-      body = client.read(key: @page_id).body.read
+      key = Base64.urlsafe_encode64(@url)
+      body = client.read(key: key).body.read
       result.succeed!(body)
     end
   end
