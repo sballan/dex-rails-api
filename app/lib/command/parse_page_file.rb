@@ -17,19 +17,22 @@ module Command
       doc = Nokogiri::HTML(@page_file)
 
       parsed_page = {
-          title: doc.title,
-          body: Html2Text.convert(doc.to_html.force_encoding('UTF-8')),
-          links: []
+        title: doc.title.blank? ? nil : doc.title,
+        body: Html2Text.convert(doc.to_html.force_encoding('UTF-8')),
+        links: []
       }
 
       doc.css('a').each do |link_node|
+        next if link_node['href'].blank?
+
         parsed_page[:links] << {
             url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
             text: link_node.content.blank? ? nil : link_node.content
         }
       end
 
-      parsed_page
+      # Removes a nil title
+      parsed_page.compact
     end
   end
 end
