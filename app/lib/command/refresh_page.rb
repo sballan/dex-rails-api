@@ -1,15 +1,15 @@
 module Command
   class RefreshPage < Command::Base::Abstract
-    def initialize(page_id, url)
+    def initialize(url)
       super()
-      @page_id = page_id
       @url = url
     end
 
     def run_proc
       body = page_content
       client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
-      client.write_private(key: @page_id, body: body)
+      key = Base64.urlsafe_encode64(@url)
+      client.write_private(key: key, body: body)
       result.succeed!
     end
 
@@ -17,6 +17,7 @@ module Command
 
     def page_content
       mechanize_page = mechanize_agent.get(@url)
+      Rails.logger.debug "Downloaded url: #{@url}"
       doc = mechanize_page.parser
       doc.xpath('//script').remove
       doc.xpath('//style').remove
