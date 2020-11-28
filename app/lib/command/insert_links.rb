@@ -24,7 +24,7 @@ module Command
       # Rails does have "returning", but only works for postgres.  That's why we fetch_to_ids after this statement
       Page.insert_all(page_insert_attributes, unique_by: :url)
       fetch_to_ids
-      Link.insert_all(@links_by_url.values)
+      Link.insert_all(@links_by_url.values, unique_by: :index_links_on_to_id_and_from_id_and_text)
 
       result.succeed!
     end
@@ -34,7 +34,6 @@ module Command
     def fetch_to_ids
       # Once pages have been inserted, we can get all the ids and urls we need in a single query
       Page.where(url: @links_by_url.keys).in_batches do|pages|
-        binding.pry
         pages.pluck(:id, :url).each do |page|
           @links_by_url[page.second][:to_id] = page.first
         end
