@@ -34,7 +34,7 @@ module Command
 
     def fetch_page_file
       command = Command::FetchPageFile.new(@url)
-      run_nested!(command)
+      command.run!
       command.result
     end
 
