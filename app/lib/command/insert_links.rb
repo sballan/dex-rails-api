@@ -10,6 +10,7 @@ module Command
 
       @links_by_url.each do |url, link|
         link.delete(:url)
+        link[:text] = link[:text] || ""
         link[:from_id] = @page.id
         link[:created_at] = DateTime.now.utc
         link[:updated_at] = DateTime.now.utc
