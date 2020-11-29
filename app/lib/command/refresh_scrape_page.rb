@@ -8,11 +8,13 @@ module Command
     def run_proc
       handle_start!
 
+      Rails.logger.debug "Starting refresh: #{@scrape_page.page.url}"
       body = page_content
       client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
       url = @scrape_page.page.url
       key = Base64.urlsafe_encode64(url)
       client.write_private(key: key, body: body)
+      Rails.logger.debug "Finished refresh #{@scrape_page.page.url}"
 
       handle_success!
       result.succeed!(@scrape_page)
@@ -51,7 +53,7 @@ module Command
 
     def page_content
       mechanize_page = mechanize_agent.get(@scrape_page.page.url)
-      Rails.logger.debug "Downloaded url: #{@scrape_page.page.url}"
+      Rails.logger.debug "Downloaded: #{@scrape_page.page.url}"
       doc = mechanize_page.parser
       doc.xpath('//script').remove
       doc.xpath('//style').remove
