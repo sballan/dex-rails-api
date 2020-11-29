@@ -54,11 +54,11 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
   end
 
   create_table "scrape_batches", force: :cascade do |t|
-    t.datetime "start"
-    t.datetime "finish"
+    t.datetime "started_at"
+    t.datetime "finished_at"
     t.integer "status", default: 0
-    t.datetime "refresh_start"
-    t.datetime "refresh_finish"
+    t.datetime "refresh_started_at"
+    t.datetime "refresh_finished_at"
     t.integer "refresh_status", default: 0
     t.index ["refresh_status"], name: "index_scrape_batches_on_refresh_status"
     t.index ["status"], name: "index_scrape_batches_on_status"
@@ -67,11 +67,11 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
   create_table "scrape_pages", force: :cascade do |t|
     t.integer "page_id", null: false
     t.integer "scrape_batch_id", null: false
-    t.datetime "start"
-    t.datetime "finish"
+    t.datetime "started_at"
+    t.datetime "finished_at"
     t.integer "status", default: 0
-    t.datetime "refresh_start"
-    t.datetime "refresh_finish"
+    t.datetime "refresh_started_at"
+    t.datetime "refresh_finished_at"
     t.integer "refresh_status", default: 0
     t.index ["page_id"], name: "index_scrape_pages_on_page_id"
     t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"

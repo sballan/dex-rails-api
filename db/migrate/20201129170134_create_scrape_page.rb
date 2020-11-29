@@ -4,12 +4,12 @@ class CreateScrapePage < ActiveRecord::Migration[6.0]
       t.references :page, null: false, foreign_key: true
       t.references :scrape_batch, null: false, foreign_key: true
 
-      t.datetime :start
-      t.datetime :finish
+      t.datetime :started_at
+      t.datetime :finished_at
       t.integer :status, default: 0 # For enum
 
-      t.datetime :refresh_start
-      t.datetime :refresh_finish
+      t.datetime :refresh_started_at
+      t.datetime :refresh_finished_at
       t.integer :refresh_status, default: 0 # For enum
     end
 
