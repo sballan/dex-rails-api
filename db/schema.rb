@@ -53,13 +53,30 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
     t.index ["query_id"], name: "index_results_on_query_id"
   end
 
+  create_table "scrape_batches", force: :cascade do |t|
+    t.datetime "start"
+    t.datetime "finish"
+    t.integer "status", default: 0
+    t.datetime "refresh_start"
+    t.datetime "refresh_finish"
+    t.integer "refresh_status", default: 0
+    t.index ["refresh_status"], name: "index_scrape_batches_on_refresh_status"
+    t.index ["status"], name: "index_scrape_batches_on_status"
+  end
+
   create_table "scrape_pages", force: :cascade do |t|
     t.integer "page_id", null: false
+    t.integer "scrape_batch_id", null: false
+    t.datetime "start"
+    t.datetime "finish"
+    t.integer "status", default: 0
     t.datetime "refresh_start"
     t.datetime "refresh_finish"
     t.integer "refresh_status", default: 0
     t.index ["page_id"], name: "index_scrape_pages_on_page_id"
     t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"
+    t.index ["scrape_batch_id"], name: "index_scrape_pages_on_scrape_batch_id"
+    t.index ["status"], name: "index_scrape_pages_on_status"
   end
 
   add_foreign_key "links", "pages", column: "from_id"
@@ -67,4 +84,5 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
   add_foreign_key "results", "pages"
   add_foreign_key "results", "queries"
   add_foreign_key "scrape_pages", "pages"
+  add_foreign_key "scrape_pages", "scrape_batches"
 end
