@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_24_235834) do
+ActiveRecord::Schema.define(version: 2020_11_29_170134) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -53,8 +53,18 @@ ActiveRecord::Schema.define(version: 2020_11_24_235834) do
     t.index ["query_id"], name: "index_results_on_query_id"
   end
 
+  create_table "scrape_pages", force: :cascade do |t|
+    t.integer "page_id", null: false
+    t.datetime "refresh_start"
+    t.datetime "refresh_finish"
+    t.integer "refresh_status", default: 0
+    t.index ["page_id"], name: "index_scrape_pages_on_page_id"
+    t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"
+  end
+
   add_foreign_key "links", "pages", column: "from_id"
   add_foreign_key "links", "pages", column: "to_id"
   add_foreign_key "results", "pages"
   add_foreign_key "results", "queries"
+  add_foreign_key "scrape_pages", "pages"
 end
