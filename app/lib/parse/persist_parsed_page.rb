@@ -17,6 +17,10 @@ module Parse
     end
 
     def run_proc
+      if @parsed_page[:title].present? && @page.title != @parsed_page[:title]
+        @page.title = @parsed_page[:title]
+        @page.save!
+      end
       insert_links
       result.succeed!
     end
@@ -24,7 +28,7 @@ module Parse
     private
 
     def insert_links
-      command = Parse::InsertLinks.new(@page, parsed_page)
+      command = Parse::InsertLinks.new(@page, @parsed_page)
       command.run!
     end
   end

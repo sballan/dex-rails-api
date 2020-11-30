@@ -1,10 +1,11 @@
 module Parse
   class InsertLinks < Command::Base::Abstract
-    def initialize(page, links_array)
+    def initialize(page, parsed_page)
       super()
       @page = page
       @links_by_url = {}
-      links_array.each do |link|
+
+      parsed_page[:links].each do |link|
         @links_by_url[link[:url]] = link
       end
 

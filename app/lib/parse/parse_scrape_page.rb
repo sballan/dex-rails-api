@@ -1,4 +1,4 @@
-module Scrape
+module Parse
   class ParseScrapePage < Command::Base::Abstract
     # @param [ScrapePage] scrape_page
     def initialize(scrape_page)

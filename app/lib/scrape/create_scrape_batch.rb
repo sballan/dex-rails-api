@@ -1,18 +1,25 @@
 module Scrape
   class CreateScrapeBatch < Command::Base::Abstract
-    def initialize(seed_urls, size=100, timeout=1.minute)
+    def initialize(seed_urls, size=100, ttl=1.minute)
       super()
       @seed_urls = seed_urls
       @size = size
-      @timeout = timeout
+      @ttl = ttl
     end
 
     def run_proc
       scrape_batch = ScrapeBatch.create
 
-      page_attributes = @seed_urls.map{|url| {url: url}}
+      page_attributes = @seed_urls.map do |url|
+        {
+          url: url,
+          created_at: DateTime.now.utc,
+          updated_at: DateTime.now.utc
+        }
+      end
+
       Page.insert_all(page_attributes, unique_by: :url)
-      page_ids = Page.where(page_attributes).all
+      page_ids = Page.where(url: @seed_urls).pluck(:id)
 
       scrape_page_attributes = page_ids.map do |page_id|
         {

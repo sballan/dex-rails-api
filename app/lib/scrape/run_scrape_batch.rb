@@ -1,8 +1,10 @@
 module Scrape
   class RunScrapeBatch < Command::Base::Abstract
-    def initialize(scrape_batch)
+    def initialize(scrape_batch, ttl=10.minutes)
       super()
+      # @type [ScrapeBatch]
       @scrape_batch = scrape_batch
+      @ttl = ttl
     end
 
     def run_proc
@@ -10,6 +12,7 @@ module Scrape
       handle_start!
 
       refresh_scrape_pages
+      parse_scrape_pages
 
       handle_success!
       result.succeed!(@scrape_batch)
@@ -21,12 +24,57 @@ module Scrape
 
     private
 
+    def ttl_exceeded
+      (DateTime.now - @scrape_batch.started_at) > @ttl
+    end
+
     def refresh_scrape_pages
+      @scrape_batch.refresh_started_at ||= DateTime.now.utc
+      @scrape_batch.save!
+
       @scrape_batch.scrape_pages.refresh_ready.in_batches.each_record do |scrape_page|
-        command = Command::RefreshScrapePage.new scrape_page
+        command = Refresh::RefreshScrapePage.new scrape_page
         run_nested_with_gc(command)
         sleep 1
       end
+
+      @scrape_batch.reload
+
+      if @scrape_batch.scrape_pages.refresh_ready.count == 0
+        @scrape_batch.refresh_finished_at = DateTime.now.utc
+      end
+
+      if @scrape_batch.scrape_pages.refresh_failure.count == 0
+        @scrape_batch.refresh_success!
+      else
+        @scrape_batch.refresh_failure!
+      end
+
+      @scrape_batch.save!
+    end
+
+    def parse_scrape_pages
+      @scrape_batch.parse_started_at ||= DateTime.now.utc
+      @scrape_batch.save!
+
+      @scrape_batch.scrape_pages.parse_ready.in_batches.each_record do |scrape_page|
+        command = Parse::ParseScrapePage.new scrape_page
+        run_nested_with_gc(command)
+      end
+
+      @scrape_batch.reload
+
+      if @scrape_batch.scrape_pages.parse_ready.count == 0
+        @scrape_batch.parse_finished_at = DateTime.now.utc
+      end
+
+      if @scrape_batch.scrape_pages.parse_failure.count == 0
+        @scrape_batch.parse_success!
+      else
+        @scrape_batch.parse_failure!
+      end
+
+      @scrape_batch.save!
     end
 
     def startup_checks
