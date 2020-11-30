@@ -83,6 +83,7 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
     t.index ["page_id"], name: "index_scrape_pages_on_page_id"
     t.index ["parse_status"], name: "index_scrape_pages_on_parse_status"
     t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"
+    t.index ["scrape_batch_id", "page_id"], name: "index_scrape_pages_on_scrape_batch_id_and_page_id", unique: true
     t.index ["scrape_batch_id"], name: "index_scrape_pages_on_scrape_batch_id"
     t.index ["status"], name: "index_scrape_pages_on_status"
   end

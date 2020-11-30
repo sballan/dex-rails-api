@@ -20,5 +20,6 @@ class CreateScrapePage < ActiveRecord::Migration[6.0]
     add_index :scrape_pages, :status
     add_index :scrape_pages, :refresh_status
     add_index :scrape_pages, :parse_status
+    add_index :scrape_pages, %i[scrape_batch_id page_id], unique: true
   end
 end
