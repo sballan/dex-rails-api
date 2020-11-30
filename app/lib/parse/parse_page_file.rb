@@ -1,4 +1,4 @@
-module Command
+module Parse
   class ParsePageFile < Base::Abstract
     def initialize(url, page_file)
       super()

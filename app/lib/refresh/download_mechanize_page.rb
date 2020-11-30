@@ -1,4 +1,4 @@
-module Command
+module Refresh
   class DownloadMechanizePage < Command::Base::Abstract
     def initialize(url)
       super()

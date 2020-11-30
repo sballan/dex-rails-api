@@ -1,4 +1,4 @@
-module Command
+module Refresh
   class RefreshScrapePage < Command::Base::Abstract
     def initialize(scrape_page)
       super()
@@ -9,11 +9,11 @@ module Command
       handle_start!
 
       Rails.logger.debug "Starting refresh: #{@scrape_page.page.url}"
+      key = @scrape_page.page.url
       body = page_content
-      client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
-      url = @scrape_page.page.url
-      key = Base64.urlsafe_encode64(url)
-      client.write_private(key: key, body: body)
+      command = Refresh::UploadPageToS3.new(key, body)
+      command.run!
+      command.payload
       Rails.logger.debug "Finished refresh #{@scrape_page.page.url}"
 
       handle_success!
@@ -52,19 +52,16 @@ module Command
     end
 
     def page_content
-      mechanize_page = mechanize_agent.get(@scrape_page.page.url)
-      Rails.logger.debug "Downloaded: #{@scrape_page.page.url}"
-      doc = mechanize_page.parser
-      doc.xpath('//script').remove
-      doc.xpath('//style').remove
-      doc.to_html.force_encoding('UTF-8')
+      nokogiri_doc = mechanize_page.parser
+      command = Refresh::ProcessNokogiriDoc.new(nokogiri_doc)
+      command.run!
+      command.payload
     end
 
-    def mechanize_agent
-      mechanize_agent = Mechanize.new
-      mechanize_agent.history.max_size = 1 # default is 50
-      mechanize_agent.robots = true
-      mechanize_agent
+    def mechanize_page
+      command = Refresh::DownloadMechanizePage.new(@scrape_page.page.url)
+      command.run!
+      command.payload
     end
   end
 end

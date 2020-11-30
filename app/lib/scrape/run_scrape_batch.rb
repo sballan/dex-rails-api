@@ -1,5 +1,5 @@
-module Command
-  class ScrapeBatch < Command::Base::Abstract
+module Scrape
+  class RunScrapeBatch < Command::Base::Abstract
     def initialize(scrape_batch)
       super()
       @scrape_batch = scrape_batch
@@ -25,6 +25,7 @@ module Command
       @scrape_batch.scrape_pages.refresh_ready.in_batches.each_record do |scrape_page|
         command = Command::RefreshScrapePage.new scrape_page
         run_nested_with_gc(command)
+        sleep 1
       end
     end
 

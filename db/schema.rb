@@ -73,7 +73,11 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
     t.datetime "refresh_started_at"
     t.datetime "refresh_finished_at"
     t.integer "refresh_status", default: 0
+    t.datetime "parse_started_at"
+    t.datetime "parse_finished_at"
+    t.integer "parse_status", default: 0
     t.index ["page_id"], name: "index_scrape_pages_on_page_id"
+    t.index ["parse_status"], name: "index_scrape_pages_on_parse_status"
     t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"
     t.index ["scrape_batch_id"], name: "index_scrape_pages_on_scrape_batch_id"
     t.index ["status"], name: "index_scrape_pages_on_status"

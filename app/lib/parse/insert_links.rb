@@ -1,4 +1,4 @@
-module Command
+module Parse
   class InsertLinks < Command::Base::Abstract
     def initialize(page, links_array)
       super()

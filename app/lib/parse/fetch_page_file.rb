@@ -1,4 +1,4 @@
-module Command
+module Parse
   class FetchPageFile < Command::Base::Abstract
     def initialize(url)
       super()

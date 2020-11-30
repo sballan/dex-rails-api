@@ -22,6 +22,7 @@ module Command
       end
 
       def run!
+        result.start!
         run_proc
         assert_success
       end
