@@ -16,13 +16,7 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
       AsyncParseScrapeBatchJob.perform_later(scrape_batch.id)
 
       # silly hack, but let's give the parsing a chance to catch up before do these checks
-
-      if first_run
-        sleep 1.minute
-        first_run = false
-      else
-        sleep 5.seconds
-      end
+      sleep 30.seconds
 
       scrape_batch.reload
       # Gross - but the first time this runs, there won't be any parsing happening...
