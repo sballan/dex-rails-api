@@ -29,20 +29,6 @@ module Parse
         command = Parse::ParseScrapePage.new scrape_page
         run_nested_with_gc(command)
       end
-
-      @scrape_batch.reload
-
-      if @scrape_batch.scrape_pages.parse_ready.count == 0
-        @scrape_batch.parse_finished_at = DateTime.now.utc
-      end
-
-      if @scrape_batch.scrape_pages.parse_failure.count == 0
-        @scrape_batch.parse_success!
-      else
-        @scrape_batch.parse_failure!
-      end
-
-      @scrape_batch.save!
     end
 
     def startup_checks
@@ -68,17 +54,22 @@ module Parse
       @scrape_batch.save
     end
 
+    # Need to work out the logic here for determining when to stop.  I think
+    # we may need to this "upstream", so that each worker determines the status of the *other* workers, not themselves.
     def handle_success!
-      # If there are none left to parse, we've finished
-      if @scrape_batch.scrape_pages.parse_ready.count == 0
+      # If there are still pages to parse at this point, raise an error...that shouldn't happen
+      if @scrape_batch.scrape_pages.refresh_success.parse_ready.count != 0
+        raise "This shouldn't be possible, we just succeeded..."
+      else
         @scrape_batch.parse_finished_at = DateTime.now.utc
       end
 
-      # If none failed, we've succeeded
-      if @scrape_batch.scrape_pages.parse_failure.count == 0
-        @scrape_batch.parse_success!
+      # If after parsing there are not pages to be refreshed, we've finished refreshing
+      if @scrape_batch.scrape_pages.refresh_ready.count == 0
+        @scrape_batch.refresh_finished_at ||= DateTime.now.utc
       else
-        @scrape_batch.parse_failure!
+        @scrape_batch.refresh_active!
+        @scrape_batch.refresh_finished_at = nil
       end
 
       @scrape_batch.save!

@@ -82,18 +82,22 @@ module Refresh
 
     def handle_success!
       # If there are none left to refresh, we've finished
-      if @scrape_batch.scrape_pages.refresh_ready.count == 0
-        @scrape_batch.refresh_finished_at = DateTime.now.utc
-      end
-
-      # If none failed, we've succeeded
-      if @scrape_batch.scrape_pages.refresh_failure.count == 0
-        @scrape_batch.refresh_success!
+      if @scrape_batch.scrape_pages.refresh_ready.count > 0
+        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) still has no pages left to refresh. Status should remain refresh_active"
       else
-        @scrape_batch.refresh_failure!
-      end
+        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) has no pages left to refresh. Setting refresh_finished_at"
+        @scrape_batch.refresh_finished_at = DateTime.now.utc
 
-      @scrape_batch.save!
+        # If none failed, we've succeeded
+        if @scrape_batch.scrape_pages.refresh_failure.count == 0
+          Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) has no pages left to refresh. Setting refresh_finished_at"
+          @scrape_batch.refresh_success!
+        else
+          # TODO: some retry mechanism.  use 'dead' status to signify not retrying
+          @scrape_batch.refresh_failure!
+        end
+        @scrape_batch.save!
+      end
     end
   end
 end
