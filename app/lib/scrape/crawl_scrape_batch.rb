@@ -35,6 +35,7 @@ module Scrape
     end
 
     def gather_new_pages
+      Rails.logger.debug "Gathering newly created pages"
       links = []
       @scrape_batch.links.includes(:to).in_batches do |links|
         scrape_page_attributes = links.all.map do |link|
@@ -43,6 +44,7 @@ module Scrape
               page_id: link.to_id
           }
         end
+        Rails.logger.debug "Adding newly created pages to batch"
         ScrapePage.insert_all(scrape_page_attributes, unique_by: :index_scrape_pages_on_scrape_batch_id_and_page_id)
       end
     end
@@ -57,8 +59,10 @@ module Scrape
 
       # while any host still has unprocessed scrape_pages
       while(scrape_pages_by_host.any? {|host, scrape_pages| scrape_pages.any?}) do
+        break if ttl_exceeded
         # pop a scrape_page for each host, refresh them all (since we don't worry about rate limits), then sleep
         scrape_pages_by_host.each do |host, scrape_pages|
+          break if ttl_exceeded
           next unless scrape_pages.any?
           scrape_page = scrape_pages.pop
           command = Refresh::RefreshScrapePage.new scrape_page
@@ -87,6 +91,7 @@ module Scrape
       @scrape_batch.save!
 
       @scrape_batch.scrape_pages.parse_ready.in_batches.each_record do |scrape_page|
+        break if ttl_exceeded
         command = Parse::ParseScrapePage.new scrape_page
         run_nested_with_gc(command)
       end
