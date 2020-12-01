@@ -21,7 +21,7 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
         sleep 1.minute
         first_run = false
       else
-        sleep 2.seconds
+        sleep 5.seconds
       end
 
       scrape_batch.reload
