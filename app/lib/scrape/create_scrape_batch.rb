@@ -1,10 +1,8 @@
 module Scrape
   class CreateScrapeBatch < Command::Base::Abstract
-    def initialize(seed_urls, size=100, ttl=1.minute)
+    def initialize(seed_urls)
       super()
       @seed_urls = seed_urls
-      @size = size
-      @ttl = ttl
     end
 
     def run_proc
