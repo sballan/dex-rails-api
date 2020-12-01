@@ -8,12 +8,21 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
     scrape_batch = ScrapeBatch.find scrape_batch_id
     scrape_batch.refresh_active! if scrape_batch.refresh_ready?
 
+    first_run = true
+
     while scrape_batch.refresh_active? && (Time.now.to_i < end_time) do
       run_scrape_batch_command = Refresh::RefreshScrapeBatch.new(scrape_batch)
       run_scrape_batch_command.run_with_gc!
       AsyncParseScrapeBatchJob.perform_later(scrape_batch.id)
 
-      sleep 5 # silly hack, but let's give the parsing a chance to catch up before do these checks
+      # silly hack, but let's give the parsing a chance to catch up before do these checks
+
+      if first_run
+        sleep 1.minute
+        first_run = false
+      else
+        sleep 2.seconds
+      end
 
       scrape_batch.reload
       # Gross - but the first time this runs, there won't be any parsing happening...
