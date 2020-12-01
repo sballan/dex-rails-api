@@ -83,7 +83,7 @@ module Refresh
     def handle_success!
       # If there are none left to refresh, we've finished
       if @scrape_batch.scrape_pages.refresh_ready.count > 0
-        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) still has no pages left to refresh. Status should remain refresh_active"
+        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) still has pages left to refresh. Status should remain refresh_active"
       else
         Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) has no pages left to refresh. Setting refresh_finished_at"
         @scrape_batch.refresh_finished_at = DateTime.now.utc
