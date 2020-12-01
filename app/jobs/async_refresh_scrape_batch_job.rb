@@ -6,7 +6,7 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
     end_time = start_time + ttl.to_i
 
     scrape_batch = ScrapeBatch.find scrape_batch_id
-    
+
     if scrape_batch.refresh_ready?
       Rails.logger.debug "ScrapeBatch (#{scrape_batch.id}) is refresh_ready: changing status to refresh_active"
       scrape_batch.refresh_active!
@@ -25,7 +25,7 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
       run_scrape_batch_command.run_with_gc!
       AsyncParseScrapeBatchJob.perform_later(scrape_batch.id, end_time - Time.now.to_i)
     else
-      Rails.logger.debug "Not refreshing pages Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
+      Rails.logger.debug "Not refreshing pages. Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
     end
   end
 end

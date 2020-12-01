@@ -66,8 +66,10 @@ module Parse
 
       # If after parsing there are not pages to be refreshed, we've finished refreshing
       if @scrape_batch.scrape_pages.refresh_ready.count == 0
+        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) has no pages left to refresh after parsing."
         @scrape_batch.refresh_finished_at ||= DateTime.now.utc
       else
+        Rails.logger.debug "ScrapeBatch (#{@scrape_batch.id}) does have pages left to refresh after parsing."
         @scrape_batch.refresh_active!
         @scrape_batch.refresh_finished_at = nil
       end
