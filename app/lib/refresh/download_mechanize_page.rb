@@ -7,8 +7,8 @@ module Refresh
     end
 
     def run_proc
-      raise 'Page is nil' if mechanize_page.nil?
-      raise 'Only html pages are supported' unless mechanize_page.is_a?(Mechanize::Page)
+      raise Command::Base::Errors::CommandFailed, 'Page is nil' if mechanize_page.nil?
+      raise Command::Base::Errors::CommandInvalid, "Only html pages are supported" unless mechanize_page.is_a?(Mechanize::Page)
 
       result.succeed!(mechanize_page)
     rescue Mechanize::RobotsDisallowedError, Mechanize::ResponseCodeError => e

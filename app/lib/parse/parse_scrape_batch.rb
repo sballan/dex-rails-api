@@ -19,11 +19,17 @@ module Parse
     private
 
     def parse_scrape_pages
+      num_to_parse = @scrape_batch.scrape_pages.refresh_success.parse_ready.count
+      Rails.logger.debug "[Parse::ParseScrapeBatch] We have #{num_to_parse} pages to parse"
+
       # NOTE: need to make sure we only get ones with refresh success. "parse ready" is a misnomer
       @scrape_batch.scrape_pages.refresh_success.parse_ready.in_batches.each_record do |scrape_page|
         command = Parse::ParseScrapePage.new scrape_page
         run_nested_with_gc!(command)
       end
+
+      num_to_parse = @scrape_batch.scrape_pages.refresh_success.parse_ready.count
+      Rails.logger.debug "[Parse::ParseScrapeBatch] After parsing, we have #{num_to_parse} pages to parse"
     end
 
     def gather_new_pages

@@ -17,7 +17,7 @@ module Command
       rescue StandardError => e
         Rails.logger.warn "Uncaught Error in #{self.class.name}:\n #{e}"
         result.fail!(e)
-      rescue Errors::CommandFailure => e
+      rescue Errors::Generic => e
         result.fail!(e)
       end
 
@@ -77,7 +77,7 @@ module Command
       def assert_success
         unless success?
           command_failure_message = "Command (#{self.class.name}) did not succeed (#{error.class})"
-          raise Command::Base::Errors::CommandFailure.new(command_failure_message, error)
+          raise Command::Base::Errors::CommandFailed.new(command_failure_message, error)
         end
       end
 
