@@ -7,14 +7,13 @@ class AsyncParseScrapeBatchJob < ApplicationJob
 
     scrape_batch = ScrapeBatch.find(scrape_batch_id)
 
-    if scrape_batch.parse_ready?
-      Rails.logger.debug "ScrapeBatch (#{scrape_batch.id}) is parse_ready, changing status to parse_active"
+    if scrape_batch.scrape_pages.refresh_success.parse_ready.count > 0
+      Rails.logger.debug "[AsyncParseScrapeBatchJob] ScrapeBatch (#{scrape_batch.id}) has pages to parse"
       scrape_batch.parse_active!
-    elsif !scrape_batch.parse_active? && scrape_batch.scrape_pages.refresh_success.parse_ready.count > 0
-      Rails.logger.debug "ScrapeBatch (#{scrape_batch.id}) is not parse_active, but has pages it can
-parse. Changing status to parse_active"
       scrape_batch.parse_finished_at = nil
       scrape_batch.parse_active!
+    else
+      Rails.logger.info "[AsyncParseScrapeBatchJob] Nothing to parse!"
     end
 
     scrape_batch.save!
@@ -29,7 +28,9 @@ parse. Changing status to parse_active"
       scrape_batch.refresh_active!
       scrape_batch.save!
       AsyncRefreshScrapeBatchJob.perform_later(scrape_batch_id, end_time - Time.now.to_i)
-    else
+    elsif scrape_batch.scrape_pages.refresh_success.parse_ready?
+      Rails.logger.debug "We just parsed, but have more work to do! IMPLEMENT THIS"
+      scrape_batch.save!
       Rails.logger.debug "We just parsed, and have no new pages to refresh"
     end
   end

@@ -15,6 +15,7 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
       num_to_refresh = scrape_batch.scrape_pages.refresh_ready.count
 
       Rails.logger.debug "[AsyncRefreshScrapeBatchJob] More pages to refresh! Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
+      Rails.logger.info "[AsyncRefreshScrapeBatchJob] Starting new Refresh::RefreshScrapeBatch Command"
       run_scrape_batch_command = Refresh::RefreshScrapeBatch.new(scrape_batch)
       run_scrape_batch_command.run_with_gc!
 
