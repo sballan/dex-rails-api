@@ -7,9 +7,9 @@ module Parse
     end
 
     def run_proc
-      Rails.logger.debug "Starting Parse"
+      Rails.logger.debug "[Parse::ParsePageFile] Starting Parse for #{@url}"
       parsed_page = parse_page
-      Rails.logger.debug "Finished Parse"
+      Rails.logger.debug "[Parse::ParsePageFile] Finished Parse for #{@url}"
       result.succeed!(parsed_page)
     end
 

@@ -10,6 +10,8 @@ class AsyncCreateScrapeBatchJob < ApplicationJob
     create_scrape_batch_command.run!
     scrape_batch = create_scrape_batch_command.payload
 
+    Rails.logger.debug "[AsyncCreateScrapeBatchJob] Created new ScrapeBatch (#{scrape_batch.id})"
+
     AsyncRefreshScrapeBatchJob.perform_later scrape_batch.id, ttl
   end
 end

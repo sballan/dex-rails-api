@@ -8,18 +8,18 @@ module Refresh
     def run_proc
       handle_start!
 
-      Rails.logger.debug "Starting refresh: #{@scrape_page.page.url}"
+      Rails.logger.debug "[Refresh::RefreshScrapePage] Starting refresh: #{@scrape_page.page.url}"
       key = @scrape_page.page.url
       body = page_content
       command = Refresh::UploadPageToS3.new(key, body)
       command.run!
       command.payload
-      Rails.logger.debug "Finished refresh #{@scrape_page.page.url}"
+      Rails.logger.debug "[Refresh::RefreshScrapePage] Finished refresh #{@scrape_page.page.url}"
 
       handle_success!
       result.succeed!(@scrape_page)
     rescue StandardError => e
-      Rails.logger.error "RefreshScrapePage failed for ScrapePage #{@scrape_page.id}"
+      Rails.logger.error "[Refresh::RefreshScrapePage] failed for ScrapePage #{@scrape_page.id}"
       handle_failure
       result.fail!(e)
       raise e

@@ -11,18 +11,18 @@ module Parse
     def run_proc
       handle_start!
 
-      Rails.logger.debug "Starting parse: #{@scrape_page.page.url}"
+      Rails.logger.debug "[Parse::ParseScrapePage] Starting parse: #{@scrape_page.page.url}"
 
       page_file = fetch_page_file
       parsed_page = parse_page_file(page_file)
       persist_parsed_page(parsed_page)
 
-      Rails.logger.debug "Finished parse #{@scrape_page.page.url}"
+      Rails.logger.debug "[Parse::ParseScrapePage] Finished parse #{@scrape_page.page.url}"
 
       handle_success!
       result.succeed!(@scrape_page)
     rescue StandardError => e
-      Rails.logger.error "ParseScrapePage failed for ScrapePage #{@scrape_page.id}"
+      Rails.logger.error "[Parse::ParseScrapePage] failed for ScrapePage #{@scrape_page.id}"
       handle_failure
       result.fail!(e)
       raise e
