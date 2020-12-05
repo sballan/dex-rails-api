@@ -11,8 +11,12 @@ module Refresh
       raise Command::Base::Errors::CommandInvalid, "Only html pages are supported" unless mechanize_page.is_a?(Mechanize::Page)
 
       result.succeed!(mechanize_page)
-    rescue Mechanize::RobotsDisallowedError, Mechanize::ResponseCodeError => e
-      result.fail!(e)
+    rescue Mechanize::RobotsDisallowedError => e
+      command_error = Command::Base::Errors::CommandInvalid.new "Robots cannot scrape this pages", e
+      result.fail!(command_error)
+    rescue Mechanize::ResponseCodeError => e
+      command_error = Command::Base::Errors::CommandFailed.new "Bad response code", e
+      result.fail!(command_error)
     end
 
     private
