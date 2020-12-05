@@ -1,4 +1,4 @@
-module Command
+module Parse
   class FetchPageFile < Command::Base::Abstract
     def initialize(url)
       super()
@@ -9,7 +9,7 @@ module Command
       client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
       key = Base64.urlsafe_encode64(@url)
       body = client.read(key: key).body.read
-      Rails.logger.debug "Fetched from S3: #{@url}"
+      Rails.logger.debug "[Parse::FetchPageFile] Fetched from S3: #{@url}"
       result.succeed!(body)
     end
   end

@@ -1,5 +1,5 @@
-module Command
-  class ParsePageFile < Base::Abstract
+module Parse
+  class ParsePageFile < Command::Base::Abstract
     def initialize(url, page_file)
       super()
       @url = url
@@ -7,7 +7,9 @@ module Command
     end
 
     def run_proc
+      Rails.logger.debug "[Parse::ParsePageFile] Starting Parse for #{@url}"
       parsed_page = parse_page
+      Rails.logger.debug "[Parse::ParsePageFile] Finished Parse for #{@url}"
       result.succeed!(parsed_page)
     end
 
@@ -27,7 +29,7 @@ module Command
 
         parsed_page[:links] << {
             url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
-            text: link_node.content.blank? ? nil : link_node.content
+            text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
         }
       end
 
