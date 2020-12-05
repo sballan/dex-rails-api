@@ -66,12 +66,12 @@ module Refresh
       Rails.logger.error "[RefreshScrapePage] This ScrapePage failed permanently to download #{(@scrape_page.id)}"
       @scrape_page.refresh_dead!
       @scrape_page.refresh_finished_at = DateTime.now.utc
-      @scarpe_page.save
+      @scrape_page.save
       raise e
     rescue Command::Base::Errors::CommandFailed => e
       Rails.logger.error "[RefreshScrapePage] This ScrapePage failed to download #{(@scrape_page.id)}"
       @scrape_page.refresh_failure!
-      @scarpe_page.save
+      @scrape_page.save
       raise e
     end
   end
