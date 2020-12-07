@@ -1,17 +1,13 @@
 module Cache
-  class CacheScrapePage
-    # @param [Page] page
+  class CacheScrapePage < Command::Base::Abstract
     def initialize(scrape_page)
       super()
       @scrape_page = scrape_page
     end
 
     def run_proc
-      create_title_query
-
-      @page.links_to.where.not(text: [nil, ""]).in_batches.each_record do |link|
-        create_link_queries(link)
-      end
+      cache_title
+      cache_links
 
       create_body_queries
 
@@ -20,22 +16,23 @@ module Cache
 
     private
 
-    def create_title_query
-      create_or_find_query_command = Command::CreateOrFindQuery.new(@page.title)
-      run_nested!(create_or_find_query_command)
-      query = create_or_find_query_command.payload
-
-      create_or_find_result_command = Command::CreateOrFindResult.new(query, @page, 'title')
-      run_nested!(create_or_find_result_command)
+    def cache_title
+      cache_atts = [{page_id: @page.id, text: @page.title, kind: 'title'}]
+      command = Cache::InsertQueriesAndResults.new(cache_atts)
+      run_nested_with_gc!(command)
     end
 
-    def create_link_queries(link)
-      create_or_find_query_command = Command::CreateOrFindQuery.new(link.text)
-      run_nested!(create_or_find_query_command)
-      query = create_or_find_query_command.payload
-
-      create_or_find_result_command = Command::CreateOrFindResult.new(query, @page, 'link')
-      run_nested!(create_or_find_result_command)
+    def cache_links
+      link_texts = @page.links_to.where.not(text: [nil, ""]).pluck(:text)
+      cache_atts = link_texts.map do |link_text|
+        {
+            page_id: @page.id,
+            text: link_text,
+            kind: 'link'
+        }
+      end
+      command = Cache::InsertQueriesAndResults.new(cache_atts)
+      run_nested_with_gc!(command)
     end
 
     def create_body_queries
