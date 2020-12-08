@@ -15,7 +15,9 @@ module Cache
         {
           query_id: db_query_atts[att[:text]],
           page_id: att[:page_id],
-          kind: att[:kind]
+          kind: att[:kind],
+          created_at: DateTime.now.utc,
+          updated_at: DateTIme.now.utc
         }
       end
 
@@ -28,14 +30,20 @@ module Cache
     private
 
     def validate_attributes
-      attributes.each do |att|
+      @attributes.each do |att|
         att_keys = Set.new(att.keys)
         raise "Invalid key" unless att_keys == VALID_ATTRIBUTES
       end
     end
 
     def insert_queries
-      query_atts = @attributes.map {|att| {text: att[:text]} }
+      query_atts = @attributes.map do |att|
+        {
+          text: att[:text],
+          created_at: DateTime.now.utc,
+          updated_at: DateTIme.now.utc
+        }
+      end
       Query.insert_all(query_atts, unique_by: :index_queries_on_text)
       db_query_atts = Query.where(query_atts).pluck(:text, :id)
       db_query_atts.to_h # Hash {text => id}
