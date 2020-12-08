@@ -24,7 +24,7 @@ module Cache
       insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
       run_nested_with_gc!(insert_command)
 
-      query_ids = command.payload
+      query_ids = insert_command.payload
       cache_command = Cache::CacheQueryAndResults.new(query_ids.first)
       run_nested_with_gc!(cache_command)
     end
@@ -44,10 +44,10 @@ module Cache
             kind: 'link'
         }
       end
-      command = Cache::InsertQueriesAndResults.new(cache_atts)
-      run_nested_with_gc!(command)
+      insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
+      run_nested_with_gc!(insert_command)
 
-      query_ids = command.payload
+      query_ids = insert_command.payload
 
       cache_command = Cache::BatchCacheQueryAndResults.new(query_ids)
       run_nested_with_gc!(cache_command)
