@@ -16,7 +16,7 @@ module Cache
           scrape_page.cache_started_at = DateTime.now.utc
           scrape_page.cache_active!
           command = Cache::CacheScrapePage.new scrape_page
-          command.run_with_gc!
+          command.run_with_gc # TODO: need a better convention here.  We catch all errors without the `!`
 
           if command.success?
             scrape_page.cache_success!
