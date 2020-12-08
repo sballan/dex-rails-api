@@ -45,7 +45,7 @@ module Cache
         }
       end
       Query.insert_all(query_atts, unique_by: :index_queries_on_text)
-      db_query_atts = Query.where(query_atts).pluck(:text, :id)
+      db_query_atts = Query.where(text: query_atts.map {|att| att[:text]} ).pluck(:text, :id)
       db_query_atts.to_h # Hash {text => id}
     end
 
