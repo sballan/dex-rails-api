@@ -13,6 +13,8 @@ class CreateScrapeBatch < ActiveRecord::Migration[6.0]
       t.datetime :parse_started_at
       t.datetime :parse_finished_at
       t.integer :parse_status, default: 0 # For enum
+
+      t.timestamps
     end
 
     add_index :scrape_batches, :status

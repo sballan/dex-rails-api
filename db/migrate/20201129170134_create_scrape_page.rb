@@ -19,6 +19,8 @@ class CreateScrapePage < ActiveRecord::Migration[6.0]
       t.datetime :cache_started_at
       t.datetime :cache_finished_at
       t.integer :cache_status, default: 0 # For enum
+
+      t.timestamps
     end
 
     add_index :scrape_pages, :status
