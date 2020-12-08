@@ -17,7 +17,7 @@ module Cache
           page_id: att[:page_id],
           kind: att[:kind],
           created_at: DateTime.now.utc,
-          updated_at: DateTIme.now.utc
+          updated_at: DateTime.now.utc
         }
       end
 
@@ -41,7 +41,7 @@ module Cache
         {
           text: att[:text],
           created_at: DateTime.now.utc,
-          updated_at: DateTIme.now.utc
+          updated_at: DateTime.now.utc
         }
       end
       Query.insert_all(query_atts, unique_by: :index_queries_on_text)
