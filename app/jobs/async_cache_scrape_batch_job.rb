@@ -17,24 +17,7 @@ class AsyncCacheScrapeBatchJob < ApplicationJob
       Rails.logger.debug "[AsyncRefreshScrapeBatchJob] More pages to cache! Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
       Rails.logger.info "[AsyncRefreshScrapeBatchJob] Starting loop of new Command::CreatePageQueries Command"
 
-      scrape_batch.scrape_pages.parse_success.cache_ready.includes(:page).in_batches.each_record do |scrape_page|
-        scrape_page.cache_started_at = DateTime.now.utc
-        scrape_page.cache_active!
-        command = Command::CreatePageQueries.new scrape_page.page
-        command.run_with_gc!
-
-        if command.success?
-          scrape_page.cache_success!
-          scrape_page.cache_finished_at = DateTime.now.utc
-        else
-          scrape_page.cache_failure!
-          scrape_page.cache_finished_at = DateTime.now.utc
-        end
-
-        scrape_page.save!
-      end
-
-      command = BatchUploadQueryResults.new
+      command = Cache::CacheScrapeBatch.new(scrape_batch)
       command.run_with_gc!
 
       num_left = scrape_batch.scrape_pages.parse_success.cache_ready.count
