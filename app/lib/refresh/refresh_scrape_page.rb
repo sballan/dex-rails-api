@@ -11,6 +11,12 @@ module Refresh
       Rails.logger.debug "[Refresh::RefreshScrapePage] Starting refresh: #{@scrape_page.page.url}"
       key = @scrape_page.page.url
       body = page_content
+
+      if body.nil?
+        Rails.logger.info "Got a nil page, returning"
+        return nil
+      end
+
       command = Refresh::UploadPageToS3.new(key, body)
       command.run!
       command.payload
@@ -52,6 +58,8 @@ module Refresh
     end
 
     def page_content
+      return nil if mechanize_page.nil?
+
       nokogiri_doc = mechanize_page.parser
       command = Refresh::ProcessNokogiriDoc.new(nokogiri_doc)
       command.run!
@@ -67,6 +75,7 @@ module Refresh
       @scrape_page.refresh_dead!
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save
+      nil
     rescue Command::Base::Errors::CommandFailed => e
       Rails.logger.error "[Refresh::RefreshScrapePage] This ScrapePage failed to download #{(@scrape_page.id)}"
       @scrape_page.refresh_failure!
