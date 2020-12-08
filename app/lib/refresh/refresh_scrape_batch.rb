@@ -32,7 +32,7 @@ module Refresh
           next unless scrape_pages.any?
           scrape_page = scrape_pages.pop
           command = Refresh::RefreshScrapePage.new scrape_page
-          run_nested_with_gc(command) # TODO: need a better convention for not raising errors here.  hopefully they're all still logged...
+          command.run_with_gc # TODO: need a better convention for not raising errors here.  hopefully they're all still logged...
         end
         sleep 2
       end
