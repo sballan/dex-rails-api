@@ -12,11 +12,11 @@ module Refresh
 
       result.succeed!(mechanize_page)
     rescue Mechanize::RobotsDisallowedError => e
-      command_error = Command::Base::Errors::CommandInvalid.new "Robots cannot scrape this pages", e
-      result.fail!(command_error)
+      command_error = Command::Base::Errors::CommandInvalid.new "Robots cannot scrape this page", e
+      raise command_error # We raise this since we cannot do anything else with an invalid command.
     rescue Mechanize::ResponseCodeError => e
       command_error = Command::Base::Errors::CommandFailed.new "Bad response code", e
-      result.fail!(command_error)
+      raise command_error # We raise this since we cannot do anything else with an invalid command.
     end
 
     private
