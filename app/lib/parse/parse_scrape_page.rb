@@ -48,6 +48,8 @@ module Parse
       @scrape_page.parse_success!
       @scrape_page.parse_finished_at = DateTime.now.utc
       @scrape_page.save!
+
+      Rails.logger.info "ParseScrapePage succeeded for ScrapePage #{@scrape_page.id}"
     end
 
     def fetch_page_file

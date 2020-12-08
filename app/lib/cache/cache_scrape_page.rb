@@ -10,10 +10,19 @@ module Cache
       cache_links
       cache_body
 
+      handle_success!
       result.succeed!
     end
 
     private
+
+    def handle_success!
+      @scrape_page.cache_success!
+      @scrape_page.cache_finished_at = DateTime.now.utc
+      @scrape_page.save!
+
+      Rails.logger.info "CacheScrapePage succeeded for ScrapePage #{@scrape_page.id}"
+    end
 
     def cache_title
       if @scrape_page.page.title.blank?
@@ -86,6 +95,5 @@ module Cache
       cache_command = Cache::BatchCacheQueryAndResults.new(query_ids)
       run_nested_with_gc!(cache_command)
     end
-
   end
 end

@@ -55,6 +55,8 @@ module Refresh
       @scrape_page.finished_at = DateTime.now.utc
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save!
+
+      Rails.logger.info "RefreshScrapePage succeeded for ScrapePage #{@scrape_page.id}"
     end
 
     def page_content
