@@ -13,7 +13,7 @@ module Refresh
       body = page_content
 
       if body.nil?
-        Rails.logger.info "Got a nil page, returning"
+        Rails.logger.info "Got a nil page - scrape_page should be marked as dead."
         return nil
       end
 
@@ -71,7 +71,7 @@ module Refresh
       command.run!
       command.payload
     rescue Command::Base::Errors::CommandInvalid => e
-      Rails.logger.error "[Refresh::RefreshScrapePage] This ScrapePage failed permanently to download #{(@scrape_page.id)}."
+      Rails.logger.warn "[Refresh::RefreshScrapePage] This ScrapePage failed permanently to download #{(@scrape_page.id)}."
       @scrape_page.refresh_dead!
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save
