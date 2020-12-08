@@ -14,18 +14,19 @@ class AsyncCacheScrapeBatchJob < ApplicationJob
     if scrape_batch.scrape_pages.parse_success.any? && (Time.now.to_i < end_time)
       num_to_cache = scrape_batch.scrape_pages.parse_success.cache_ready.count
 
-      Rails.logger.debug "[AsyncRefreshScrapeBatchJob] More pages to cache! Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
-      Rails.logger.info "[AsyncRefreshScrapeBatchJob] Starting loop of new Command::CreatePageQueries Command"
+      Rails.logger.debug "More pages to cache! Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
+      Rails.logger.info "Starting loop of new Command::CacheScrapeBatch Command"
 
       command = Cache::CacheScrapeBatch.new(scrape_batch)
       command.run_with_gc!
 
       num_left = scrape_batch.scrape_pages.parse_success.cache_ready.count
-      Rails.logger.debug "[AsyncRefreshScrapeBatchJob] We went from #{num_to_cache} to #{num_left}."
+      Rails.logger.debug "We went from #{num_to_cache} to #{num_left}."
 
     else
-      Rails.logger.info "[AsyncRefreshScrapeBatchJob] No pages left to cache. Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
+      Rails.logger.info "No pages left to cache. Time left: #{end_time - Time.now.to_i}. RefreshStatus: #{scrape_batch.refresh_status}"
     end
+
   end
 
 end
