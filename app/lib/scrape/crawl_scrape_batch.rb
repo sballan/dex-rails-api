@@ -41,7 +41,9 @@ module Scrape
         scrape_page_attributes = links.all.map do |link|
           {
               scrape_batch_id: @scrape_batch.id,
-              page_id: link.to_id
+              page_id: link.to_id,
+              created_at: DateTime.now.utc,
+              updated_at: DateTime.now.utc
           }
         end
         Rails.logger.debug "Adding newly created pages to batch"
