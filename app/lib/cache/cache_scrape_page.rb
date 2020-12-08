@@ -72,7 +72,15 @@ module Cache
         return
       end
 
-      result_atts = query_ids.map {|q_id|  {query_id: q_id, page_id: @scrape_page.page.id, kind: 'body'} }
+      result_atts = query_ids.map do |q_id|
+        {
+          query_id: q_id,
+          page_id: @scrape_page.page.id,
+          kind: 'body',
+          created_at: DateTime.now.utc,
+          updated_at: DateTime.now.utc
+        }
+      end
       Result.insert_all(result_atts, unique_by: :index_results_on_query_id_and_page_id_and_kind)
 
       cache_command = Cache::BatchCacheQueryAndResults.new(query_ids)
