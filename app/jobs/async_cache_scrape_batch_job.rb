@@ -1,5 +1,5 @@
 class AsyncCacheScrapeBatchJob < ApplicationJob
-  queue_as :refresh
+  queue_as :cache
 
   def perform(scrape_batch_id, ttl=1.minute)
     start_time = Time.now.to_i
