@@ -17,7 +17,7 @@ module Cache
 
     def cache_result_json(json)
       command = Cache::UploadCacheData.new(@query.text, json)
-      run_with_gc!(command)
+      command.run_with_gc!
     end
 
     def generate_results
