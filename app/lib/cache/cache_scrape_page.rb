@@ -25,7 +25,8 @@ module Cache
       run_nested_with_gc!(insert_command)
 
       query_ids = insert_command.payload
-      cache_command = Cache::CacheQueryAndResults.new(query_ids.first)
+      query = Query.find(query_ids.first)
+      cache_command = Cache::CacheQueryAndResults.new(query)
       run_nested_with_gc!(cache_command)
     end
 
