@@ -12,7 +12,7 @@ module Cache
       key = Base64.urlsafe_encode64(@query_text)
       client.write_private(key: key, body: @body)
 
-      result.succeed!(body)
+      result.succeed!(@body)
     end
   end
 end
