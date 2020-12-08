@@ -56,7 +56,7 @@ module Cache
 
     def cache_body
       fetch_command = Parse::FetchPageFile.new(@scrape_page.page.url)
-      run_with_gc!(fetch_command)
+      run_nested_with_gc!(fetch_command)
 
       doc = Nokogiri::HTML(fetch_command.payload)
       doc.xpath('//script').remove
