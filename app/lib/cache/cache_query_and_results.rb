@@ -12,7 +12,7 @@ module Cache
       @query.cached_at = DateTime.now.utc
       @query.save!
 
-      result.succeed!(body)
+      result.succeed!(json)
     end
 
     def cache_result_json(json)
