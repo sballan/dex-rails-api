@@ -7,7 +7,8 @@ module Cache
     end
 
     def run_proc
-      client = S3Client.new(ENV['DEV_BUCKET'], 'query_results')
+      namespace = ENV.fetch('CACHE_DATA_NAMESPACE', 'query_results')
+      client = S3Client.new(ENV['DEV_BUCKET'], namespace)
       key = Base64.urlsafe_encode64(@query_text)
 
       client.write_private(key: key, body: @body)
