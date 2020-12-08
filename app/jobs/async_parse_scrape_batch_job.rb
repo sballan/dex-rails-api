@@ -33,7 +33,7 @@ class AsyncParseScrapeBatchJob < ApplicationJob
     end
 
     scrape_batch.scrape_pages.parse_success.cache_ready.in_batches.each_record do |scrape_page|
-      Rails.logger.debug "We just parsed, and have #{cache_scrape_pages.size} to cache"
+      Rails.logger.debug "We just parsed, and have #{scrape_batch.scrape_pages.parse_success.cache_ready.count} to cache"
       scrape_page.cache_active!
       AsyncCacheScrapePageJob.perform_later(scrape_page.id)
     end
