@@ -70,7 +70,7 @@ module Refresh
 
     def mechanize_page
       command = Refresh::DownloadMechanizePage.new(@scrape_page.page.url)
-      command.run!
+      command.run_with_gc!
       command.payload
     rescue Command::Base::Errors::CommandInvalid => e
       Rails.logger.warn "[Refresh::RefreshScrapePage] This ScrapePage failed permanently to download #{(@scrape_page.id)}."
