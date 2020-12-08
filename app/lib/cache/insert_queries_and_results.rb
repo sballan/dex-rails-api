@@ -39,7 +39,7 @@ module Cache
     def insert_queries
       query_atts = @attributes.map do |att|
         {
-          text: att[:text],
+          text: att[:text].downcase[0..999], # TODO: put this business rule in a better spot
           created_at: DateTime.now.utc,
           updated_at: DateTime.now.utc
         }
