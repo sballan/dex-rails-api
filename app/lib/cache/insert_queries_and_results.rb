@@ -9,6 +9,7 @@ module Cache
 
     def run_proc
       validate_attributes
+      sanitize_attributes
 
       db_query_atts = insert_queries
       result_atts = @attributes.map do |att|
@@ -36,10 +37,17 @@ module Cache
       end
     end
 
+    def sanitize_attributes
+      @attributes.each do |att|
+        # TODO: put this business rule in a better spot?
+        att[:text] = att[:text].downcase[0..999]
+      end
+    end
+
     def insert_queries
       query_atts = @attributes.map do |att|
         {
-          text: att[:text].downcase[0..999], # TODO: put this business rule in a better spot
+          text: att[:text],
           created_at: DateTime.now.utc,
           updated_at: DateTime.now.utc
         }
