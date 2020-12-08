@@ -76,7 +76,8 @@ module Command
 
       def assert_success
         unless success?
-          command_failure_message = "Command (#{self.class.name}) did not succeed (#{error.class})"
+          backtrace = error.respond_to?(:backtrace) && error.backtrace.present? ? error.backtrace.join("\n") : nil
+          command_failure_message = "Command (#{self.class.name}) did not succeed (#{error.class}): \n#{backtrace}"
           raise Command::Base::Errors::CommandFailed.new(command_failure_message, error)
         end
       end
