@@ -32,11 +32,12 @@ class AsyncParseScrapeBatchJob < ApplicationJob
       Rails.logger.debug "We just parsed, but have more work to do! IMPLEMENT THIS"
     end
 
-    cache_scrape_page_ids = scrape_batch.scrape_pages.parse_success.cache_ready.pluck(:id)
+    cache_scrape_pages = scrape_batch.scrape_pages.parse_success.cache_ready
     if cache_scrape_page_ids.any?
-      Rails.logger.debug "We just parsed, and have #{cache_scrape_page_ids.size} to cache"
-      cache_scrape_page_ids.each do |id|
-        AsyncCacheScrapePageJob.perform_later(id)
+      Rails.logger.debug "We just parsed, and have #{cache_scrape_pages.size} to cache"
+      cache_scrape_pages.each do |scrape_pages|
+        scrape_page.cache_active!
+        AsyncCacheScrapePageJob.perform_later(scrape_pages.id)
       end
     end
   end
