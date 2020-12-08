@@ -21,6 +21,7 @@ module Cache
 
       insert_results(result_atts)
 
+      query_ids = result_atts.map {|att| att[:query_id] }
       result.succeed!(query_ids)
     end
 
