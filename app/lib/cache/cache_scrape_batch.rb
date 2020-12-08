@@ -31,10 +31,11 @@ module Cache
 
         num_left = @scrape_batch.scrape_pages.parse_success.cache_ready.count
         Rails.logger.debug "[Cache::CacheScrapeBatch] We went from #{num_to_cache} to #{num_left}."
-
       else
         Rails.logger.info "[Cache::CacheScrapeBatch] No pages left to cache. "
       end
+
+      result.succeed!
     end
 
   end
