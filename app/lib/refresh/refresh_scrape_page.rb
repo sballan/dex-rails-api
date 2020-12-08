@@ -18,7 +18,7 @@ module Refresh
       end
 
       command = Refresh::UploadPageToS3.new(key, body)
-      command.run!
+      command.run_with_gc!
       command.payload
       Rails.logger.debug "[Refresh::RefreshScrapePage] Finished refresh #{@scrape_page.page.url}"
 
@@ -64,7 +64,7 @@ module Refresh
 
       nokogiri_doc = mechanize_page.parser
       command = Refresh::ProcessNokogiriDoc.new(nokogiri_doc)
-      command.run!
+      command.run_with_gc!
       command.payload
     end
 
