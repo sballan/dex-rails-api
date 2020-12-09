@@ -12,6 +12,7 @@ module Cache
       @query.cached_at = DateTime.now.utc
       @query.save!
 
+      Rails.logger.info "CacheQueryAndResults succeeded for Query #{@query.id}"
       result.succeed!(json)
     end
 
