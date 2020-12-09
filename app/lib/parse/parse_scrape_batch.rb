@@ -23,7 +23,8 @@ module Parse
       Rails.logger.debug "[Parse::ParseScrapeBatch] We have #{num_to_parse} pages to parse"
 
       # NOTE: need to make sure we only get ones with refresh success. "parse ready" is a misnomer
-      @scrape_batch.scrape_pages.refresh_success.parse_ready.in_batches.each_record do |scrape_page|
+      # Make sure this batch limit size is LARGER than the batch limit size in RefreshScrapePage
+      @scrape_batch.scrape_pages.refresh_success.parse_ready.limit(100).in_batches(of: 25).each_record do |scrape_page|
         command = Parse::ParseScrapePage.new scrape_page
         run_nested_with_gc(command) # TODO: need a better convention to signify catching errors
       end
