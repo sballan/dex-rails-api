@@ -22,7 +22,7 @@ module Refresh
     def refresh_scrape_pages
       # TODO: remove the magic number in limit. For now, it makes sure that a refresh job doesn't drag on too long
       # before getting to parsing the pages that were refreshed
-      @scrape_batch.scrape_pages.includes(:page).refresh_ready.limit(50).in_batches(of: 25) do |scrape_pages|
+      @scrape_batch.scrape_pages.includes(:page).refresh_ready.limit(20).in_batches(of: 10) do |scrape_pages|
         # group by host for some janky 'rate limiting'
         scrape_pages_by_host = scrape_pages.group_by do |scrape_page|
           URI.parse(scrape_page.page.url).host

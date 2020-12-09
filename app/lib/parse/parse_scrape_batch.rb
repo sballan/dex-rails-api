@@ -24,7 +24,7 @@ module Parse
 
       # NOTE: need to make sure we only get ones with refresh success. "parse ready" is a misnomer
       # Make sure this batch limit size is LARGER than the batch limit size in RefreshScrapePage
-      @scrape_batch.scrape_pages.refresh_success.parse_ready.limit(100).in_batches(of: 25).each_record do |scrape_page|
+      @scrape_batch.scrape_pages.refresh_success.parse_ready.limit(40).in_batches(of: 10).each_record do |scrape_page|
         command = Parse::ParseScrapePage.new scrape_page
         run_nested_with_gc(command) # TODO: need a better convention to signify catching errors
       end
