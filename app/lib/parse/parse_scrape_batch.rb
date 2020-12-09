@@ -37,10 +37,10 @@ module Parse
       Rails.logger.debug "Gathering newly created pages"
       links = []
       @scrape_batch.links.in_batches do |links|
-        scrape_page_attributes = links.all.map do |link|
+        scrape_page_attributes = links.pluck(:to_id).map do |link_to_id|
           {
               scrape_batch_id: @scrape_batch.id,
-              page_id: link.to_id,
+              page_id: link_to_id,
               created_at: DateTime.now.utc,
               updated_at: DateTime.now.utc
           }
