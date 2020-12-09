@@ -6,9 +6,14 @@ module Cache
     end
 
     def run_proc
-      cache_title
-      cache_links
-      cache_body
+      query_ids_set = Set.new
+
+      query_ids_set.merge(title_queries)
+      query_ids_set.merge(links_queries)
+      query_ids_set.merge(body_queries)
+
+      cache_command = Cache::BatchCacheQueryAndResults.new(query_ids_set.to_a)
+      cache_command.run_with_gc!
 
       handle_success!
       result.succeed!
@@ -24,7 +29,7 @@ module Cache
       Rails.logger.info "CacheScrapePage succeeded for ScrapePage #{@scrape_page.id}"
     end
 
-    def cache_title
+    def title_queries
       if @scrape_page.page.title.blank?
         Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not caching."
         return
@@ -33,13 +38,10 @@ module Cache
       insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
       run_nested_with_gc!(insert_command)
 
-      query_ids = insert_command.payload
-      query = Query.find(query_ids.first)
-      cache_command = Cache::CacheQueryAndResults.new(query)
-      run_nested_with_gc!(cache_command)
+      insert_command.payload
     end
 
-    def cache_links
+    def links_queries
       link_texts = @scrape_page.page.links_to.where.not(text: [nil, ""]).pluck(:text)
 
       if link_texts.empty?
@@ -57,13 +59,10 @@ module Cache
       insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
       run_nested_with_gc!(insert_command)
 
-      query_ids = insert_command.payload
-
-      cache_command = Cache::BatchCacheQueryAndResults.new(query_ids)
-      run_nested_with_gc!(cache_command)
+      insert_command.payload
     end
 
-    def cache_body
+    def body_queries
       fetch_command = Parse::FetchPageFile.new(@scrape_page.page.url)
       run_nested_with_gc!(fetch_command)
 
@@ -92,8 +91,7 @@ module Cache
       end
       Result.insert_all(result_atts, unique_by: :index_results_on_query_id_and_page_id_and_kind)
 
-      cache_command = Cache::BatchCacheQueryAndResults.new(query_ids)
-      run_nested_with_gc!(cache_command)
+      query_ids
     end
   end
 end

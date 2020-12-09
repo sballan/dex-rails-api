@@ -6,9 +6,9 @@ module Cache
     end
 
     def run_proc
-      Query.where(id: @query_ids).in_batches(of: 10).each_record do |query|
+      Query.where(id: @query_ids).in_batches(of: 100).each_record do |query|
         command = Cache::CacheQueryAndResults.new query
-        run_nested_with_gc!(command)
+        command.run_with_gc!
       end
 
       result.succeed!
