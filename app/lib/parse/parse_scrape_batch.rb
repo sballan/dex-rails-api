@@ -45,7 +45,7 @@ module Parse
               updated_at: DateTime.now.utc
           }
         end
-        Rails.logger.debug "Adding newly created pages to batch"
+        Rails.logger.info "ParseScrapeBatch adding up to #{links.count} new pages to ScrapeBatch (#{@scrape_batch.id})"
         ScrapePage.insert_all(scrape_page_attributes, unique_by: :index_scrape_pages_on_scrape_batch_id_and_page_id)
       end
     end
