@@ -18,7 +18,7 @@ module Cache
 
     def cache_result_json(json)
       command = Cache::UploadCacheData.new(@query.text, json)
-      command.run_with_gc!
+      command.run!
 
       if command.success?
         @query.cached_at = DateTime.now.utc
