@@ -17,7 +17,7 @@ module Cache
     private
 
     def handle_success!
-      @scrape_page.cache_success!
+      @scrape_page.cache_status = :success
       @scrape_page.cache_finished_at = DateTime.now.utc
       @scrape_page.save!
 

@@ -34,24 +34,24 @@ module Refresh
     private
 
     def handle_start!
-      @scrape_page.active!
-      @scrape_page.refresh_active!
+      @scrape_page.status = :active
+      @scrape_page.refresh_status = :active
       @scrape_page.started_at = DateTime.now.utc
       @scrape_page.refresh_started_at = DateTime.now.utc
       @scrape_page.save!
     end
 
     def handle_failure
-      @scrape_page.refresh_failure!
-      @scrape_page.failure!
+      @scrape_page.status = :failure
+      @scrape_page.refresh_status = :failure
       @scrape_page.finished_at = DateTime.now.utc
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save
     end
 
     def handle_success!
-      @scrape_page.refresh_success!
-      @scrape_page.success!
+      @scrape_page.status = :success
+      @scrape_page.refresh_status = :success
       @scrape_page.finished_at = DateTime.now.utc
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save!
@@ -74,13 +74,13 @@ module Refresh
       command.payload
     rescue Command::Base::Errors::CommandInvalid => e
       Rails.logger.warn "[Refresh::RefreshScrapePage] This ScrapePage failed permanently to download #{(@scrape_page.id)}."
-      @scrape_page.refresh_dead!
+      @scrape_page.refresh_status = :dead
       @scrape_page.refresh_finished_at = DateTime.now.utc
       @scrape_page.save
       nil
     rescue Command::Base::Errors::CommandFailed => e
       Rails.logger.error "[Refresh::RefreshScrapePage] This ScrapePage failed to download #{(@scrape_page.id)}"
-      @scrape_page.refresh_failure!
+      @scrape_page.refresh_status = :failure
       @scrape_page.save
       raise e
     end

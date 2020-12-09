@@ -14,17 +14,17 @@ module Cache
 
         @scrape_batch.scrape_pages.parse_success.cache_ready.includes(:page).in_batches.each_record do |scrape_page|
           scrape_page.cache_started_at = DateTime.now.utc
-          scrape_page.cache_active!
+          scrape_page.cache_status = :active
+          scrape_page.save!
           command = Cache::CacheScrapePage.new scrape_page
           command.run_with_gc # TODO: need a better convention here.  We catch all errors without the `!`
 
           if command.success?
-            scrape_page.cache_success!
-            scrape_page.cache_finished_at = DateTime.now.utc
+            scrape_page.cache_status = :success
           else
-            scrape_page.cache_failure!
-            scrape_page.cache_finished_at = DateTime.now.utc
+            scrape_page.cache_status = :failure
           end
+          scrape_page.cache_finished_at = DateTime.now.utc
 
           scrape_page.save!
         end
