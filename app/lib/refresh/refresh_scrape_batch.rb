@@ -35,7 +35,7 @@ module Refresh
             command = Refresh::RefreshScrapePage.new scrape_page
             command.run_with_gc # TODO: need a better convention for not raising errors here.  hopefully they're all still logged...
           end
-          sleep 2
+          sleep 1
         end
       end
     end
