@@ -30,6 +30,11 @@ module Command
         result.start!
         run_proc
         assert_success
+      rescue StandardError => e
+        # This plugs us into Bugsnag.  Errors capture here will not be double reported if they bubble all the way up.
+        Bugsnag.notify(e)
+        e.instance_eval { def skip_bugsnag; true; end }
+        raise e
       end
 
       # @param [Command::Base::Abstract] command
