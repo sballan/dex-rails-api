@@ -1,18 +1,24 @@
 {
-  "name": "dex_rails",
+  "name": "dex_rails_api",
   "private": true,
   "dependencies": {
-    "@rails/actioncable": "^6.0.0-alpha",
-    "@rails/activestorage": "^6.0.0-alpha",
-    "@rails/ujs": "^6.0.0-alpha",
-    "@rails/webpacker": "^4.0.7",
-    "bulma": "^0.8.0",
-    "turbolinks": "^5.2.0"
+    "@babel/preset-react": "^7.12.10",
+    "@rails/actioncable": "^6.0.0",
+    "@rails/activestorage": "^6.0.0",
+    "@rails/ujs": "^6.0.0",
+    "@rails/webpacker": "4.3.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "ts-loader": "^8.0.12",
+    "turbolinks": "^5.2.0",
+    "typescript": "^4.1.2"
   },
   "version": "0.1.0",
   "devDependencies": {
-    "ts-loader": "^8.0.12",
-    "typescript": "^4.1.2",
-    "webpack-dev-server": "^3.9.0"
+    "webpack-dev-server": "^3.11.0"
   }
 }
