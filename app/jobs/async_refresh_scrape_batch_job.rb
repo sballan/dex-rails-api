@@ -8,9 +8,6 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
     scrape_batch = ScrapeBatch.find scrape_batch_id
     scrape_batch.active!
 
-    scrape_batch.save!
-    scrape_batch.reload
-
     if scrape_batch.scrape_pages.refresh_ready.any? && (Time.now.to_i < end_time)
       num_to_refresh = scrape_batch.scrape_pages.refresh_ready.count
 

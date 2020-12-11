@@ -30,8 +30,12 @@ class AsyncParseScrapeBatchJob < ApplicationJob
       AsyncRefreshScrapeBatchJob.perform_later(scrape_batch_id, end_time - Time.now.to_i)
     elsif scrape_batch.scrape_pages.refresh_success.parse_ready?
       Rails.logger.debug "We just parsed, but have more work to do! IMPLEMENT THIS"
-      scrape_batch.save!
-      Rails.logger.debug "We just parsed, and have no new pages to refresh"
+    end
+
+    scrape_batch.scrape_pages.parse_success.cache_ready.in_batches.each_record do |scrape_page|
+      Rails.logger.debug "We just parsed, and have #{scrape_batch.scrape_pages.parse_success.cache_ready.count} to cache"
+      scrape_page.cache_active!
+      AsyncCacheScrapePageJob.perform_later(scrape_page.id)
     end
   end
 end

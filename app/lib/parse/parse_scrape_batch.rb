@@ -23,9 +23,10 @@ module Parse
       Rails.logger.debug "[Parse::ParseScrapeBatch] We have #{num_to_parse} pages to parse"
 
       # NOTE: need to make sure we only get ones with refresh success. "parse ready" is a misnomer
-      @scrape_batch.scrape_pages.refresh_success.parse_ready.in_batches.each_record do |scrape_page|
+      # Make sure this batch limit size is LARGER than the batch limit size in RefreshScrapePage
+      @scrape_batch.scrape_pages.refresh_success.parse_ready.limit(40).in_batches(of: 10).each_record do |scrape_page|
         command = Parse::ParseScrapePage.new scrape_page
-        run_nested_with_gc!(command)
+        run_nested_with_gc(command) # TODO: need a better convention to signify catching errors
       end
 
       num_to_parse = @scrape_batch.scrape_pages.refresh_success.parse_ready.count
@@ -36,13 +37,15 @@ module Parse
       Rails.logger.debug "Gathering newly created pages"
       links = []
       @scrape_batch.links.in_batches do |links|
-        scrape_page_attributes = links.all.map do |link|
+        scrape_page_attributes = links.pluck(:to_id).map do |link_to_id|
           {
               scrape_batch_id: @scrape_batch.id,
-              page_id: link.to_id
+              page_id: link_to_id,
+              created_at: DateTime.now.utc,
+              updated_at: DateTime.now.utc
           }
         end
-        Rails.logger.debug "Adding newly created pages to batch"
+        Rails.logger.info "ParseScrapeBatch adding up to #{links.count} new pages to ScrapeBatch (#{@scrape_batch.id})"
         ScrapePage.insert_all(scrape_page_attributes, unique_by: :index_scrape_pages_on_scrape_batch_id_and_page_id)
       end
     end

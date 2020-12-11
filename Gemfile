@@ -22,6 +22,7 @@ gem 'html2text'
 
 gem "barnes"
 gem 'newrelic_rpm'
+gem "bugsnag", "~> 6.18"
 
 
 group :development, :test do

@@ -20,23 +20,26 @@ module Refresh
     private
 
     def refresh_scrape_pages
-      # group by host for some janky 'rate limiting'
-      scrape_pages_by_host = @scrape_batch.scrape_pages.refresh_ready.group_by do |scrape_page|
-        URI.parse(scrape_page.page.url).host
-      end
-
-      # while any host still has unprocessed scrape_pages
-      while(scrape_pages_by_host.any? {|host, scrape_pages| scrape_pages.any?}) do
-        # pop a scrape_page for each host, refresh them all (since we don't worry about rate limits), then sleep
-        scrape_pages_by_host.each do |host, scrape_pages|
-          next unless scrape_pages.any?
-          scrape_page = scrape_pages.pop
-          command = Refresh::RefreshScrapePage.new scrape_page
-          run_nested_with_gc!(command)
+      # TODO: remove the magic number in limit. For now, it makes sure that a refresh job doesn't drag on too long
+      # before getting to parsing the pages that were refreshed
+      @scrape_batch.scrape_pages.includes(:page).refresh_ready.limit(20).in_batches(of: 10) do |scrape_pages|
+        # group by host for some janky 'rate limiting'
+        scrape_pages_by_host = scrape_pages.group_by do |scrape_page|
+          URI.parse(scrape_page.page.url).host
         end
-        sleep 2
+
+        # while any host still has unprocessed scrape_pages
+        while(scrape_pages_by_host.any? {|host, sps| sps.any?}) do
+          # pop a scrape_page for each host, refresh them all (since we don't worry about rate limits), then sleep
+          scrape_pages_by_host.each do |host, sps|
+            next unless sps.any?
+            scrape_page = sps.pop
+            command = Refresh::RefreshScrapePage.new scrape_page
+            command.run_with_gc # TODO: need a better convention for not raising errors here.  hopefully they're all still logged...
+          end
+          sleep 1
+        end
       end
     end
-
   end
 end

@@ -22,7 +22,9 @@ module Scrape
       scrape_page_attributes = page_ids.map do |page_id|
         {
           scrape_batch_id: scrape_batch.id,
-          page_id: page_id
+          page_id: page_id,
+          created_at: DateTime.now.utc,
+          updated_at: DateTime.now.utc
         }
       end
       ScrapePage.insert_all!(scrape_page_attributes)

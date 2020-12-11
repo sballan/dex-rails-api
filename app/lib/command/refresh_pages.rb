@@ -16,7 +16,7 @@ module Command
           command = Command::RefreshPage.new url
           run_nested!(command)
         end
-        sleep 3
+        sleep 2
       end
 
       result.succeed!

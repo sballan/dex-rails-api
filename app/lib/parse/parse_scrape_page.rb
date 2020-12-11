@@ -31,23 +31,25 @@ module Parse
     private
 
     def handle_start!
-      @scrape_page.active!
-      @scrape_page.parse_active!
+      @scrape_page.status = :active
+      @scrape_page.parse_status = :active
       @scrape_page.started_at = DateTime.now.utc
       @scrape_page.parse_started_at = DateTime.now.utc
       @scrape_page.save!
     end
 
     def handle_failure
-      @scrape_page.parse_failure!
+      @scrape_page.parse_status = :failure
       @scrape_page.parse_finished_at = DateTime.now.utc
       @scrape_page.save
     end
 
     def handle_success!
-      @scrape_page.parse_success!
+      @scrape_page.parse_status = :success
       @scrape_page.parse_finished_at = DateTime.now.utc
       @scrape_page.save!
+
+      Rails.logger.info "ParseScrapePage succeeded for ScrapePage #{@scrape_page.id}"
     end
 
     def fetch_page_file
