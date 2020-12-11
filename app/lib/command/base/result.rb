@@ -23,6 +23,7 @@ module Command
         @results.concat(results)
         Rails.logger.warn "Command #{command_name} failed:\n #{error}"
         finish!
+        self
       end
 
       def succeed!(payload = nil, results = [])
@@ -30,6 +31,7 @@ module Command
         @payload = payload
         @results.concat(results)
         finish!
+        self
       end
 
       def success?

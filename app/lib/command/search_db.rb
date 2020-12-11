@@ -1,5 +1,5 @@
 module Command
-  class Search < Command::Base::Abstract
+  class SearchDb < Command::Base::Abstract
     def initialize(text, results_count=20)
       super()
       @text = text.downcase

@@ -26,14 +26,14 @@ class S3Client
   end
 
   def read_json(key:)
-    raw_json = read(key: key).body.read
+    raw_json = read(key: key.to_s).body.read
     JSON.parse(raw_json)
   end
 
   def read(key:)
     client.get_object({
                         bucket: @bucket,
-                        key: @namespace + key
+                        key: @namespace + key.to_s
                       })
   end
 

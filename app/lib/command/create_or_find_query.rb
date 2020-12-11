@@ -3,7 +3,7 @@ module Command
     # @param [String] text
     def initialize(text)
       super()
-      @text = text.downcase
+      @text = text.downcase[0..999] # business rule, query cannot be longer than 1000 chars
     end
 
     def run_proc
