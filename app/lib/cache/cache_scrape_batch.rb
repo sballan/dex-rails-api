@@ -6,7 +6,7 @@ module Cache
     end
 
     def run_proc
-      @scrape_batch.queries.in_batches.each_record do |query|
+      @scrape_batch.queries.in_batches(of: 25).each_record do |query|
         command = Cache::CacheQueryAndResults.new query
         command.run_with_gc!
       end
