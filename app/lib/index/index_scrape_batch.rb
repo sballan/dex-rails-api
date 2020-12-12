@@ -7,12 +7,12 @@ module Index
 
     def run_proc
       if @scrape_batch.scrape_pages.parse_success.any?
-        num_to_cache = @scrape_batch.scrape_pages.parse_success.index_ready.count
+        num_to_index = @scrape_batch.scrape_pages.parse_success.index_ready.count
 
-        Rails.logger.debug "[Index::IndexScrapeBatch] More pages to cache!"
+        Rails.logger.debug "[Index::IndexScrapeBatch] More pages to index!"
         Rails.logger.info "[Index::IndexScrapeBatch] Starting loop of new Index::IndexScrapePage Command"
 
-        @scrape_batch.scrape_pages.parse_success.cache_ready.includes(:page).in_batches.each_record do |scrape_page|
+        @scrape_batch.scrape_pages.parse_success.index_ready.includes(:page).in_batches.each_record do |scrape_page|
           scrape_page.index_started_at = DateTime.now.utc
           scrape_page.index_status = :active
           scrape_page.save!
@@ -30,9 +30,9 @@ module Index
         end
 
         num_left = @scrape_batch.scrape_pages.parse_success.index_ready.count
-        Rails.logger.debug "[Index::IndexScrapeBatch] We went from #{num_to_cache} to #{num_left}."
+        Rails.logger.debug "[Index::IndexScrapeBatch] We went from #{num_to_index} to #{num_left}."
       else
-        Rails.logger.info "[Index::IndexScrapeBatch] No pages left to cache. "
+        Rails.logger.info "[Index::IndexScrapeBatch] No pages left to index. "
       end
 
       result.succeed!

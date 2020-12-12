@@ -28,7 +28,7 @@ module Index
 
     def title_queries
       if @scrape_page.page.title.blank?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not caching."
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not indexing."
         return
       end
       index_atts = [{page_id: @scrape_page.page.id, text: @scrape_page.page.title, kind: 'title'}]
@@ -42,7 +42,7 @@ module Index
       link_texts = @scrape_page.page.links_to.where.not(text: [nil, ""]).pluck(:text)
 
       if link_texts.empty?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not caching."
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not indexing."
         return
       end
 
@@ -73,7 +73,7 @@ module Index
       query_ids = Query.where(text: page_words).pluck(:id)
 
       if query_ids.empty?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not caching."
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not indexing."
         return
       end
 

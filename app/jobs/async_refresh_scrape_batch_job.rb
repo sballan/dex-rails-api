@@ -18,8 +18,10 @@ class AsyncRefreshScrapeBatchJob < ApplicationJob
       Rails.logger.debug "We went from #{num_to_refresh} to #{num_left}.  About to hand over for parsing."
 
       AsyncParseScrapeBatchJob.perform_later(scrape_batch.id, ttl)
+    elsif scrape_batch.started_at + ttl > Time.now
+      Rails.logger.info "Nothing left to refresh or parse, time still left on the clock."
     else
-      Rails.logger.info "No pages left to refresh. Time left: #{scrape_batch.started_at + ttl - Time.now}"
+      Rails.logger.info "Time has expired"
     end
   end
 
