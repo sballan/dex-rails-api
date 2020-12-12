@@ -9,6 +9,10 @@ class AsyncCreateScrapeBatchJob < ApplicationJob
 
     Rails.logger.info "Created new ScrapeBatch (#{scrape_batch.id})"
 
+    scrape_batch.started_at = DateTime.now.utc
+    scrape_batch.status = :active
+    scrape_batch.save!
+
     AsyncRefreshScrapeBatchJob.perform_later scrape_batch.id, ttl
   end
 end
