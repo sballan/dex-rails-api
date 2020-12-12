@@ -13,7 +13,7 @@ class AsyncIndexScrapeBatchJob < ApplicationJob
       Rails.logger.info "We just indexed, but still have pages to parse or index, or ttl has not expired.   Not going to cache yet."
     else
       Rails.logger.info "We just indexed, and have nothing left to index, and ttl had expired. Let's cache."
-      AsyncCacheScrapeBatchJob.perform_later(scrape_batch.id)
+      QueueAsyncCacheScrapeBatchRangeJob.perform_later(scrape_batch.id)
     end
   end
 

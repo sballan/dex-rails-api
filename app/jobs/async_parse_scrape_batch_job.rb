@@ -27,7 +27,7 @@ class AsyncParseScrapeBatchJob < ApplicationJob
       AsyncIndexScrapeBatchJob.perform_later(scrape_batch.id, ttl)
     else
       Rails.logger.info "TTL has expired, but we have and we have nothing left to index.  Time to cache"
-      AsyncCacheScrapeBatchJob.perform_later(scrape_batch.id)
+      QueueAsyncCacheScrapeBatchRangeJob.perform_later(scrape_batch.id)
     end
   end
 end
