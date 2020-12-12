@@ -28,14 +28,15 @@ class AsyncParseScrapeBatchJob < ApplicationJob
       scrape_batch.refresh_active!
       scrape_batch.save!
       AsyncRefreshScrapeBatchJob.perform_later(scrape_batch_id, end_time - Time.now.to_i)
-    elsif scrape_batch.scrape_pages.refresh_success.parse_ready?
-      Rails.logger.debug "We just parsed, but have more work to do! IMPLEMENT THIS"
+    elsif scrape_batch.scrape_pages.refresh_success.parse_ready.any?
+      Rails.logger.warn "We just parsed, but have more work to do! IMPLEMENT THIS"
     end
 
-    scrape_batch.scrape_pages.parse_success.cache_ready.in_batches.each_record do |scrape_page|
-      Rails.logger.debug "We just parsed, and have #{scrape_batch.scrape_pages.parse_success.cache_ready.count} to cache"
-      scrape_page.cache_active!
-      AsyncCacheScrapePageJob.perform_later(scrape_page.id)
+    if scrape_batch.scrape_pages.parse_success.index_ready.any?
+      Rails.logger.info "We just parsed, and have #{scrape_batch.scrape_pages.parse_success.index_ready.count} to index"
+      AsyncIndexScrapeBatchJob.perform_later(scrape_batch.id)
+    else
+      Rails.logger.info "We just parsed, but have nothing left to index."
     end
   end
 end
