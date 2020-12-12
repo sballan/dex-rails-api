@@ -29,7 +29,7 @@ module Index
     def title_queries
       if @scrape_page.page.title.blank?
         Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not indexing."
-        return
+        return []
       end
       index_atts = [{page_id: @scrape_page.page.id, text: @scrape_page.page.title, kind: 'title'}]
       insert_command = Index::InsertQueriesAndResults.new(index_atts)
@@ -43,7 +43,7 @@ module Index
 
       if link_texts.empty?
         Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not indexing."
-        return
+        return []
       end
 
       index_atts = link_texts.map do |link_text|
@@ -74,7 +74,7 @@ module Index
 
       if query_ids.empty?
         Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not indexing."
-        return
+        return []
       end
 
       result_atts = query_ids.map do |q_id|
