@@ -2,6 +2,6 @@
 :queues:
   - [default, 128]
   - [refresh, 8]
-  - [parse, 16]
-  - [index, 32]
-  - [cache, 64]
+  - [parse, 8]
+  - [index, 16]
+  - [cache, 32]
