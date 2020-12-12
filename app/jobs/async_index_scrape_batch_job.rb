@@ -1,12 +1,9 @@
 class AsyncIndexScrapeBatchJob < ApplicationJob
   queue_as :index
 
-  def perform(scrape_page_id, ttl= 1.minute)
-    scrape_page = ScrapeBatch.find scrape_page_id
-    scrape_page.index_started_at = DateTime.now.utc
-    scrape_page.index_active!
-
-    command = Index::IndexScrapeBatch.new scrape_page
+  def perform(scrape_batch_id, ttl= 1.minute)
+    scrape_batch = ScrapeBatch.find scrape_batch_id
+    command = Index::IndexScrapeBatch.new scrape_batch
     command.run_with_gc!
 
     pages_to_parse = scrape_batch.scrape_pages.refresh_success.parse_ready.any?

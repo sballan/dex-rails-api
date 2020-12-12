@@ -5,16 +5,10 @@ class AsyncParseScrapeBatchJob < ApplicationJob
     scrape_batch = ScrapeBatch.find(scrape_batch_id)
 
     if scrape_batch.scrape_pages.refresh_success.parse_ready.count > 0
-      Rails.logger.debug "[AsyncParseScrapeBatchJob] ScrapeBatch (#{scrape_batch.id}) has pages to parse"
-      scrape_batch.parse_active!
-      scrape_batch.parse_finished_at = nil
-      scrape_batch.parse_active!
+      Rails.logger.debug "ScrapeBatch (#{scrape_batch.id}) has pages to parse"
     else
-      Rails.logger.info "[AsyncParseScrapeBatchJob] Nothing to parse!"
+      Rails.logger.info "Nothing to parse!"
     end
-
-    scrape_batch.save!
-    scrape_batch.reload
 
     run_scrape_batch_command = Parse::ParseScrapeBatch.new(scrape_batch)
     run_scrape_batch_command.run_with_gc!
@@ -22,8 +16,6 @@ class AsyncParseScrapeBatchJob < ApplicationJob
     scrape_batch.reload
     if scrape_batch.scrape_pages.refresh_ready.any?
       Rails.logger.debug "We just parsed, and have #{scrape_batch.scrape_pages.refresh_ready.count} to refresh"
-      scrape_batch.refresh_active!
-      scrape_batch.save!
       AsyncRefreshScrapeBatchJob.perform_later(scrape_batch_id, ttl)
     elsif scrape_batch.scrape_pages.refresh_success.parse_ready.any?
       Rails.logger.warn "We just parsed, but have more work to do! IMPLEMENT THIS"
