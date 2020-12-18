@@ -1,4 +1,4 @@
-module Cache
+module Index
   class InsertQueriesAndResults < Command::Base::Abstract
     VALID_ATTRIBUTES = Set.new(%i[text page_id kind])
 

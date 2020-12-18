@@ -27,7 +27,8 @@ module Cache
     end
 
     def generate_results
-      @query.results.includes(:page).map do |result|
+      # TODO: We need to page these results somehow
+      @query.results.includes(:page).limit(50).map do |result|
         {
             kind: result.kind,
             page: {

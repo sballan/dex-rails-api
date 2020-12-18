@@ -1,5 +1,5 @@
-module Cache
-  class CacheScrapePage < Command::Base::Abstract
+module Index
+  class IndexScrapePage < Command::Base::Abstract
     def initialize(scrape_page)
       super()
       @scrape_page = scrape_page
@@ -12,9 +12,6 @@ module Cache
       query_ids_set.merge(links_queries)
       query_ids_set.merge(body_queries)
 
-      cache_command = Cache::BatchCacheQueryAndResults.new(query_ids_set.to_a)
-      cache_command.run_with_gc!
-
       handle_success!
       result.succeed!
     end
@@ -22,20 +19,20 @@ module Cache
     private
 
     def handle_success!
-      @scrape_page.cache_status = :success
-      @scrape_page.cache_finished_at = DateTime.now.utc
+      @scrape_page.index_status = :success
+      @scrape_page.index_finished_at = DateTime.now.utc
       @scrape_page.save!
 
-      Rails.logger.info "CacheScrapePage succeeded for ScrapePage #{@scrape_page.id}"
+      Rails.logger.info "IndexScrapePage succeeded for ScrapePage #{@scrape_page.id}"
     end
 
     def title_queries
       if @scrape_page.page.title.blank?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not caching."
-        return
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no title. Not indexing."
+        return []
       end
-      cache_atts = [{page_id: @scrape_page.page.id, text: @scrape_page.page.title, kind: 'title'}]
-      insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
+      index_atts = [{page_id: @scrape_page.page.id, text: @scrape_page.page.title, kind: 'title'}]
+      insert_command = Index::InsertQueriesAndResults.new(index_atts)
       run_nested_with_gc!(insert_command)
 
       insert_command.payload
@@ -45,18 +42,18 @@ module Cache
       link_texts = @scrape_page.page.links_to.where.not(text: [nil, ""]).pluck(:text)
 
       if link_texts.empty?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not caching."
-        return
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not indexing."
+        return []
       end
 
-      cache_atts = link_texts.map do |link_text|
+      index_atts = link_texts.map do |link_text|
         {
             page_id: @scrape_page.page.id,
             text: link_text,
             kind: 'link'
         }
       end
-      insert_command = Cache::InsertQueriesAndResults.new(cache_atts)
+      insert_command = Index::InsertQueriesAndResults.new(index_atts)
       run_nested_with_gc!(insert_command)
 
       insert_command.payload
@@ -76,8 +73,8 @@ module Cache
       query_ids = Query.where(text: page_words).pluck(:id)
 
       if query_ids.empty?
-        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not caching."
-        return
+        Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not indexing."
+        return []
       end
 
       result_atts = query_ids.map do |q_id|
