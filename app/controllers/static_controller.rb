@@ -1,4 +1,4 @@
 class StaticController < ApplicationController
-  def home
+  def search_with_react
   end
 end
