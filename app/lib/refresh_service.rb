@@ -7,26 +7,23 @@ module RefreshService
     end
 
     handle_refresh_start(page)
+    
+    mechanize_page = download(page)
+    page_file = process_file(mechanize_page)
 
     key = page.url
-    body = page_content
+    body = page_file 
 
-    if body.nil?
+    if body.present?
+      upload_page_to_s3(page)
+    else
       Rails.logger.info "Got a nil page_file - Page should be marked as dead."
       return nil
     end
 
-    command = Refresh::UploadPageToS3.new(key, body)
-    command.run_with_gc!
-    command.payload
-    Rails.logger.debug "[Refresh::RefreshScrapePage] Finished refresh #{@scrape_page.page.url}"
-
     handle_refresh_success(page)
   rescue => e
     handle_refresh_failure(page)
-  end
-
-  def refresh_pages(pages, refresh_time=1.day.ago)
   end
 
   def download_cached_page(page)
@@ -59,6 +56,13 @@ module RefreshService
     page.save
     raise e
   end
+
+  def upload_page_to_s3(key, body)
+    command = Refresh::UploadPageToS3.new(key, body)
+    command.run_with_gc!
+    command.payload
+  end
+
 
   def handle_refresh_start(page)
     page.refresh_status = :active
