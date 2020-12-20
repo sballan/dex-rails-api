@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_20_011923) do
+ActiveRecord::Schema.define(version: 2020_12_20_023121) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -21,6 +21,16 @@ ActiveRecord::Schema.define(version: 2020_12_20_011923) do
     t.index ["from_id"], name: "index_links_on_from_id"
     t.index ["to_id", "from_id", "text"], name: "index_links_on_to_id_and_from_id_and_text", unique: true
     t.index ["to_id"], name: "index_links_on_to_id"
+  end
+
+  create_table "page_matches", force: :cascade do |t|
+    t.integer "query_id", null: false
+    t.string "match"
+    t.string "kind"
+    t.boolean "full"
+    t.integer "distance"
+    t.integer "length"
+    t.index ["query_id"], name: "index_page_matches_on_query_id"
   end
 
   create_table "pages", force: :cascade do |t|
@@ -107,6 +117,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_011923) do
 
   add_foreign_key "links", "pages", column: "from_id"
   add_foreign_key "links", "pages", column: "to_id"
+  add_foreign_key "page_matches", "queries"
   add_foreign_key "results", "pages"
   add_foreign_key "results", "queries"
   add_foreign_key "scrape_pages", "pages"
