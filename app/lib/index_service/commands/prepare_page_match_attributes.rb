@@ -27,16 +27,21 @@ module IndexService::Commands
     #  This crazy method gets us every combination of skip sequences given our parameters...!
     #  This will be used to create all uniq query strings.  We may need to reuse this when making page matches?
     def generate_skip_sequences
-      skip_sequences = []
+      skip_sequences = Set.new
       (1..@max_length).each do |length|
         (0..@max_distance).each do |distance|
           false_values = [false] * length
           true_values = [true] * distance
-          permutations = (false_values + true_values).permutation.to_a
-          skip_sequences.concat(permutations)
+          permutations = (false_values + true_values).permutation
+          skip_sequences.merge(permutations)
         end
       end
-      skip_sequences
+
+      skip_sequences.reject! do |sequence|
+        sequence.first == true || sequence.last == true
+      end
+
+      skip_sequences.to_a
     end
 
     # @param [Array<Boolean>] skip_sequence Represents the number of skips between words.
@@ -57,7 +62,7 @@ module IndexService::Commands
           match_string: current_match_array.join(" "),
           skip_sequence: skip_sequence,
           distance: skip_sequence.count(true),
-          length: skip_sequence.size
+          length: skip_sequence.count(false)
         }
 
         base_index += 1
