@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_29_170134) do
+ActiveRecord::Schema.define(version: 2020_12_20_011923) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -26,11 +26,24 @@ ActiveRecord::Schema.define(version: 2020_11_29_170134) do
   create_table "pages", force: :cascade do |t|
     t.string "url"
     t.string "title"
-    t.datetime "download_success"
-    t.datetime "download_failure"
-    t.datetime "download_invalid"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "refresh_status", default: 0
+    t.integer "parse_status", default: 0
+    t.integer "index_status", default: 0
+    t.integer "cache_status", default: 0
+    t.datetime "refresh_started_at"
+    t.datetime "refresh_finished_at"
+    t.datetime "parse_started_at"
+    t.datetime "parse_finished_at"
+    t.datetime "index_started_at"
+    t.datetime "index_finished_at"
+    t.datetime "cache_started_at"
+    t.datetime "cache_finished_at"
+    t.index ["cache_status"], name: "index_pages_on_cache_status"
+    t.index ["index_status"], name: "index_pages_on_index_status"
+    t.index ["parse_status"], name: "index_pages_on_parse_status"
+    t.index ["refresh_status"], name: "index_pages_on_refresh_status"
     t.index ["url"], name: "index_pages_on_url", unique: true
   end
 
