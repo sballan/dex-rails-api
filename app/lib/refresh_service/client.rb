@@ -1,4 +1,4 @@
-module RefreshService
+module RefreshService::Client
   extend self
 
   def refresh_page(page, refresh_time=1.day.ago)
@@ -15,7 +15,7 @@ module RefreshService
     body = page_file 
 
     if body.present?
-      upload_page_to_s3(page)
+      upload_page_to_s3(key, body)
     else
       Rails.logger.info "Got a nil page_file - Page should be marked as dead."
       return nil
@@ -27,6 +27,11 @@ module RefreshService
   end
 
   def download_cached_page(page)
+    client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
+    key = Base64.urlsafe_encode64(page.url)
+    body = client.read(key: key).body.read
+    Rails.logger.debug "Fetched page_file from S3: #{page.url}"
+    body
   end
 
   private
@@ -35,7 +40,7 @@ module RefreshService
     return nil if mechanize_page.nil?
 
     nokogiri_doc = mechanize_page.parser
-    command = Refresh::ProcessNokogiriDoc.new(nokogiri_doc)
+    command = Command::ProcessNokogiriDoc.new(nokogiri_doc)
     command.run_with_gc!
     command.payload
   end
@@ -58,11 +63,10 @@ module RefreshService
   end
 
   def upload_page_to_s3(key, body)
-    command = Refresh::UploadPageToS3.new(key, body)
+    command = Command::UploadPageToS3.new(key, body)
     command.run_with_gc!
     command.payload
   end
-
 
   def handle_refresh_start(page)
     page.refresh_status = :active
@@ -86,33 +90,5 @@ module RefreshService
     page.save!
 
     Rails.logger.info "Refresh succeeded for Page(#{page.id})"
-  end    
-  
-    def run_proc
-      handle_start!
-
-      Rails.logger.debug "[Refresh::RefreshScrapePage] Starting refresh: #{@scrape_page.page.url}"
-      key = @scrape_page.page.url
-      body = page_content
-
-      if body.nil?
-        Rails.logger.info "Got a nil page - scrape_page should be marked as dead."
-        return nil
-      end
-
-      command = Refresh::UploadPageToS3.new(key, body)
-      command.run_with_gc!
-      command.payload
-      Rails.logger.debug "[Refresh::RefreshScrapePage] Finished refresh #{@scrape_page.page.url}"
-
-      handle_success!
-      result.succeed!(@scrape_page)
-    rescue StandardError => e
-      Rails.logger.error "[Refresh::RefreshScrapePage] failed for ScrapePage #{@scrape_page.id}"
-      handle_failure
-      result.fail!(e)
-      raise e
-    end
-
   end
 end
