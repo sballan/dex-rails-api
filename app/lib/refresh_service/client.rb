@@ -8,7 +8,7 @@ module RefreshService::Client
 
     handle_refresh_start(page)
     
-    mechanize_page = download(page)
+    mechanize_page = mechanize_page(page)
     page_file = process_file(mechanize_page)
 
     key = page.url
@@ -35,15 +35,6 @@ module RefreshService::Client
   end
 
   private
-  
-  def process_file(mechanize_page)
-    return nil if mechanize_page.nil?
-
-    nokogiri_doc = mechanize_page.parser
-    command = Command::ProcessNokogiriDoc.new(nokogiri_doc)
-    command.run_with_gc!
-    command.payload
-  end
 
   def mechanize_page(page)
     command = Refresh::DownloadMechanizePage.new(page.url)
@@ -62,6 +53,16 @@ module RefreshService::Client
     raise e
   end
 
+  def process_file(mechanize_page)
+    return nil if mechanize_page.nil?
+
+    nokogiri_doc = mechanize_page.parser
+    command = Command::ProcessNokogiriDoc.new(nokogiri_doc)
+    command.run_with_gc!
+    command.payload
+  end
+
+
   def upload_page_to_s3(key, body)
     command = Command::UploadPageToS3.new(key, body)
     command.run_with_gc!
@@ -74,15 +75,15 @@ module RefreshService::Client
     page.save!
 
     Rails.logger.info "Starting refresh for Page(#{page.id})"
-  end    
-  
+  end
+
   def handle_refresh_failure(page)
     page.refresh_status = :failure
     page.refresh_finished_at = DateTime.now.utc
     page.save
 
     Rails.logger.info "Refresh failed for Page(#{page.id})"
-  end    
+  end
 
   def handle_refresh_success(page)
     page.refresh_status = :success
