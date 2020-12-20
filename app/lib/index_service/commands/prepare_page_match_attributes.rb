@@ -1,7 +1,5 @@
 module IndexService::Commands
-  class GenerateQueryPageMatchMap < Command::Base::Abstract
-    VALID_ATTRIBUTES = Set.new(%i[text page_id kind])
-
+  class PreparePageMatchAttributes < Command::Base::Abstract
     # @param [Array<String>] words_array A list of words that has been sanitized/processed
     # @param [Integer] max_distance Upper bound on skipped words in query/page_match
     # @param [Integer] max_length Upper bound on total words used in query/page_match
@@ -14,9 +12,14 @@ module IndexService::Commands
 
     def run_proc
       skip_sequences = generate_skip_sequences
-      matches = generate_matches(skip_sequences)
 
-      result.succeed!(query_ids)
+      matches = skip_sequences.map do |sequence|
+        generate_matches(sequence)
+      end
+
+      matches.flatten!
+
+      result.succeed!(matches)
     end
 
     private
@@ -33,6 +36,7 @@ module IndexService::Commands
           skip_sequences.concat(permutations)
         end
       end
+      skip_sequences
     end
 
     # @param [Array<Boolean>] skip_sequence Represents the number of skips between words.
@@ -60,37 +64,6 @@ module IndexService::Commands
       end
 
       matches
-    end
-
-    def validate_attributes
-      @attributes.each do |att|
-        att_keys = Set.new(att.keys)
-        raise "Invalid key" unless att_keys == VALID_ATTRIBUTES
-      end
-    end
-
-    def sanitize_attributes
-      @attributes.each do |att|
-        # TODO: put this business rule in a better spot?
-        att[:text] = att[:text].downcase[0..999]
-      end
-    end
-
-    def insert_queries
-      query_atts = @attributes.map do |att|
-        {
-          text: att[:text],
-          created_at: DateTime.now.utc,
-          updated_at: DateTime.now.utc
-        }
-      end
-      Query.insert_all(query_atts, unique_by: :index_queries_on_text)
-      db_query_atts = Query.where(text: query_atts.map {|att| att[:text]} ).pluck(:text, :id)
-      db_query_atts.to_h # Hash {text => id}
-    end
-
-    def insert_results(result_atts)
-      Result.insert_all(result_atts, unique_by: :index_results_on_query_id_and_page_id_and_kind)
     end
   end
 end
