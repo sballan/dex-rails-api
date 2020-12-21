@@ -1,10 +1,12 @@
 module IndexService::Commands
   class PreparePageMatchAttributes < Command::Base::Abstract
+    # @param [Page] page Page this PageMatch is on
     # @param [Array<String>] words_array A list of words that has been sanitized/processed
     # @param [Integer] max_distance Upper bound on skipped words in query/page_match
     # @param [Integer] max_length Upper bound on total words used in query/page_match
-    def initialize(words_array, max_distance, max_length)
+    def initialize(page, words_array, max_distance, max_length)
       super()
+      @page = page
       @words_array = words_array
       @max_distance = max_distance
       @max_length = max_length
