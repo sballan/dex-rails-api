@@ -51,6 +51,7 @@ module IndexService::Commands
     def generate_matches(skip_sequence)
       matches = []
       base_index = 0
+      full_match_string = @words_array.join(" ")
       while(base_index + skip_sequence.size) <= @words_array.size do
         current_match_array = []
         skip_sequence.each_with_index do |skip, index|
@@ -58,9 +59,12 @@ module IndexService::Commands
           current_match_array << @words_array[base_index + index]
         end
 
+        query_text = current_match_array.join(" ")
+        full = query_text == full_match_string
+
         matches << {
-          match_string: current_match_array.join(" "),
-          skip_sequence: skip_sequence,
+          query_text: query_text,
+          full: full,
           distance: skip_sequence.count(true),
           length: skip_sequence.count(false)
         }
