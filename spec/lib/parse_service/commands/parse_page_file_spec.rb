@@ -18,7 +18,9 @@ describe ParseService::Commands::ParsePageFile do
     let(:page_file) { <<-HTML
       <html>
         <head><title>My Test Page</title></head>
-        <body><h1>My Test Header</h1></body>
+        <body>
+          <h1>My Test Header</h1>
+        </body>
       </html>
     HTML
     }
@@ -27,6 +29,12 @@ describe ParseService::Commands::ParsePageFile do
       command = ParseService::Commands::ParsePageFile.new(url, page_file)
       command.run!
       expect(command.payload[:title]).to eql('My Test Page')
+    end
+
+    it 'can extract h1 headers' do
+      command = ParseService::Commands::ParsePageFile.new(url, page_file)
+      command.run!
+      expect(command.payload[:headers]).to eql(['My Test Header'])
     end
   end
 end

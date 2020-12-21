@@ -21,6 +21,7 @@ module ParseService::Commands
       parsed_page = {
         title: doc.title.blank? ? nil : doc.title,
         body: Html2Text.convert(doc.to_html.force_encoding('UTF-8')),
+        headers: [],
         links: []
       }
 
@@ -31,6 +32,12 @@ module ParseService::Commands
             url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
             text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
         }
+      end
+
+      doc.css('h1').each do |header_node|
+        next if header_node.text.blank?
+
+        parsed_page[:headers] << header_node.text
       end
 
       # Removes a nil title
