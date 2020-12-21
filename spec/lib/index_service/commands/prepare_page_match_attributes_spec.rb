@@ -18,12 +18,7 @@ describe IndexService::Commands::PreparePageMatchAttributes do
       max_distance = 0
       max_length = 1
 
-      expected_results = [{
-          distance: 0,
-          length: 1,
-          match_string: "myWord",
-          skip_sequence: [false]
-      }]
+      expected_results = [{distance: 0, length: 1, query_text: "myWord", full: true}]
 
       command = IndexService::Commands::PreparePageMatchAttributes.new(words_array, max_distance, max_length)
       command.run!
@@ -37,13 +32,13 @@ describe IndexService::Commands::PreparePageMatchAttributes do
 
        expected_results = [
          {
-           distance: 0, length: 1, match_string: "myWord", skip_sequence: [false]
+           distance: 0, length: 1, query_text: "myWord", full: false
          },
          {
-           distance: 0, length: 1, match_string: "myOtherWord", skip_sequence: [false]
+           distance: 0, length: 1, query_text: "myOtherWord", full: false
          },
          {
-           distance: 0, length: 2,  match_string: "myWord myOtherWord", skip_sequence: [false, false]
+           distance: 0, length: 2,  query_text: "myWord myOtherWord", full: true
          }
        ]
 
@@ -59,25 +54,25 @@ describe IndexService::Commands::PreparePageMatchAttributes do
 
        expected_results = [
          {
-           distance: 0, length: 1, match_string: "myWord", skip_sequence: [false]
+           distance: 0, length: 1, query_text: "myWord", full: false
          },
          {
-           distance: 0, length: 1, match_string: "myOtherWord", skip_sequence: [false]
+           distance: 0, length: 1, query_text: "myOtherWord", full: false
          },
          {
-           distance: 0, length: 1, match_string: "myLastWord", skip_sequence: [false]
+           distance: 0, length: 1, query_text: "myLastWord", full: false
          },
          {
-           distance: 0, length: 2, match_string: "myWord myOtherWord", skip_sequence: [false, false]
+           distance: 0, length: 2, query_text: "myWord myOtherWord", full: false
          },
          {
-           distance: 0, length: 2, match_string: "myOtherWord myLastWord", skip_sequence: [false, false]
+           distance: 0, length: 2, query_text: "myOtherWord myLastWord", full: false
          },
          {
-           distance: 1, length: 2, match_string: "myWord myLastWord", skip_sequence: [false, true, false]
+           distance: 1, length: 2, query_text: "myWord myLastWord", full: false
          },
          {
-           distance: 0, length: 3, match_string: "myWord myOtherWord myLastWord", skip_sequence: [false, false, false]
+           distance: 0, length: 3, query_text: "myWord myOtherWord myLastWord", full: true
          }
        ]
 
