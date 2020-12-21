@@ -7,7 +7,7 @@ describe IndexService::Commands::PreparePageMatchAttributes do
       max_distance = 0
       max_length = 1
 
-      command = IndexService::Commands::PreparePageMatchAttributes.new(words_array, max_distance, max_length)
+      command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, max_distance, max_length)
       expect(command).to be
     end
   end
@@ -18,9 +18,9 @@ describe IndexService::Commands::PreparePageMatchAttributes do
       max_distance = 0
       max_length = 1
 
-      expected_results = [{distance: 0, length: 1, query_text: "myWord", full: true}]
+      expected_results = [{page_id: 0, distance: 0, length: 1, query_text: "myWord", full: true}]
 
-      command = IndexService::Commands::PreparePageMatchAttributes.new(words_array, max_distance, max_length)
+      command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, max_distance, max_length)
       command.run!
       expect(command.payload).to eql(expected_results)
      end
@@ -32,17 +32,17 @@ describe IndexService::Commands::PreparePageMatchAttributes do
 
        expected_results = [
          {
-           distance: 0, length: 1, query_text: "myWord", full: false
+           page_id: 0, distance: 0, length: 1, query_text: "myWord", full: false
          },
          {
-           distance: 0, length: 1, query_text: "myOtherWord", full: false
+           page_id: 0, distance: 0, length: 1, query_text: "myOtherWord", full: false
          },
          {
-           distance: 0, length: 2,  query_text: "myWord myOtherWord", full: true
+           page_id: 0, distance: 0, length: 2,  query_text: "myWord myOtherWord", full: true
          }
        ]
 
-       command = IndexService::Commands::PreparePageMatchAttributes.new(words_array, max_distance, max_length)
+       command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, max_distance, max_length)
        command.run!
        expect(command.payload).to eql(expected_results)
      end
@@ -54,29 +54,29 @@ describe IndexService::Commands::PreparePageMatchAttributes do
 
        expected_results = [
          {
-           distance: 0, length: 1, query_text: "myWord", full: false
+           page_id: 0, distance: 0, length: 1, query_text: "myWord", full: false
          },
          {
-           distance: 0, length: 1, query_text: "myOtherWord", full: false
+           page_id: 0, distance: 0, length: 1, query_text: "myOtherWord", full: false
          },
          {
-           distance: 0, length: 1, query_text: "myLastWord", full: false
+           page_id: 0, distance: 0, length: 1, query_text: "myLastWord", full: false
          },
          {
-           distance: 0, length: 2, query_text: "myWord myOtherWord", full: false
+           page_id: 0, distance: 0, length: 2, query_text: "myWord myOtherWord", full: false
          },
          {
-           distance: 0, length: 2, query_text: "myOtherWord myLastWord", full: false
+           page_id: 0, distance: 0, length: 2, query_text: "myOtherWord myLastWord", full: false
          },
          {
-           distance: 1, length: 2, query_text: "myWord myLastWord", full: false
+           page_id: 0, distance: 1, length: 2, query_text: "myWord myLastWord", full: false
          },
          {
-           distance: 0, length: 3, query_text: "myWord myOtherWord myLastWord", full: true
+           page_id: 0, distance: 0, length: 3, query_text: "myWord myOtherWord myLastWord", full: true
          }
        ]
 
-       command = IndexService::Commands::PreparePageMatchAttributes.new(words_array, max_distance, max_length)
+       command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, max_distance, max_length)
        command.run!
        expect(command.payload).to eql(expected_results)
      end

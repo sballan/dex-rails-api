@@ -11,6 +11,8 @@ module IndexService::Commands
 
     def run_proc
       words_array = sanitized_words
+      return if words_array.blank?
+
       attributes = prepare_page_match_attributes(words_array)
       insert_queries_and_page_matches(attributes)
 
@@ -26,7 +28,7 @@ module IndexService::Commands
     end
 
     def prepare_page_match_attributes(words_array)
-      command = PreparePageMatchAttributes.new(@page, words_array, @max_length, @max_distance)
+      command = PreparePageMatchAttributes.new(@page.id, words_array, @max_length, @max_distance)
       command.run!
       command.payload
     end
