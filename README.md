@@ -1,4 +1,4 @@
-# DEX: The Worst Search Engine Ever®
+# DEX: The World's Worst Search Engine®
 But you might learn something.
 
 https://dex-rails-api.herokuapp.com
