@@ -1,4 +1,4 @@
-module ParseService::Comands
+module ParseService::Commands
   # This class should persist:
   # 1. links that appear on a page
   # 2. title of the page
