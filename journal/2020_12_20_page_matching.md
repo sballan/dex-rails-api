@@ -1,3 +1,32 @@
+# 12/22/2020
+An idea that may belong in a future project - hard to say quite yet.  It has to do with the ActionJob interface, and how to get 'batches' working.
+
+The simplest way to really get batches rocking would probably be to just implement some locks within redis.  This, however, would create another dependence on Redis that I'd rather avoid.  As it stands, jobs can currently still work using AsyncJob, and the Rails cache has a dev version that also doesn't use Redis.
+
+I'm wondering about doing some locking in the database.  The idea goes something like this:
+
+## Loops and Locks
+### Site Refresh Loop Job 
+For a domain that is 'active', we queue a refresh job.  This job registers itself with Site model itself, along with a start time (and timeout?).  The job can refresh as many pages as it wants to (a single "batch" worth of jobs), and checks to see that it's still the active job for refresh for that Site between each download.  It then will un-register itself from running.  It queues up 'itself" to run again.
+
+Every X time interval, the Site Scrape Manager job runs. It checks on pages that need to be refreshed, and on currently running jobs (by ID and time started).  If there is no active job, or if the last one is taking way too long, we replace it with a new one (which kills the old one).
+
+This system works well for refreshing jobs, since this is something we should just do continuously for all domains that we want to keep up to date.  It also avoids having long running processes, which have their own disadvantages.  It might even make sense to have the Job only refresh a single page at a time before requeueing itself...(or is that too much Redis/db overhead...?)
+
+### Site Parse Loop Job
+Parsing depends on Refreshing.  We can only parse jobs that have already been refreshed.  So we have another loop here for Parsing, looking at jobs have been refreshed since the last parse.  Similarly, we keep our locks with the Site, but since we have no worry about rate limiting by Site parsing, we can have as many workers (running in loops) as we need.  1 is probably fine though.
+
+### Site Index Loop Job
+Indexing get's us into less tested territory.  The Index process may take a very long time per page, especially for "full parse".  Having a single page loop might make plenty of sense here, since we may not want to have more than one of these running at a time...?  Not really sure that's a concern here - long running processes are bad for their own reasons.
+
+### Caching
+Aaaand then caching.  Really not sure how to feel about this one.  This is the enormous job.  Not sure if this should be done incrementally or what.  Seems to be the sort of thing to do once a Site hits some threshold of successful Indexes, since future indexes may make past Caching obsolete.
+
+Maybe for some constant successfully indexed number of pages, we do a cache operation.
+
+## Singles vs Batches
+I'm curious to examine the pros and cons of having batches of operations performed in a Job vs just a single operation.  I imagine there is a significant tradeoff of Redis overhead and instantiating all the job objects.  But is there also better visibility into the system?  Some useful logging we get for free?  Does it make things easier to reason about? Does it keep memory consumption low in some useful way?
+
 # 12/20/2020
 Here starts the journal. Bit of an unusual idea, keeping a journal in your souce code, but it's my project so I'm gonna do it how I like.
  
