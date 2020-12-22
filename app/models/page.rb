@@ -1,8 +1,10 @@
 class Page < ApplicationRecord
-  enum refresh_status: {new: 0, ready: 1, active: 2, success: 3, failure: 4, dead: 5}, _prefix: :refresh
-  enum parse_status: {new: 0, ready: 1, active: 2, success: 3, failure: 4, dead: 5}, _prefix: :parse
-  enum index_status: {new: 0, ready: 1, active: 2, success: 3, failure: 4, dead: 5}, _prefix: :index
-  enum cache_status: {new: 0, ready: 1, active: 2, success: 3, failure: 4, dead: 5}, _prefix: :cache
+  VALID_STATUSES_ENUM = { new: 0, ready: 1, active: 2, success: 3, failure: 4, dead: 5 }
+
+  enum refresh_status: VALID_STATUSES_ENUM, _prefix: :refresh
+  enum parse_status: VALID_STATUSES_ENUM, _prefix: :parse
+  enum index_status: VALID_STATUSES_ENUM, _prefix: :index
+  enum cache_status: VALID_STATUSES_ENUM, _prefix: :cache
 
   # This might seem a little backwards - but that's just because language is weird.
   has_many :links_to, inverse_of: :from, foreign_key: :from_id, class_name: "Link"
