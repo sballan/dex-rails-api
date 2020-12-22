@@ -38,4 +38,21 @@ describe Page, type: :model do
       expect(page1.links_from.first).to_not eql(link1)
     end
   end
+
+  context 'Scopes' do
+    describe 'refresh_ready_by_site' do
+      before(:example) do
+        @page1 = Page.create!(url: "http://www.test.com", refresh_status: :ready)
+        @page2 = Page.create!(url: "http://www.test.com/some/path", refresh_status: :ready)
+        @page3 = Page.create!(url: "http://www.test.com/some/other/path", refresh_status: :new)
+        @page4 = Page.create!(url: "http://www.not_test.com", refresh_status: :ready)
+        @site = Site.create!(home_url: "http://www.test.com", host: "www.test.com")
+      end
+
+      it 'can find the home page for the site' do
+        pages = Page.refresh_ready_by_site(@site)
+        expect(pages).to include(@page1)
+      end
+    end
+  end
 end

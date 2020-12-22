@@ -18,6 +18,16 @@ class Page < ApplicationRecord
 
   validates_presence_of :url
 
+  scope :refresh_ready_by_site, ->(site) {
+    url_string = Page.arel_table[:url]
+
+    refresh_ready.where(
+      url_string.matches("%://#{site.host}%")
+    ).or(where(
+      url_string.matches("%://www.#{site.host}%")
+    ))
+  }
+
   scope :by_links_from_count, -> {
     left_joins(:links_from).group(:id).order('COUNT(links.id) DESC')
   }
