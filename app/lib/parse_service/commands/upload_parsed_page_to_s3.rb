@@ -1,4 +1,4 @@
-module RefreshService::Commands
+module ParseService::Commands
   class UploadParsedPageToS3 < Command::Base::Abstract
     def initialize(url, parsed_page)
       super()
