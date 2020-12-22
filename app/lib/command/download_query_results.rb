@@ -14,7 +14,7 @@ module Command
       body = client.read(key: key).body.read
       result.succeed!(body)
     rescue Aws::S3::Errors::NoSuchKey => e
-      result.fail!(e)
+      result.succeed!(nil)
     end
   end
 end

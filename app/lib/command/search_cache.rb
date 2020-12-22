@@ -17,7 +17,7 @@ module Command
       matches_set.each do |match|
         command = Command::DownloadQueryResults.new match
         run_nested(command)
-        if(command.success?)
+        if(command.success? && command.payload.present?)
           raw_response = command.result.payload
           parsed_response = JSON.parse(raw_response)
           cache_hits[match] = parsed_response

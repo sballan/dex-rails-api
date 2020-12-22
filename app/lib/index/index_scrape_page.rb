@@ -39,7 +39,7 @@ module Index
     end
 
     def links_queries
-      link_texts = @scrape_page.page.links_to.where.not(text: [nil, ""]).pluck(:text)
+      link_texts = @scrape_page.page.links_from.where.not(text: [nil, ""]).pluck(:text)
 
       if link_texts.empty?
         Rails.logger.debug "ScrapePage (#{@scrape_page.id}) belongs to a page with no links_to. Not indexing."
