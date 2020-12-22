@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_20_023121) do
+ActiveRecord::Schema.define(version: 2020_12_22_032013) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -115,6 +115,16 @@ ActiveRecord::Schema.define(version: 2020_12_20_023121) do
     t.index ["scrape_batch_id", "page_id"], name: "index_scrape_pages_on_scrape_batch_id_and_page_id", unique: true
     t.index ["scrape_batch_id"], name: "index_scrape_pages_on_scrape_batch_id"
     t.index ["status"], name: "index_scrape_pages_on_status"
+  end
+
+  create_table "sites", force: :cascade do |t|
+    t.string "home_url", null: false
+    t.string "host", null: false
+    t.boolean "scrape_active", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["home_url"], name: "index_sites_on_home_url", unique: true
+    t.index ["host"], name: "index_sites_on_host", unique: true
   end
 
   add_foreign_key "links", "pages", column: "from_id"
