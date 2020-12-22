@@ -1,4 +1,4 @@
-module ParseService::Comands
+module ParseService::Commands
   class InsertLinks < Command::Base::Abstract
     def initialize(page, parsed_page)
       super()
