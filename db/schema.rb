@@ -121,6 +121,8 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
     t.string "home_url", null: false
     t.string "host", null: false
     t.boolean "scrape_active", default: false
+    t.string "refresh_job_id"
+    t.datetime "refresh_job_started_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["home_url"], name: "index_sites_on_home_url", unique: true
