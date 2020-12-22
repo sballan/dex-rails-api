@@ -26,6 +26,7 @@ module RefreshService
 
       body
     rescue => e
+      Rails.logger.error e.message
       handle_refresh_failure(page)
     end
 
@@ -39,7 +40,6 @@ module RefreshService
 
     def mechanize_page(page)
       command = Commands::DownloadMechanizePage.new(page.url)
-      command.
       command.run_with_gc!
       command.payload
     rescue Command::Base::Errors::CommandInvalid => e
