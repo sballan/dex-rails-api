@@ -53,6 +53,21 @@ describe Page, type: :model do
         pages = Page.refresh_ready_by_site(@site)
         expect(pages).to include(@page1)
       end
+
+      it 'can find an arbitrary page for the site' do
+        pages = Page.refresh_ready_by_site(@site)
+        expect(pages).to include(@page2)
+      end
+
+      it 'does not find pages with the wrong status' do
+        pages = Page.refresh_ready_by_site(@site)
+        expect(pages).to_not include(@page3)
+      end
+
+      it 'does not find pages for other sites' do
+        pages = Page.refresh_ready_by_site(@site)
+        expect(pages).to_not include(@page4)
+      end
     end
   end
 end
