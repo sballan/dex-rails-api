@@ -7,7 +7,7 @@ module RefreshService::Commands
     end
 
     def run_proc
-      client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
+      client = S3Client.new(ENV['DEV_BUCKET'], ENV['DO_PAGE_FILES_NAMESPACE'])
       key = Base64.urlsafe_encode64(@url)
       client.write_private(key: key, body: @page_content)
       result.succeed!

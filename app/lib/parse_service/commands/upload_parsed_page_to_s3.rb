@@ -7,7 +7,7 @@ module ParseService::Commands
     end
 
     def run_proc
-      client = S3Client.new(ENV['DEV_BUCKET'], 'parsed_pages')
+      client = S3Client.new(ENV['DEV_BUCKET'], ENV['DO_PARSED_PAGES_NAMESPACE'])
       key = Base64.urlsafe_encode64(@url)
       client.write_private(key: key, body: @parsed_page)
       result.succeed!
