@@ -28,6 +28,7 @@ module ParseService::Commands
     private
 
     def insert_links
+      return if @parsed_page[:links].blank?
       command = InsertLinks.new(@page, @parsed_page)
       command.run!
     end
