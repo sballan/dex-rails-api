@@ -8,7 +8,7 @@ class SiteRefreshNextPageJob < ApplicationJob
     Page.transaction do
       page = Page.lock.refresh_ready_by_site(site).first
       if page.nil?
-        RefreshNextPageForSiteJob.set(wait: 1.minute).perform_later(site.id)
+        SiteRefreshNextPageJob.set(wait: 1.minute).perform_later(site.id)
         Rails.logger.info "No pages to refresh.  Try again in 1 minute."
         return
       else
@@ -21,9 +21,9 @@ class SiteRefreshNextPageJob < ApplicationJob
     RefreshService::Client.refresh_page(page)
 
     if Page.refresh_ready_by_site(site).any?
-      RefreshNextPageForSiteJob.perform_later(site.id)
+      SiteRefreshNextPageJob.perform_later(site.id)
     else
-      RefreshNextPageForSiteJob.set(wait: 1.hour).perform_later(site.id)
+      SiteRefreshNextPageJob.set(wait: 1.hour).perform_later(site.id)
     end
   end
 
