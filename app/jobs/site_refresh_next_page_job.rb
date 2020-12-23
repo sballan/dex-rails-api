@@ -2,6 +2,8 @@ class SiteRefreshNextPageJob < ApplicationJob
   queue_as :refresh
 
   def perform(site_id)
+    lock_site(site_id)
+
     site = Site.find(site_id)
     # Our cheap version of a lock on this page.
     page = nil
@@ -27,16 +29,19 @@ class SiteRefreshNextPageJob < ApplicationJob
     else
       SiteRefreshNextPageJob.set(wait: 1.hour).perform_later(site.id)
     end
+
+    unlock_site(site_id)
   end
 
-  before_perform do |job|
-    site_id = job.arguments.first
+  private
+
+  def lock_site(site_id)
     Site.transaction do
       site = Site.lock.find(site_id)
 
       if site.refresh_job_id.present? &&
-        site.refresh_job_id != job_id &&
-        site.refresh_job_started_at > 10.minutes.ago
+          site.refresh_job_id != job_id &&
+          site.refresh_job_started_at > 5.minutes.ago
         # Make sure this doesn't get retried, needs to be discarded
         raise "Cannot run this job, it is already running on a different worker"
       end
@@ -49,8 +54,7 @@ class SiteRefreshNextPageJob < ApplicationJob
     Rails.logger.info "Successfully locked job #{job_id} for Site(#{site_id})"
   end
 
-  after_perform do |job|
-    site_id = job.arguments.first
+  def unlock_site(site_id)
     Site.transaction do
       site = Site.lock.find(site_id)
 
