@@ -40,7 +40,7 @@ describe Page, type: :model do
   end
 
   context 'Scopes' do
-    describe 'refresh_ready_by_site' do
+    describe 'by_site.refresh_ready' do
       before(:example) do
         @page1 = Page.create!(url: "http://www.test.com", refresh_status: :ready)
         @page2 = Page.create!(url: "http://www.test.com/some/path", refresh_status: :ready)
@@ -50,22 +50,22 @@ describe Page, type: :model do
       end
 
       it 'can find the home page for the site' do
-        pages = Page.refresh_ready_by_site(@site)
+        pages = Page.by_site(@site).refresh_ready
         expect(pages).to include(@page1)
       end
 
       it 'can find an arbitrary page for the site' do
-        pages = Page.refresh_ready_by_site(@site)
+        pages = Page.by_site(@site).refresh_ready
         expect(pages).to include(@page2)
       end
 
       it 'does not find pages with the wrong status' do
-        pages = Page.refresh_ready_by_site(@site)
+        pages = Page.by_site(@site).refresh_ready
         expect(pages).to_not include(@page3)
       end
 
       it 'does not find pages for other sites' do
-        pages = Page.refresh_ready_by_site(@site)
+        pages = Page.by_site(@site).refresh_ready
         expect(pages).to_not include(@page4)
       end
     end

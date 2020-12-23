@@ -6,7 +6,7 @@ class ScrapeSiteJob < ApplicationJob
     # Our cheap version of a lock on this page.
     page = nil
     Page.transaction do
-      page = Page.lock.refresh_ready_by_site(site).first
+      page = Page.lock.by_site(site).refresh_ready.first
       if page.nil?
         Rails.logger.info "No pages to refresh"
         return
@@ -19,7 +19,7 @@ class ScrapeSiteJob < ApplicationJob
 
     RefreshService::Client.refresh_page(page)
 
-    if Page.refresh_ready_by_site(site).any?
+    if Page.by_site(site).refresh_ready.any?
       RefreshNextPageForSiteJob.perform_later(site.id)
     end
   end
