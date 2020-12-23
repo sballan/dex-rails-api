@@ -1,5 +1,5 @@
 class SiteParseNextPageJob < ApplicationJob
-  queue_as :refresh
+  queue_as :parse
 
   def perform(site_id)
     site = Site.find(site_id)
