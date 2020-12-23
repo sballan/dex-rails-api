@@ -1,5 +1,31 @@
-class RefreshNextPageForSiteJob < ApplicationJob
+class SiteJobs::RefreshNextPageJob < ApplicationJob
   queue_as :refresh
+
+  def perform(site_id)
+    site = Site.find(site_id)
+    # Our cheap version of a lock on this page.
+    page = nil
+    Page.transaction do
+      page = Page.lock.refresh_ready_by_site(site).first
+      if page.nil?
+        RefreshNextPageForSiteJob.set(wait: 1.minute).perform_later(site.id)
+        Rails.logger.info "No pages to refresh.  Try again in 1 minute."
+        return
+      else
+        page.refresh_status = :active
+        page.refresh_started_at = DateTime.now.utc
+        page.save!
+      end
+    end
+
+    RefreshService::Client.refresh_page(page)
+
+    if Page.refresh_ready_by_site(site).any?
+      RefreshNextPageForSiteJob.perform_later(site.id)
+    else
+      RefreshNextPageForSiteJob.set(wait: 1.hour).perform_later(site.id)
+    end
+  end
 
   before_perform do |job|
     site_id = job.arguments.first
@@ -34,31 +60,5 @@ class RefreshNextPageForSiteJob < ApplicationJob
     end
 
     Rails.logger.info "Successfully unlocked job #{job_id} for Site(#{site_id})"
-  end
-
-  def perform(site_id)
-    site = Site.find(site_id)
-    # Our cheap version of a lock on this page.
-    page = nil
-    Page.transaction do
-      page = Page.lock.refresh_ready_by_site(site).first
-      if page.nil?
-        RefreshNextPageForSiteJob.set(wait: 10.seconds).perform_later(site.id)
-        Rails.logger.info "No pages to refresh.  Try again in 1 minute."
-        return
-      else
-        page.refresh_status = :active
-        page.refresh_started_at = DateTime.now.utc
-        page.save!
-      end
-    end
-
-    RefreshService::Client.refresh_page(page)
-
-    if Page.refresh_ready_by_site(site).any?
-      RefreshNextPageForSiteJob.perform_later(site.id)
-    else
-      RefreshNextPageForSiteJob.set(wait: 1.hour).perform_later(site.id)
-    end
   end
 end
