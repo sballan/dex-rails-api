@@ -14,7 +14,7 @@ module IndexService::Commands
       db_query_atts = insert_queries
       page_match_atts = @attributes.map do |att|
         {
-          query_id: db_query_atts[att[:text]],
+          query_id: db_query_atts[att[:query_text]],
           page_id: att[:page_id],
           kind: att[:kind],
           full: att[:full],

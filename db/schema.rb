@@ -30,6 +30,8 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
     t.boolean "full"
     t.integer "distance"
     t.integer "length"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["page_id"], name: "index_page_matches_on_page_id"
     t.index ["query_id", "page_id", "kind", "full", "distance", "length"], name: "index_page_matches_on_query_page_kind_full_distance_length", unique: true
     t.index ["query_id"], name: "index_page_matches_on_query_id"

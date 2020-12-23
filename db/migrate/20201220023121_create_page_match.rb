@@ -8,6 +8,7 @@ class CreatePageMatch < ActiveRecord::Migration[6.0]
       t.boolean :full
       t.integer :distance
       t.integer :length
+      t.timestamps
     end
 
     add_index :page_matches, %i[query_id page_id kind full distance length], unique: true, name: :index_page_matches_on_query_page_kind_full_distance_length
