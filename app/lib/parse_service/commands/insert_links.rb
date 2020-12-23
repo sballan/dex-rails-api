@@ -46,6 +46,7 @@ module ParseService::Commands
       @links_by_url.map do |url, link|
         {
           url: url,
+          refresh_status: :ready,
           created_at: link[:created_at],
           updated_at: link[:updated_at]
         }
