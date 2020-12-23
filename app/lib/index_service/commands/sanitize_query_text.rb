@@ -9,8 +9,8 @@ module IndexService::Commands
       output_string = @input_string.tap do |str|
         str.strip! # Remove leading and trailing whitespace
         str.downcase! # Only use lowercase characters
+        str.gsub!(/[^a-zA-Z0-9\s]/, "") # Keep only alphanumeric characters, in English (for now?)
         str.gsub!(/\s+/, " ") # Replace inner substrings of whitespace with single space
-        str.gsub!(/[^a-zA-Z0-9]/, "") # Keep only alphanumeric characters, in English (for now?)
       end
 
       result.succeed!(output_string)
