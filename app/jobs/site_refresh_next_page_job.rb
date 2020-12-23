@@ -22,6 +22,8 @@ class SiteRefreshNextPageJob < ApplicationJob
 
     RefreshService::Client.refresh_page(page)
 
+    unlock_site(site_id)
+
     page.parse_ready!
 
     if Page.by_site(site).refresh_ready.any?
@@ -29,8 +31,6 @@ class SiteRefreshNextPageJob < ApplicationJob
     else
       SiteRefreshNextPageJob.set(wait: 1.hour).perform_later(site.id)
     end
-
-    unlock_site(site_id)
   end
 
   private
