@@ -8,7 +8,7 @@ module Command
     end
 
     def run_proc
-      client = S3Client.new(ENV['DEV_BUCKET'], 'query_results')
+      client = S3Client.new(ENV['DO_DEFAULT_BUCKET'], 'query_results')
       key = Base64.urlsafe_encode64(@query.text)
 
       body = generate_results.to_json

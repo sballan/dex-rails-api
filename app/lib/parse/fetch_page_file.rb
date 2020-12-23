@@ -6,7 +6,7 @@ module Parse
     end
 
     def run_proc
-      client = S3Client.new(ENV['DEV_BUCKET'], 'page_files')
+      client = S3Client.new(ENV['DO_DEFAULT_BUCKET'], 'page_files')
       key = Base64.urlsafe_encode64(@url)
       body = client.read(key: key).body.read
       Rails.logger.debug "[Parse::FetchPageFile] Fetched from S3: #{@url}"

@@ -23,7 +23,7 @@ class DownloadPageCommand
         'UTF-8', invalid: :replace, undef: :replace, replace: ''
     )
 
-    client = S3Client.new(ENV['DEV_BUCKET'])
+    client = S3Client.new(ENV['DO_DEFAULT_BUCKET'])
     client.write_private(key: page.id, body: page_file)
 
     page.download_success = DateTime.now.utc
