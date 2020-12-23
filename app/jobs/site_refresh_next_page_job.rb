@@ -20,6 +20,8 @@ class SiteRefreshNextPageJob < ApplicationJob
 
     RefreshService::Client.refresh_page(page)
 
+    page.parse_ready!
+
     if Page.by_site(site).refresh_ready.any?
       SiteRefreshNextPageJob.perform_later(site.id)
     else
