@@ -1,4 +1,4 @@
-class SiteJobs::RefreshNextPageJob < ApplicationJob
+class SiteRefreshNextPageJob < ApplicationJob
   queue_as :refresh
 
   def perform(site_id)
