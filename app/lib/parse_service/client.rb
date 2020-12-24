@@ -7,7 +7,7 @@ module ParseService
 
       page_file = RefreshService::Client.refresh_page(page)
       parsed_page = parse_page_file(page.url, page_file)
-      upload_parsed_page_to_s3(page.url, parsed_page)
+      upload_parsed_page_to_s3(page.url, parsed_page.to_json)
       persist_parsed_page(page, parsed_page)
 
       handle_parse_success(page)
