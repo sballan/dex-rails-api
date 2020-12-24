@@ -15,7 +15,7 @@ class SiteIndexNextPageJob < ApplicationJob
       page = Page.lock.by_site(site).index_ready.first
       if page.nil?
         SiteIndexNextPageJob.set(wait: 10.seconds).perform_later(site.id)
-        Rails.logger.info "No pages to parse.  Try again in 1 minute."
+        Rails.logger.info "No pages to parse. Trying again in 10 seconds."
         return
       else
         page.index_status = :active
