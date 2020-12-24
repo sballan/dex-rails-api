@@ -5,8 +5,8 @@ module IndexService::Commands
       @page = page
       @input_string = input_string
       @kind = kind
-      @max_length = max_length
       @max_distance = max_distance
+      @max_length = max_length
     end
 
     def run_proc
@@ -28,7 +28,7 @@ module IndexService::Commands
     end
 
     def prepare_page_match_attributes(words_array)
-      command = PreparePageMatchAttributes.new(@page.id, words_array, @max_length, @max_distance)
+      command = PreparePageMatchAttributes.new(@page.id, words_array, @kind, @max_distance, @max_length)
       command.run!
       command.payload
     end

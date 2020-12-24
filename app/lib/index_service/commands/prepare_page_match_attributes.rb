@@ -4,10 +4,11 @@ module IndexService::Commands
     # @param [Array<String>] words_array A list of words that has been sanitized/processed
     # @param [Integer] max_distance Upper bound on skipped words in query/page_match. If nil, defaults to length of words_array
     # @param [Integer] max_length Upper bound on total words used in query/page_match. If nil, defaults to length of words_array
-    def initialize(page_id, words_array, max_distance=nil, max_length=nil)
+    def initialize(page_id, words_array, kind, max_distance=nil, max_length=nil)
       super()
       @page_id = page_id
       @words_array = words_array
+      @kind = kind
       @max_distance = max_distance || words_array.size
       @max_length = max_length || words_array.size
     end
@@ -68,6 +69,7 @@ module IndexService::Commands
           page_id: @page_id,
           query_text: query_text,
           full: full,
+          kind: @kind,
           distance: skip_sequence.count(true),
           length: skip_sequence.count(false)
         }
