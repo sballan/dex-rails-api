@@ -7,6 +7,7 @@ module ParseService
 
       page_file = RefreshService::Client.refresh_page(page)
       parsed_page = parse_page_file(page.url, page_file)
+      upload_parsed_page_to_s3(page.url, parsed_page)
       persist_parsed_page(page, parsed_page)
 
       handle_parse_success(page)
@@ -34,8 +35,8 @@ module ParseService
       command.run!
     end
 
-    def upload_parsed_page_to_s3(key, body)
-      command = Commands::UploadParsedPageToS3.new(key, body)
+    def upload_parsed_page_to_s3(url, parsed_page)
+      command = Commands::UploadParsedPageToS3.new(url, parsed_page)
       command.run_with_gc!
       command.payload
     end
