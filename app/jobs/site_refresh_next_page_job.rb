@@ -57,7 +57,7 @@ class SiteRefreshNextPageJob < ApplicationJob
       site.save!
     end
 
-    Rails.logger.info "Successfully locked job #{job_id} for Site(#{site_id})"
+    Rails.logger.debug "Successfully locked job #{job_id} for Site(#{site_id})"
   end
 
   def unlock_site(site_id)
@@ -71,6 +71,6 @@ class SiteRefreshNextPageJob < ApplicationJob
       end
     end
 
-    Rails.logger.info "Successfully unlocked job #{job_id} for Site(#{site_id})"
+    Rails.logger.debug "Successfully unlocked job #{job_id} for Site(#{site_id})"
   end
 end
