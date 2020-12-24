@@ -16,7 +16,9 @@ module ParseService
     end
 
     def download_cached_parsed_page(page)
-
+      command = Commands::DownloadParsedPageFromS3.new(page.url)
+      command.run!
+      command.payload
     end
 
     private
