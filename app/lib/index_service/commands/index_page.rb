@@ -8,6 +8,7 @@ module IndexService::Commands
 
     def run_proc
       parsed_page = ParseService::Client.download_cached_parsed_page(@page)
+      parsed_page = JSON.parse(parsed_page)
 
       index_title(parsed_page)
       index_links unless @level < 2
