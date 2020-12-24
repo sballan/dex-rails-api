@@ -39,6 +39,7 @@ module ParseService
       command.run_with_gc!
       command.payload
     end
+
     def handle_parse_start(page)
       page.parse_status = :active
       page.parse_started_at = DateTime.now.utc
