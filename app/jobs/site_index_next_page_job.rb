@@ -1,11 +1,11 @@
 class SiteIndexNextPageJob < ApplicationJob
-  queue_as :parse
+  queue_as :index
 
   def perform(site_id)
     site = Site.find(site_id)
 
     unless site.scrape_active
-      Rails.logger.info "Site(#{site.id}) is not scrape_active. Not parsing."
+      Rails.logger.info "Site(#{site.id}) is not scrape_active. Not indexing."
       return
     end
 
@@ -15,7 +15,7 @@ class SiteIndexNextPageJob < ApplicationJob
       page = Page.lock.by_site(site).index_ready.first
       if page.nil?
         SiteIndexNextPageJob.set(wait: 10.seconds).perform_later(site.id)
-        Rails.logger.info "No pages to parse. Trying again in 10 seconds."
+        Rails.logger.info "No pages to index. Trying again in 10 seconds."
         return
       else
         page.index_status = :active
@@ -24,7 +24,7 @@ class SiteIndexNextPageJob < ApplicationJob
       end
     end
 
-    ParseService::Client.index_page(page)
+    IndexService::Client.index_page(page)
 
     page.cache_ready!
 
