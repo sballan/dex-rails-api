@@ -1,4 +1,4 @@
-module Cache
+module CacheService::Commands
   class CacheScrapeBatch < Command::Base::Abstract
     def initialize(scrape_batch)
       super()

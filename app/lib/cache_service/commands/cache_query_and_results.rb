@@ -1,4 +1,4 @@
-module Cache
+module CacheService::Commands
   class CacheQueryAndResults < Command::Base::Abstract
     def initialize(query)
       super()

@@ -1,4 +1,4 @@
-module Cache
+module CacheService::Commands
   class UploadCacheData < Command::Base::Abstract
     def initialize(query_text, cache_data_json)
       super()
