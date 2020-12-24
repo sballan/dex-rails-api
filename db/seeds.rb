@@ -1,2 +1,2 @@
 Site.create(home_url: "https://harrypotter.fandom.com/wiki/Main_Page", host: "harrypotter.fandom.com", scrape_active: true)
-Page.create(url: "https://harrypotter.fandom.com/wiki/Main_Page", refresh_ready: true)
+Page.create(url: "https://harrypotter.fandom.com/wiki/Main_Page", refresh_status: :ready)
