@@ -10,8 +10,8 @@ module IndexService::Commands
       parsed_page = ParseService::Client.download_cached_parsed_page(@page)
 
       index_title(parsed_page)
-      index_links unless level < 2
-      index_headers(parsed_page) unless level < 4
+      index_links unless @level < 2
+      index_headers(parsed_page) unless @level < 4
 
       result.succeed!
     end
@@ -22,9 +22,9 @@ module IndexService::Commands
       title = parsed_page[:title]
       return unless title.present?
 
-      if level == 0
+      if @level == 0
         index_page_text(title, "title", 1, 0)
-      elsif level >= 1
+      elsif @level >= 1
         index_page_text(title, "title", nil, nil)
       end
     end
@@ -34,9 +34,9 @@ module IndexService::Commands
       return if link_texts.blank?
 
       link_texts.each do |link_text|
-        if level == 2
+        if @level == 2
           index_page_text(link_text, "link", 1, 0)
-        elsif level >= 3
+        elsif @level >= 3
           index_page_text(link_text, "link", nil, nil)
         end
       end
@@ -44,9 +44,9 @@ module IndexService::Commands
 
     def index_headers(parsed_page)
       parsed_page[:headers].each do |header|
-        if level == 4
+        if @level == 4
           index_page_text(header, "header", 1, 0)
-        elsif level >= 5
+        elsif @level >= 5
           index_page_text(header, "header", nil, nil)
         end
       end
