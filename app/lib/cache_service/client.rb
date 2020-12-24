@@ -1,6 +1,7 @@
 module CacheService
   module Client
-
+    extend self
+    
     def cache_site(site)
 
 

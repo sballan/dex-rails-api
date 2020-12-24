@@ -1,5 +1,6 @@
 module IndexService
   module Client
+    extend self
 
     def index_page(page, level)
       command = Commands::IndexPage.new(page, level)
