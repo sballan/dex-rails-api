@@ -3,6 +3,7 @@ module RefreshService
     extend self
 
     def refresh_page(page, refresh_time=1.day.ago)
+      # I don't like this logic.  I'd like to get rid of it...
       if page.refresh_success? && (page.refresh_finished_at > refresh_time)
         return download_cached_page_file(page)
       end
