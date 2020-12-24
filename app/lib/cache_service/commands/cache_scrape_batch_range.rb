@@ -1,10 +1,10 @@
 module Cache
   class CacheScrapeBatchRange < Command::Base::Abstract
-    def initialize(scrape_batch, start, finish, of=25)
+    def initialize(scrape_batch, start_id, finish_id, of=25)
       super()
       @scrape_batch = scrape_batch
-      @start = start
-      @finish = finish
+      @start_id = start_id
+      @finish_id = finish_id
       @of = of
     end
 

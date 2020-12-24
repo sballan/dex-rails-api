@@ -3,12 +3,18 @@ class SiteParseNextPageJob < ApplicationJob
 
   def perform(site_id)
     site = Site.find(site_id)
+
+    unless site.scrape_active
+      Rails.logger.info "Site(#{site.id}) is not scrape_active. Not parsing."
+      return
+    end
+
     # Our cheap version of a lock on this page.
     page = nil
     Page.transaction do
       page = Page.lock.by_site(site).parse_ready.first
       if page.nil?
-        SiteParseNextPageJob.set(wait: 1.minute).perform_later(site.id)
+        SiteParseNextPageJob.set(wait: 10.seconds).perform_later(site.id)
         Rails.logger.info "No pages to parse.  Try again in 1 minute."
         return
       else
@@ -25,7 +31,7 @@ class SiteParseNextPageJob < ApplicationJob
     if Page.by_site(site).parse_ready.any?
       SiteParseNextPageJob.perform_later(site.id)
     else
-      SiteParseNextPageJob.set(wait: 1.hour).perform_later(site.id)
+      SiteParseNextPageJob.set(wait: 5.minutes).perform_later(site.id)
     end
   end
 end

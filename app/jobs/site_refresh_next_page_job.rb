@@ -5,12 +5,18 @@ class SiteRefreshNextPageJob < ApplicationJob
     lock_site(site_id)
 
     site = Site.find(site_id)
+
+    unless site.scrape_active
+      Rails.logger.info "Site(#{site.id}) is not scrape_active. Not refreshing."
+      return
+    end
+
     # Our cheap version of a lock on this page.
     page = nil
     Page.transaction do
       page = Page.lock.by_site(site).refresh_ready.first
       if page.nil?
-        SiteRefreshNextPageJob.set(wait: 1.minute).perform_later(site.id)
+        SiteRefreshNextPageJob.set(wait: 10.seconds).perform_later(site.id)
         Rails.logger.info "No pages to refresh.  Try again in 1 minute."
         return
       else
@@ -29,7 +35,7 @@ class SiteRefreshNextPageJob < ApplicationJob
     if Page.by_site(site).refresh_ready.any?
       SiteRefreshNextPageJob.perform_later(site.id)
     else
-      SiteRefreshNextPageJob.set(wait: 1.hour).perform_later(site.id)
+      SiteRefreshNextPageJob.set(wait: 5.minutes).perform_later(site.id)
     end
   end
 
