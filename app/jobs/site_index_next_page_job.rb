@@ -24,7 +24,7 @@ class SiteIndexNextPageJob < ApplicationJob
       end
     end
 
-    IndexService::Client.index_page(page)
+    IndexService::Client.index_page(page, 3)
 
     page.cache_ready!
 
