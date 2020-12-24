@@ -16,6 +16,8 @@ class Page < ApplicationRecord
   has_many :results
   has_many :queries, through: :results
 
+  has_many :page_matches
+
   validates_presence_of :url
 
   scope :by_site, ->(site) {
