@@ -28,7 +28,7 @@ module CacheService::Commands
 
     def generate_results
       # TODO: We need to page these page_matches somehow
-      @query.page_matches.limit(50).map do |page_match|
+      @query.page_matches.includes(:page).limit(50).map do |page_match|
         {
           text: @query.text,
           distance: page_match.distance,
@@ -36,8 +36,8 @@ module CacheService::Commands
           kind: page_match.kind,
           full: page_match.full,
           page: {
-            url: @query.page.url,
-            title: @query.page.title
+            url: page_match.page.url,
+            title: page_match.page.title
           }
         }
       end
