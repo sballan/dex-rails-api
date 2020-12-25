@@ -11,7 +11,8 @@ module IndexService::Commands
 
     def run_proc
       words_array = sanitized_words
-      return if words_array.blank?
+      # TODO: This is so bad.  I need more than just `run` and `run!`.
+      return result.succeed! if words_array.blank?
 
       attributes = prepare_page_match_attributes(words_array)
       insert_queries_and_page_matches(attributes)
