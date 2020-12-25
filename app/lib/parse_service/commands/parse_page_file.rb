@@ -1,5 +1,5 @@
 module ParseService::Commands
-  class ParsePageFile < Command::Base::Abstract
+  class ParsePageFile < Command::Abstract
     def initialize(url, page_file)
       super()
       @url = url

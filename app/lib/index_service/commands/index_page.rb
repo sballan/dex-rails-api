@@ -1,5 +1,5 @@
 module IndexService::Commands
-  class IndexPage < Command::Base::Abstract
+  class IndexPage < Command::Abstract
     def initialize(page, level)
       super()
       @page = page

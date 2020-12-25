@@ -1,5 +1,5 @@
 module RefreshService::Commands
-  class UploadPageFileToS3 < Command::Base::Abstract
+  class UploadPageFileToS3 < Command::Abstract
     def initialize(url, page_content)
       super()
       @url = url

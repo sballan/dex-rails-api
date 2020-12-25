@@ -1,5 +1,5 @@
 module RefreshService::Commands
-  class DownloadPageFileFromS3 < Command::Base::Abstract
+  class DownloadPageFileFromS3 < Command::Abstract
     def initialize(url)
       super()
       @url = url

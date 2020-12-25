@@ -1,5 +1,5 @@
 module ParseService::Commands
-  class UploadParsedPageToS3 < Command::Base::Abstract
+  class UploadParsedPageToS3 < Command::Abstract
     def initialize(url, parsed_page)
       super()
       @url = url

@@ -1,5 +1,5 @@
 module IndexService::Commands
-  class InsertQueriesAndPageMatches < Command::Base::Abstract
+  class InsertQueriesAndPageMatches < Command::Abstract
     VALID_ATTRIBUTES = Set.new(%i[query_text page_id kind full distance length])
 
     def initialize(attributes)

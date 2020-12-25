@@ -1,5 +1,5 @@
 module CacheService::Commands
-  class CacheQueryAndResults < Command::Base::Abstract
+  class CacheQueryAndPageMatches < Command::Abstract
     def initialize(query)
       super()
       @query = query

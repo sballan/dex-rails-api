@@ -43,13 +43,13 @@ module RefreshService
       command = Commands::DownloadMechanizePage.new(page.url)
       command.run_with_gc!
       command.payload
-    rescue Command::Base::Errors::CommandInvalid => e
+    rescue Command::Errors::CommandInvalid => e
       Rails.logger.warn "This Page failed permanently to download #{page.id}."
       page.refresh_status = :dead
       page.refresh_finished_at = DateTime.now.utc
       page.save
       nil
-    rescue Command::Base::Errors::CommandFailed => e
+    rescue Command::Errors::CommandFailed => e
       Rails.logger.error "This ScrapePage failed to download #{page.id}"
       page.refresh_status = :failure
       page.save

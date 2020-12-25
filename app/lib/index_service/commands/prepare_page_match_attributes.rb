@@ -1,5 +1,5 @@
 module IndexService::Commands
-  class PreparePageMatchAttributes < Command::Base::Abstract
+  class PreparePageMatchAttributes < Command::Abstract
     # @param [Integer] page_id ID of the Page this PageMatch is on
     # @param [Array<String>] words_array A list of words that has been sanitized/processed
     # @param [Integer] max_distance Upper bound on skipped words in query/page_match. If nil, defaults to length of words_array

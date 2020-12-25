@@ -1,5 +1,5 @@
 module RefreshService::Commands
-  class DownloadMechanizePage < Command::Base::Abstract
+  class DownloadMechanizePage < Command::Abstract
     def initialize(url)
       super()
       @url = url
@@ -7,15 +7,15 @@ module RefreshService::Commands
     end
 
     def run_proc
-      raise Command::Base::Errors::CommandFailed, 'Page is nil' if mechanize_page.nil?
-      raise Command::Base::Errors::CommandInvalid, "Only html pages are supported" unless mechanize_page.is_a?(Mechanize::Page)
+      raise Command::Errors::CommandFailed, 'Page is nil' if mechanize_page.nil?
+      raise Command::Errors::CommandInvalid, "Only html pages are supported" unless mechanize_page.is_a?(Mechanize::Page)
 
       result.succeed!(mechanize_page)
     rescue Mechanize::RobotsDisallowedError => e
-      command_error = Command::Base::Errors::CommandInvalid.new "Robots cannot scrape this page", e
+      command_error = Command::Errors::CommandInvalid.new "Robots cannot scrape this page", e
       raise command_error # We raise this since we cannot do anything else with an invalid command.
     rescue Mechanize::ResponseCodeError => e
-      command_error = Command::Base::Errors::CommandFailed.new "Bad response code", e
+      command_error = Command::Errors::CommandFailed.new "Bad response code", e
       raise command_error # We raise this since we cannot do anything else with an invalid command.
     end
 

@@ -1,5 +1,5 @@
 module CacheService::Commands
-  class UploadCacheData < Command::Base::Abstract
+  class UploadPageMatchesToS3 < Command::Abstract
     def initialize(query_text, cache_data_json)
       super()
       @query_text = query_text

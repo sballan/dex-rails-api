@@ -1,5 +1,5 @@
 module IndexService::Commands
-  class SanitizeQueryText < Command::Base::Abstract
+  class SanitizeQueryText < Command::Abstract
     def initialize(input_string)
       super()
       @input_string = input_string

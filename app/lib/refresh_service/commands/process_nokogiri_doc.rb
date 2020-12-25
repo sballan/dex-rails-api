@@ -1,5 +1,5 @@
 module RefreshService::Commands
-  class ProcessNokogiriDoc < Command::Base::Abstract
+  class ProcessNokogiriDoc < Command::Abstract
     def initialize(nokogiri_doc)
       super()
       @nokogiri_doc = nokogiri_doc

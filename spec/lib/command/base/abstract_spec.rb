@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-describe Command::Base::Abstract do
+describe Command::Abstract do
   context 'Basics' do
     it 'can be subclassed with a run_proc implementation' do
-      class BasicsTestCommand < Command::Base::Abstract
+      class BasicsTestCommand < Command::Abstract
         def run_proc
           true
         end
@@ -15,7 +15,7 @@ describe Command::Base::Abstract do
   end
 
   context 'Execution' do
-    class ExecutionTestCommand < Command::Base::Abstract
+    class ExecutionTestCommand < Command::Abstract
       def initialize(foo)
         super()
         @foo = foo

@@ -1,5 +1,5 @@
 module CacheService::Commands
-  class CacheSite < Command::Base::Abstract
+  class CacheSite < Command::Abstract
     def initialize(site)
       super()
       @site = site

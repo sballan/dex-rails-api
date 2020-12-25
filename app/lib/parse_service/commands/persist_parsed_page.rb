@@ -9,7 +9,7 @@ module ParseService::Commands
   # eventually, I'll want a single table for holding all 'words', with other tables referencing
   # them for making things like 'titles', etc.  Querying may be extremely slow - but this is all
   # just being used to populate a cache anyhow! Yay Rails.
-  class PersistParsedPage < Command::Base::Abstract
+  class PersistParsedPage < Command::Abstract
     def initialize(page, parsed_page)
       super()
       @page = page
