@@ -1,6 +1,6 @@
 class Query < ApplicationRecord
-  has_many :results
-  has_many :pages, through: :results
+  has_many :page_matches
+  has_many :pages, through: :page_matches
 
   scope :text_like_any, ->(matches_array) {
     where(arel_table[:text].matches_any(matches_array))
