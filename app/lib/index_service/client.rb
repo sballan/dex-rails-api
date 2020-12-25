@@ -3,8 +3,10 @@ module IndexService
     extend self
 
     def index_page(page, level)
+      handle_index_start(page)
       command = Commands::IndexPage.new(page, level)
       command.run_with_gc!
+      handle_index_success(page)
     rescue StandardError => e
       handle_index_failure(page)
       raise e

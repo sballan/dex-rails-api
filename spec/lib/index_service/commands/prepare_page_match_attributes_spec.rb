@@ -7,7 +7,7 @@ describe IndexService::Commands::PreparePageMatchAttributes do
       max_distance = 0
       max_length = 1
 
-      command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, max_distance, max_length)
+      command = IndexService::Commands::PreparePageMatchAttributes.new(0, words_array, "title", max_distance, max_length)
       expect(command).to be
     end
   end
