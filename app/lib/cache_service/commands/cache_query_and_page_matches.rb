@@ -28,13 +28,15 @@ module CacheService::Commands
 
     def generate_results
       # TODO: We need to page these results somehow
-      @query.results.includes(:page).limit(50).map do |result|
+      @query.page_matches.limit(50).map do |page_match|
         {
-            kind: result.kind,
-            page: {
-                url: result.page.url,
-                title: result.page.title
-            }
+          distance: page_match.distance,
+          length: page_match.length,
+          kind: page_match.kind,
+          page: {
+            url: query.page.url,
+            title: query.page.title
+          }
         }
       end
     end
