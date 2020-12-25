@@ -25,7 +25,7 @@ module IndexService::Commands
       if @level == 0
         index_page_text(title, "title", 1, 0)
       elsif @level >= 1
-        index_page_text(title, "title", nil, nil)
+        index_page_text(title, "title", 10, 5)
       end
     end
 
@@ -37,7 +37,7 @@ module IndexService::Commands
         if @level == 2
           index_page_text(link_text, "link", 1, 0)
         elsif @level >= 3
-          index_page_text(link_text, "link", nil, nil)
+          index_page_text(link_text, "link", 5, 5)
         end
       end
     end
@@ -47,7 +47,7 @@ module IndexService::Commands
         if @level == 4
           index_page_text(header, "header", 1, 0)
         elsif @level >= 5
-          index_page_text(header, "header", nil, nil)
+          index_page_text(header, "header", 2, 1)
         end
       end
     end
