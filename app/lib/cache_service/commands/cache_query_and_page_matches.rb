@@ -17,7 +17,7 @@ module CacheService::Commands
     end
 
     def cache_result_json(json)
-      command = Cache::UploadCacheData.new(@query.text, json)
+      command = UploadPageMatchesToS3.new(@query.text, json)
       command.run!
 
       if command.success?
@@ -27,15 +27,17 @@ module CacheService::Commands
     end
 
     def generate_results
-      # TODO: We need to page these results somehow
+      # TODO: We need to page these page_matches somehow
       @query.page_matches.limit(50).map do |page_match|
         {
+          text: @query.text,
           distance: page_match.distance,
           length: page_match.length,
           kind: page_match.kind,
+          full: page_match.full,
           page: {
-            url: query.page.url,
-            title: query.page.title
+            url: @query.page.url,
+            title: @query.page.title
           }
         }
       end

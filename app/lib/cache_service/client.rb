@@ -10,6 +10,13 @@ module CacheService
       raise e
     end
 
+    def cache_batch(size)
+      Query.next_to_cache.includes(:page_matches, :pages).limit(size).in_batches(of: 50).each_record do |query|
+        command = Commands::CacheQueryAndPageMatches.new(query)
+        command.run_with_gc!
+      end
+    end
+
     private
 
     def handle_cache_start(page)
