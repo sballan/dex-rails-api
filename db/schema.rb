@@ -69,17 +69,6 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
     t.index ["text"], name: "index_queries_on_text", unique: true
   end
 
-  create_table "results", force: :cascade do |t|
-    t.string "kind"
-    t.integer "query_id", null: false
-    t.integer "page_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["page_id"], name: "index_results_on_page_id"
-    t.index ["query_id", "page_id", "kind"], name: "index_results_on_query_id_and_page_id_and_kind", unique: true
-    t.index ["query_id"], name: "index_results_on_query_id"
-  end
-
   create_table "scrape_batches", force: :cascade do |t|
     t.datetime "started_at"
     t.datetime "finished_at"
@@ -91,32 +80,6 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["cache_status"], name: "index_scrape_batches_on_cache_status"
     t.index ["status"], name: "index_scrape_batches_on_status"
-  end
-
-  create_table "scrape_pages", force: :cascade do |t|
-    t.integer "page_id", null: false
-    t.integer "scrape_batch_id", null: false
-    t.datetime "started_at"
-    t.datetime "finished_at"
-    t.integer "status", default: 0
-    t.datetime "refresh_started_at"
-    t.datetime "refresh_finished_at"
-    t.integer "refresh_status", default: 0
-    t.datetime "parse_started_at"
-    t.datetime "parse_finished_at"
-    t.integer "parse_status", default: 0
-    t.datetime "index_started_at"
-    t.datetime "index_finished_at"
-    t.integer "index_status", default: 0
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["index_status"], name: "index_scrape_pages_on_index_status"
-    t.index ["page_id"], name: "index_scrape_pages_on_page_id"
-    t.index ["parse_status"], name: "index_scrape_pages_on_parse_status"
-    t.index ["refresh_status"], name: "index_scrape_pages_on_refresh_status"
-    t.index ["scrape_batch_id", "page_id"], name: "index_scrape_pages_on_scrape_batch_id_and_page_id", unique: true
-    t.index ["scrape_batch_id"], name: "index_scrape_pages_on_scrape_batch_id"
-    t.index ["status"], name: "index_scrape_pages_on_status"
   end
 
   create_table "sites", force: :cascade do |t|
@@ -135,8 +98,4 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
   add_foreign_key "links", "pages", column: "to_id"
   add_foreign_key "page_matches", "pages"
   add_foreign_key "page_matches", "queries"
-  add_foreign_key "results", "pages"
-  add_foreign_key "results", "queries"
-  add_foreign_key "scrape_pages", "pages"
-  add_foreign_key "scrape_pages", "scrape_batches"
 end
