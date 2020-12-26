@@ -7,7 +7,8 @@ module ParseService::Commands
     end
 
     def run_proc
-      client = S3Client.new(ENV['DO_DEFAULT_BUCKET'], ENV['DO_PARSED_PAGES_NAMESPACE'])
+      namespace = ENV.fetch('DO_PARSED_PAGES_NAMESPACE', '/parsed_pages')
+      client = S3Client.new(ENV['DO_DEFAULT_BUCKET'], namespace)
       key = Base64.urlsafe_encode64(@url)
 
       body = @parsed_page.is_a?(String) ? @parsed_page : @parsed_page.to_json
