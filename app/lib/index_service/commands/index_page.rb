@@ -69,7 +69,7 @@ module IndexService::Commands
         max_length,
         max_distance
       )
-      command.run!
+      command.run_with_gc!
     end
   end
 end

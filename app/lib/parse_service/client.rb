@@ -26,13 +26,13 @@ module ParseService
 
     def parse_page_file(url, page_file)
       command = Commands::ParsePageFile.new(url, page_file)
-      command.run!
+      command.run_with_gc!
       command.payload
     end
 
     def persist_parsed_page(page, parsed_page)
       command = Commands::PersistParsedPage.new(page, parsed_page)
-      command.run!
+      command.run_with_gc!
     end
 
     def upload_parsed_page_to_s3(url, parsed_page)
