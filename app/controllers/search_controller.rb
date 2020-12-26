@@ -2,15 +2,11 @@ class SearchController < ApplicationController
 
   def search_db
     @text = params[:text]
-    command = Command::SearchDb.new @text
-    command.run!
-    @pages = command.payload
+    @pages = SearchService::Client.search_db(@text)
   end
 
   def search_cache
     @text = params[:text]
-    command = Command::SearchCache.new @text
-    command.run!
-    @cache_hits = command.payload
+    @cache_hits = SearchService::Client.search_cache(@text)
   end
 end
