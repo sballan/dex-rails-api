@@ -1,8 +1,2 @@
-wiki_page = Page.create_or_find_by! url: "https://wikipedia.org"
-rails_page = Page.create_or_find_by! url: "https://rubyonrails.org"
-
-wiki_page.links_to.create! to: rails_page;
-
-q = Query.create text: "My Text";
-
-r = Result.create kind: "title", page: wiki_page, query: q
+Site.create(home_url: "https://harrypotter.fandom.com/wiki/Main_Page", host: "harrypotter.fandom.com", scrape_active: true)
+Page.create(url: "https://harrypotter.fandom.com/wiki/Main_Page", refresh_status: :ready)

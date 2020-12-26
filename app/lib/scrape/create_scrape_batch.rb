@@ -1,5 +1,5 @@
 module Scrape
-  class CreateScrapeBatch < Command::Base::Abstract
+  class CreateScrapeBatch < Command::Abstract
     def initialize(seed_urls)
       super()
       @seed_urls = seed_urls

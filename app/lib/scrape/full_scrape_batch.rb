@@ -1,5 +1,5 @@
 module Scrape
-  class FullScrapeBatch < Command::Base::Abstract
+  class FullScrapeBatch < Command::Abstract
     def initialize(scrape_batch, ttl=10.minutes)
       super()
       # @type [ScrapeBatch]
