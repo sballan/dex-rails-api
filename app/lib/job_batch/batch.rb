@@ -1,14 +1,25 @@
 class JobBatch::Batch
   PREFIX = "Batch/"
-  SEMAPHORE = Mutex.new
 
   def initialize(batch_id)
     @batch_id = batch_id
     raise "Job not in redis" unless self.class.exists?(batch_id)
   end
 
-  def data
-    self.class.fetch(@batch_id)
+  def add_job(job_id)
+    update do |data|
+      jobs_set = Set.new(data[:jobs])
+      jobs_set << job_id
+      data[:jobs] = jobs_set.to_a
+      data
+    end
+  end
+
+  def update(&block)
+    JobBatch::Lock.with_lock(@batch_id) do
+      result = block.call(self.class.fetch_batch_data(@batch_id))
+      JobBatch::Store.set(PREFIX + @batch_id, result.to_json)
+    end
   end
 
   def open(&block)
@@ -17,6 +28,7 @@ class JobBatch::Batch
     block.call(@batch_id)
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
+
 
   def self.create(callback_class, args_array, ex: JobBatch::DEFAULT_BATCH_TTL)
     batch_id = SecureRandom.uuid
@@ -40,11 +52,11 @@ class JobBatch::Batch
     batch
   end
 
-  def self.fetch(batch_id)
+  def self.fetch_batch_data(batch_id)
     result = JobBatch::Store.get(PREFIX + batch_id)
     raise unless result.present?
 
-    JSON.parse(result)
+    JSON.parse(result, symbolize_keys: true)
   end
 
   def self.exists?(batch_id)
