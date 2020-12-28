@@ -1,5 +1,6 @@
 class JobBatch::Batch
   PREFIX = "Batch/"
+  SEMAPHORE = Mutex.new
 
   def initialize(batch_id)
     @batch_id = batch_id
@@ -13,6 +14,8 @@ class JobBatch::Batch
   def open(&block)
     raise "This should not be possible: batch was already open" if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = @batch_id
+    block.call(@batch_id)
+    Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
 
   def self.create(callback_class, args_array, ex: JobBatch::DEFAULT_BATCH_TTL)
