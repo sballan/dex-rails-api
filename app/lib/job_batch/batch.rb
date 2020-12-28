@@ -1,0 +1,50 @@
+class JobBatch::Batch
+  PREFIX = "Batch/"
+
+  def initialize(batch_id)
+    @batch_id = batch_id
+    raise "Job not in redis" unless self.class.exists?(batch_id)
+  end
+
+  def data
+    self.class.fetch(@batch_id)
+  end
+
+  def open(&block)
+    raise "This should not be possible: batch was already open" if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
+    Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = @batch_id
+  end
+
+  def self.create(callback_class, args_array, ex: JobBatch::DEFAULT_BATCH_TTL)
+    batch_id = SecureRandom.uuid
+    batch_data = {
+      created_at: DateTime.now.utc.to_s,
+      jobs: []
+    }.to_json
+
+    lock_key = JobBatch::Lock.lock(batch_id)
+
+    raise "Failed to create batch: could not lock batch" unless lock_key
+
+    result = JobBatch::Store.set(PREFIX + batch_id, batch_data, ex: ex, nx: true)
+    batch = fetch(batch_id)
+    unlock_result = JobBatch::Lock.unlock(batch_id, lock_key)
+
+    raise "Failed to create batch: could not write batch" unless result
+    raise "Failed to create batch: could not read batch" unless batch
+    raise "Failed to create batch: could not unlock batch" unless unlock_result
+
+    batch
+  end
+
+  def self.fetch(batch_id)
+    result = JobBatch::Store.get(PREFIX + batch_id)
+    raise unless result.present?
+
+    JSON.parse(result)
+  end
+
+  def self.exists?(batch_id)
+    JobBatch::Store.exists?(PREFIX + batch_id)
+  end
+end
