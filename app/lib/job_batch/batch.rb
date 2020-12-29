@@ -30,7 +30,7 @@ class JobBatch::Batch
   end
 
 
-  def self.create(callback_class, args_array, ex: JobBatch::DEFAULT_BATCH_TTL)
+  def self.create(callback_class=nil, args_array=[], ex: JobBatch::DEFAULT_BATCH_TTL)
     batch_id = SecureRandom.uuid
     batch_data = {
       created_at: DateTime.now.utc.to_s,
@@ -42,7 +42,7 @@ class JobBatch::Batch
     raise "Failed to create batch: could not lock batch" unless lock_key
 
     result = JobBatch::Store.set(PREFIX + batch_id, batch_data, ex: ex, nx: true)
-    batch = fetch(batch_id)
+    batch = self.new(batch_id)
     unlock_result = JobBatch::Lock.unlock(batch_id, lock_key)
 
     raise "Failed to create batch: could not write batch" unless result

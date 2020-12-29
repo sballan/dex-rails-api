@@ -13,6 +13,6 @@ module JobBatch::Store
   end
 
   def exists?(key)
-    JobBatch.redis.exists?(key)
+    JobBatch.redis.exists?(JobBatch::STORE_PREFIX + key)
   end
 end
