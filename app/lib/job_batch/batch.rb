@@ -1,9 +1,15 @@
 class JobBatch::Batch
   PREFIX = "Batch/"
 
+  attr_reader :id
+
   def initialize(batch_id)
-    @batch_id = batch_id
+    @id = batch_id
     raise "Job not in redis" unless self.class.exists?(batch_id)
+  end
+
+  def with_lock(&block)
+    self.class.with_lock(id, &block)
   end
 
   def add_job(job_id)
@@ -16,19 +22,34 @@ class JobBatch::Batch
   end
 
   def update(&block)
-    JobBatch::Lock.with_lock(@batch_id) do
-      result = block.call(self.class.fetch_batch_data(@batch_id))
-      JobBatch::Store.set(PREFIX + @batch_id, result.to_json)
+    JobBatch::Lock.with_lock(id) do
+      result = block.call(self.class.fetch_batch_data(id))
+      JobBatch::Store.set(PREFIX + id, result.to_json)
     end
   end
 
   def open(&block)
     raise "This should not be possible: batch was already open" if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
-    Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = @batch_id
-    block.call(@batch_id)
+    Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = id
+    block.call(id)
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
 
+  # This awesome method locks the batch, and then gives us every job_id that matches the batch - with a lock
+  # on the job too.
+  def each_job(&block)
+    with_lock do
+      # Iterate over all jobs
+      JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "?") do |job_id|
+        job = JobBatch::Job.new(job_id)
+        # For each job, check if it has the right batch id - yield to block if it does.
+        job.with_data do |data|
+          break unless data[:batch_id] == id
+          block.call(data)
+        end
+      end
+    end
+  end
 
   def self.create(callback_class=nil, args_array=[], ex: JobBatch::DEFAULT_BATCH_TTL)
     batch_id = SecureRandom.uuid
