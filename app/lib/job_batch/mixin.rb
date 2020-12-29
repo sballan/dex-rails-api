@@ -2,29 +2,21 @@
 module JobBatch::Mixin
   attr_reader :batch_id
 
-  included do
-    before_enqueue do |job|
+  def self.included(mod)
+    mod.before_enqueue do |job|
       if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].present?
         batch_id = Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
         if JobBatch::Batch.exists?(batch_id)
           batch = JobBatch::Batch.new(batch_id)
           batch.add_job(job.job_id)
         else
-          raise "This should be possible, but Thread.current still has a batch id"
+          raise "This should not be possible, but Thread.current still has a batch id"
         end
       end
     end
 
-    after_perform do |job|
-      if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].present?
-        batch_id = Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
-        if JobBatch::Batch.exists?(batch_id)
-          batch = JobBatch::Batch.new(batch_id)
-          batch.add_job(job.job_id)
-        else
-          raise "This should be possible, but Thread.current still has a batch id"
-        end
-      end
+    mod.after_perform do |job|
+
     end
   end
 
