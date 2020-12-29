@@ -12,6 +12,10 @@ module JobBatch::Store
     JobBatch.redis.get(JobBatch::STORE_PREFIX + key)
   end
 
+  def multi(&block)
+    JobBatch.redis.mutli(&block)
+  end
+
   def exists?(key)
     JobBatch.redis.exists?(JobBatch::STORE_PREFIX + key)
   end
