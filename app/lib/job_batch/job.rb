@@ -8,7 +8,21 @@ class JobBatch::Job
   end
 
   def fetch_data
-    JobBatch.redis.mapped_hmget(key, *%w[batch_id created_at]).with_indifferent_access
+  end
+
+  def batch
+
+  end
+
+  def with_data(&block)
+    with_lock do
+      data = JobBatch.redis.mapped_hmget(key, *%w[batch_id created_at]).with_indifferent_access
+      block.call(data)
+    end
+  end
+
+  def with_lock(&block)
+    self.class.with_lock(@job_id, &block)
   end
 
   def self.create(job_id, batch_id=nil)
@@ -19,6 +33,7 @@ class JobBatch::Job
         JobBatch.redis.mapped_hmset(
           key_for(job_id),
           batch_id: batch_id,
+          active: true,
           created_at: DateTime.now.utc.to_s
         )
       end
@@ -44,11 +59,24 @@ class JobBatch::Job
     new(job_id)
   end
 
+  def self.for_batch_id(batch_id)
+    jobs = []
+    batch = JobBatch::Batch.new(batch_id)
+    batch.each_job do |job|
+      jobs << job
+    end
+
+    jobs
+  end
+
   def self.key_for(job_id)
     JobBatch::JOBS_PREFIX + job_id
   end
 
   def self.exists?(job_id)
     JobBatch.redis.exists?(key_for(job_id))
+  end
+
+  def self.all_job_ids
   end
 end
