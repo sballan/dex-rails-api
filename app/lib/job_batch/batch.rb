@@ -52,6 +52,16 @@ class JobBatch::Batch
     batch
   end
 
+  def self.with_lock(batch_id, &block)
+    lock_key = JobBatch::Lock.lock(batch_id)
+    raise "could not lock Batch #{batch_id}" unless lock_key
+
+    block.call
+
+    unlock_result = JobBatch::Lock.unlock(batch_id, lock_key)
+    raise "could not unlock Batch #{batch_id}" unless unlock_result
+  end
+
   def self.fetch_batch_data(batch_id)
     result = JobBatch::Store.get(PREFIX + batch_id)
     raise unless result.present?
