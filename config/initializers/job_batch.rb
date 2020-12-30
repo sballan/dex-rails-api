@@ -2,6 +2,7 @@ module JobBatch
   extend self
 
   DEFAULT_LOCK_TTL = 1.minute
+  DEFAULT_LOCK_RETRY_TIME = 15.seconds
   DEFAULT_BATCH_TTL = 6.hours
 
   PREFIX = "JobBatch/"

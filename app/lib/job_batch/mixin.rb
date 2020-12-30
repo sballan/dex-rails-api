@@ -17,14 +17,15 @@ module JobBatch::Mixin
       end
 
       batch = JobBatch::Batch.new(batch_id)
-      batch.with_lock do
-        JobBatch::Job.create(job.job_id, batch.id)
-        Rails.logger.debug "Successfully added Job #{job.job_id} to Batch #{batch.id}"
-      end
+      batch.add_job(job.job_id)
+      Rails.logger.debug "Successfully added Job #{job.job_id} to Batch #{batch.id}"
     end
 
     mod.after_perform do |job|
-
+      job_batch_job = JobBatch::Job.find(job.job_id)
+      job_batch_job.batch.with_lock do
+        job_batch_job.destroy!
+      end
     end
   end
 
