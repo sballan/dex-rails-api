@@ -13,19 +13,45 @@ module JobBatch::Lock
     raise "Failed to unlock"
   end
 
-  def lock(name, ttl=JobBatch::DEFAULT_LOCK_TTL)
+  def lock(name, ttl=JobBatch::DEFAULT_LOCK_TTL, retry_ttl=5.seconds, retry_length=0.1.seconds)
     key = SecureRandom.uuid
-    success = JobBatch.redis.set(JobBatch::LOCK_PREFIX + name, key, ex: ttl, nx: true)
-    success ? key : nil
+    success = write_lock(name, key, ex: ttl)
+
+    if success
+      key
+    elsif retry_length < retry_ttl
+      sleep retry_length
+      lock(name, ttl, retry_ttl - retry_length, retry_length * 2)
+    else
+      raise "Failed to acquire lock"
+    end
   end
 
   def unlock(name, key)
-    correct_key = JobBatch.redis.get(JobBatch::LOCK_PREFIX + name) == key
-    if correct_key
-      success = JobBatch.redis.del(JobBatch::LOCK_PREFIX + name)
-      return success == 1
-    end
+    return false unless correct_key?(name, key)
 
-    false
+    success = delete_lock(name)
+    success == 1
+  end
+
+  def correct_key?(name, possible_key)
+    return false if name.nil? || possible_key.nil?
+
+    actual_key = fetch_lock_key(name)
+    possible_key == actual_key
+  end
+
+  protected
+
+  def write_lock(name, key, ex:)
+    JobBatch.redis.set(JobBatch::LOCK_PREFIX + name, key, ex: ex, nx: true)
+  end
+
+  def fetch_lock_key(name)
+    JobBatch.redis.get(JobBatch::LOCK_PREFIX + name)
+  end
+
+  def delete_lock(name)
+    JobBatch.redis.del(JobBatch::LOCK_PREFIX + name)
   end
 end
