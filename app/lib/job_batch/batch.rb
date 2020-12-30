@@ -48,7 +48,8 @@ class JobBatch::Batch
           # For each job, check if it has the right batch id - yield to block if it does.
           job.with_data do |data|
             break unless data[:batch_id] == id
-            y << data
+            # TODO: think about this carefully.  Is this safe?
+            y << job
           end
         end
       end

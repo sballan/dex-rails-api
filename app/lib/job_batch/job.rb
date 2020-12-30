@@ -4,7 +4,8 @@ class JobBatch::Job
   attr_reader :id
 
   def initialize(job_id)
-    @id = job_id
+    # If the job_id starts with our Redis prefix, we can safely remove it
+    @id = job_id.remove(/^#{JobBatch::JOBS_PREFIX}/)
   end
 
   def key
