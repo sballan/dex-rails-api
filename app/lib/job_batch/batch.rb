@@ -5,7 +5,6 @@ class JobBatch::Batch
 
   def initialize(batch_id)
     @id = batch_id
-    raise "Job not in redis" unless self.class.exists?(batch_id)
   end
 
   def with_lock(&block)
@@ -13,18 +12,21 @@ class JobBatch::Batch
   end
 
   def add_job(job_id)
-    update do |data|
-      jobs_set = Set.new(data[:jobs])
-      jobs_set << job_id
-      data[:jobs] = jobs_set.to_a
-      data
-    end
-  end
+    with_lock do
+      if JobBatch::Job.exists?(job_id)
+        job = JobBatch::Job.find(job_id)
+        raise "Couldn't find an existing job" if job.nil?
 
-  def update(&block)
-    JobBatch::Lock.with_lock(id) do
-      result = block.call(self.class.fetch_batch_data(id))
-      JobBatch::Store.set(PREFIX + id, result.to_json)
+        job.with_lock do
+          if job.batch.id == id
+            Rails.logger.warn "Trying to add a job to a batch that already belongs to this batch"
+          else
+            raise "Trying to add a job to this batch that is already in a different batch"
+          end
+        end
+      else
+        JobBatch::Job.create(job_id, id)
+      end
     end
   end
 
@@ -37,40 +39,24 @@ class JobBatch::Batch
 
   # This awesome method locks the batch, and then gives us every job_id that matches the batch - with a lock
   # on the job too.
-  def each_job(&block)
-    with_lock do
-      # Iterate over all jobs
-      JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "?") do |job_id|
-        job = JobBatch::Job.new(job_id)
-        # For each job, check if it has the right batch id - yield to block if it does.
-        job.with_data do |data|
-          break unless data[:batch_id] == id
-          block.call(data)
+  def jobs
+    Enumerator.new do |y|
+      with_lock do
+        # Iterate over all jobs
+        JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "*") do |job_id|
+          job = JobBatch::Job.new(job_id)
+          # For each job, check if it has the right batch id - yield to block if it does.
+          job.with_data do |data|
+            break unless data[:batch_id] == id
+            y << data
+          end
         end
       end
     end
   end
 
-  def self.create(callback_class=nil, args_array=[], ex: JobBatch::DEFAULT_BATCH_TTL)
-    batch_id = SecureRandom.uuid
-    batch_data = {
-      created_at: DateTime.now.utc.to_s,
-      jobs: []
-    }.to_json
+  def with_jobs()
 
-    lock_key = JobBatch::Lock.lock(batch_id)
-
-    raise "Failed to create batch: could not lock batch" unless lock_key
-
-    result = JobBatch::Store.set(PREFIX + batch_id, batch_data, ex: ex, nx: true)
-    batch = self.new(batch_id)
-    unlock_result = JobBatch::Lock.unlock(batch_id, lock_key)
-
-    raise "Failed to create batch: could not write batch" unless result
-    raise "Failed to create batch: could not read batch" unless batch
-    raise "Failed to create batch: could not unlock batch" unless unlock_result
-
-    batch
   end
 
   def self.with_lock(batch_id, &block)
