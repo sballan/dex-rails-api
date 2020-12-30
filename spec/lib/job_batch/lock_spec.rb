@@ -22,5 +22,17 @@ describe JobBatch::Lock do
         expect(found_key).to eql(key)
       end
     end
+
+    describe "fetch_lock_key" do
+      let(:test_lock_name) { 'test_lock_name' }
+      let(:redis_test_lock_name) { JobBatch::LOCK_PREFIX + test_lock_name }
+
+      it "fetches the correct key" do
+        key = 'test_lock_key'
+        @mock_redis.set(redis_test_lock_name, key)
+        found_key = JobBatch::Lock.send(:fetch_lock_key, test_lock_name)
+        expect(key).to eql(found_key)
+      end
+    end
   end
 end
