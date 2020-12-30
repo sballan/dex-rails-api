@@ -15,14 +15,14 @@ module JobBatch::Lock
 
   def lock(name, ttl=JobBatch::DEFAULT_LOCK_TTL)
     key = SecureRandom.uuid
-    success = JobBatch.redis.set(name, key, ex: ttl, nx: true)
+    success = JobBatch.redis.set(JobBatch::LOCK_PREFIX + name, key, ex: ttl, nx: true)
     success ? key : nil
   end
 
   def unlock(name, key)
-    correct_key = JobBatch.redis.get(name) == key
+    correct_key = JobBatch.redis.get(JobBatch::LOCK_PREFIX + name) == key
     if correct_key
-      success = JobBatch.redis.del(name)
+      success = JobBatch.redis.del(JobBatch::LOCK_PREFIX + name)
       return success == 1
     end
 
