@@ -1,35 +1,56 @@
 class JobBatch::Job
+  REDIS_HASH_KEYS=%w[batch_id created_at]
+
+  attr_reader :id
+
   def initialize(job_id)
-    @job_id = job_id
+    @id = job_id
   end
 
   def key
-    self.class.key_for(@job_id)
+    self.class.key_for(id)
   end
 
-  def fetch_data
-  end
-
+  # @return [JobBatch::Batch]
   def batch
+    batch_id = nil
+    with_lock do
+      result = JobBatch.redis.hmget(key, 'batch_id')
+      batch_id = result.first
+    end
 
+    unless batch_id.present?
+      raise "Couldn't get batch for Job(#{id})"
+    end
+
+    JobBatch::Batch.new(batch_id)
   end
 
   def with_data(&block)
     with_lock do
-      data = JobBatch.redis.mapped_hmget(key, *%w[batch_id created_at]).with_indifferent_access
+      data = JobBatch.redis.mapped_hmget(key, *REDIS_HASH_KEYS).with_indifferent_access
       block.call(data)
     end
   end
 
   def with_lock(&block)
-    self.class.with_lock(@job_id, &block)
+    self.class.with_lock(id, &block)
+  end
+
+  def destroy!
+    with_lock do
+      batch.with_lock do
+        JobBatch.redis.del(key)
+      end
+    end
   end
 
   def self.create(job_id, batch_id=nil)
     batch_id ||= SecureRandom.uuid
+    batch = JobBatch::Batch.new(batch_id)
 
     with_lock(job_id) do
-      JobBatch::Batch.with_lock(batch_id) do
+      batch.with_lock do
         JobBatch.redis.mapped_hmset(
           key_for(job_id),
           batch_id: batch_id,
@@ -59,24 +80,11 @@ class JobBatch::Job
     new(job_id)
   end
 
-  def self.for_batch_id(batch_id)
-    jobs = []
-    batch = JobBatch::Batch.new(batch_id)
-    batch.each_job do |job|
-      jobs << job
-    end
-
-    jobs
-  end
-
   def self.key_for(job_id)
     JobBatch::JOBS_PREFIX + job_id
   end
 
   def self.exists?(job_id)
     JobBatch.redis.exists?(key_for(job_id))
-  end
-
-  def self.all_job_ids
   end
 end
