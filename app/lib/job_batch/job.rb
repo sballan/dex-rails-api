@@ -39,10 +39,8 @@ class JobBatch::Job
   end
 
   def destroy!
-    with_lock do
-      batch.with_lock do
-        JobBatch.redis.del(key)
-      end
+    batch.with_lock do
+      JobBatch.redis.del(key)
     end
   end
 
