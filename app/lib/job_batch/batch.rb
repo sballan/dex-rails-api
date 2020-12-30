@@ -11,7 +11,7 @@ class JobBatch::Batch
     self.class.with_lock(id, &block)
   end
 
-  # TODO: There may be an edge case here...What happens if we create the job somewhere else in between 
+  # TODO: There may be an edge case here...What happens if we create the job somewhere else in between
   # checking that it exists and trying to create it here?
   def add_job(job)
     if JobBatch::Job.exists?(job.id)
@@ -54,17 +54,13 @@ class JobBatch::Batch
     end
   end
 
-  def with_jobs()
-
-  end
-
   def self.with_lock(batch_id, &block)
-    lock_key = JobBatch::Lock.lock(batch_id)
+    lock_key = ActiveLock::Lock.lock(batch_id)
     raise "could not lock Batch #{batch_id}" unless lock_key
 
-    block.call
+    block.call(lock_key)
 
-    unlock_result = JobBatch::Lock.unlock(batch_id, lock_key)
+    unlock_result = ActiveLock::Lock.unlock(batch_id, lock_key)
     raise "could not unlock Batch #{batch_id}" unless unlock_result
   end
 

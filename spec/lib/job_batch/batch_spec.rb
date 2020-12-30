@@ -1,6 +1,7 @@
 describe JobBatch::Batch do
   before do
     @mock_redis = MockRedis.new
+    allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
     allow(JobBatch).to receive(:redis).and_return(@mock_redis)
   end
 
@@ -31,7 +32,7 @@ describe JobBatch::Batch do
       batch.add_job(job)
       has_job = batch.jobs.any? {|j| j.id == job_id }
       expect(has_job).to be_truthy
-    end 
+    end
   end
 
   describe "with_lock" do
@@ -40,14 +41,14 @@ describe JobBatch::Batch do
 
     it "is locked inside the block" do
       batch.with_lock do
-        expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_truthy
+        expect(@mock_redis.get(ActiveLock::Config::PREFIX + batch_id)).to be_truthy
       end
     end
 
     it "is unlocked before and after the block" do
-      expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_falsey
+      expect(@mock_redis.get(ActiveLock::Config::PREFIX + batch_id)).to be_falsey
       batch.with_lock {}
-      expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_falsey
+      expect(@mock_redis.get(ActiveLock::Config::PREFIX + batch_id)).to be_falsey
     end
   end
 end

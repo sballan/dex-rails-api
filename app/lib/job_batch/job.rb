@@ -66,12 +66,12 @@ class JobBatch::Job
   end
 
   def self.with_lock(job_id, &block)
-    lock_key = JobBatch::Lock.lock(job_id)
+    lock_key = ActiveLock::Lock.lock(job_id)
     raise "could not lock Job #{job_id}" unless lock_key
 
     block.call
 
-    unlock_result = JobBatch::Lock.unlock(job_id, lock_key)
+    unlock_result = ActiveLock::Lock.unlock(job_id, lock_key)
     raise "could not unlock Job #{job_id}" unless unlock_result
   end
 

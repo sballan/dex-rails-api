@@ -1,4 +1,4 @@
-module JobBatch::Lock
+module ActiveLock::Lock
   extend self
 
   def with_lock(name, ttl=nil, &block)
@@ -13,7 +13,7 @@ module JobBatch::Lock
     raise "Failed to unlock"
   end
 
-  def lock(name, ttl=nil, retry_ttl=5.seconds, retry_length=0.1.seconds)
+  def lock(name, ttl=nil, retry_ttl=5.seconds, retry_length=0.05.seconds)
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
@@ -44,15 +44,17 @@ module JobBatch::Lock
   protected
 
   def write_lock(name, key, ex:nil)
-    ex ||= JobBatch::DEFAULT_LOCK_TTL 
-    JobBatch.redis.set(JobBatch::LOCK_PREFIX + name, key, ex: ex, nx: true)
+    ex ||= ActiveLock::Config::DEFAULT_LOCK_TTL
+    raise "Cannot write_lock with blank name" if name.blank?
+
+    ActiveLock::Config.redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
   end
 
   def fetch_lock_key(name)
-    JobBatch.redis.get(JobBatch::LOCK_PREFIX + name)
+    ActiveLock::Config.redis.get(ActiveLock::Config::PREFIX + name)
   end
 
   def delete_lock(name)
-    JobBatch.redis.del(JobBatch::LOCK_PREFIX + name)
+    ActiveLock::Config.redis.del(ActiveLock::Config::PREFIX + name)
   end
 end
