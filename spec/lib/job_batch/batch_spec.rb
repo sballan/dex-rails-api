@@ -33,4 +33,21 @@ describe JobBatch::Batch do
       expect(has_job).to be_truthy
     end 
   end
+
+  describe "with_lock" do
+    let(:batch_id) { SecureRandom.uuid }
+    let(:batch) { JobBatch::Batch.new(batch_id) }
+
+    it "is locked inside the block" do
+      batch.with_lock do
+        expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_truthy
+      end
+    end
+
+    it "is unlocked before and after the block" do
+      expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_falsey
+      batch.with_lock {}
+      expect(@mock_redis.get(JobBatch::LOCK_PREFIX + batch_id)).to be_falsey
+    end
+  end
 end
