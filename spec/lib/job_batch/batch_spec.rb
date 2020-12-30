@@ -20,5 +20,17 @@ describe JobBatch::Batch do
       has_job = batch.jobs.any? {|j| j.id == job_id }
       expect(has_job).to be_truthy
     end
+
+    it "can add a job" do
+      batch_id = SecureRandom.uuid
+      job_id = SecureRandom.uuid
+
+      batch = JobBatch::Batch.new(batch_id)
+      job = JobBatch::Job.new(job_id)
+
+      batch.add_job(job)
+      has_job = batch.jobs.any? {|j| j.id == job_id }
+      expect(has_job).to be_truthy
+    end 
   end
 end

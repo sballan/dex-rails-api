@@ -11,22 +11,20 @@ class JobBatch::Batch
     self.class.with_lock(id, &block)
   end
 
-  def add_job(job_id)
-    with_lock do
-      if JobBatch::Job.exists?(job_id)
-        job = JobBatch::Job.find(job_id)
-        raise "Couldn't find an existing job" if job.nil?
-
-        job.with_lock do
-          if job.batch.id == id
-            Rails.logger.warn "Trying to add a job to a batch that already belongs to this batch"
-          else
-            raise "Trying to add a job to this batch that is already in a different batch"
-          end
+  # TODO: There may be an edge case here...What happens if we create the job somewhere else in between 
+  # checking that it exists and trying to create it here?
+  def add_job(job)
+    if JobBatch::Job.exists?(job.id)
+      job.with_lock do
+        if job.batch.id == id
+          Rails.logger.warn "Trying to add a job to a batch that already belongs to this batch"
+        else
+          # NOTE: This case might actually make sense...maybe we should allow putting a job in a different batch...
+          raise "Trying to add a job to this batch that is already in a different batch"
         end
-      else
-        JobBatch::Job.create(job_id, id)
       end
+    else
+      JobBatch::Job.create(job.id, id)
     end
   end
 
