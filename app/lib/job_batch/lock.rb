@@ -1,7 +1,7 @@
 module JobBatch::Lock
   extend self
 
-  def with_lock(name, ttl=JobBatch::DEFAULT_LOCK_TTL, &block)
+  def with_lock(name, ttl=nil, &block)
     raise "Block required" unless block
 
     key = lock(name, ttl)
@@ -13,7 +13,7 @@ module JobBatch::Lock
     raise "Failed to unlock"
   end
 
-  def lock(name, ttl=JobBatch::DEFAULT_LOCK_TTL, retry_ttl=5.seconds, retry_length=0.1.seconds)
+  def lock(name, ttl=nil, retry_ttl=5.seconds, retry_length=0.1.seconds)
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
@@ -43,7 +43,8 @@ module JobBatch::Lock
 
   protected
 
-  def write_lock(name, key, ex:)
+  def write_lock(name, key, ex:nil)
+    ex ||= JobBatch::DEFAULT_LOCK_TTL 
     JobBatch.redis.set(JobBatch::LOCK_PREFIX + name, key, ex: ex, nx: true)
   end
 
