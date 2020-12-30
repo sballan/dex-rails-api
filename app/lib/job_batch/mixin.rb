@@ -7,41 +7,36 @@ module JobBatch::Mixin
   def self.included(mod)
     mod.before_enqueue do |job|
       if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].blank?
-        raise "This should not be possible, but Thread.current has no batch_id"
+        Rails.logger.debug "There is no currently open batch, so let's open one for this thread"
+        Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = SecureRandom.uuid
       end
 
       batch_id = Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
+      Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
 
       unless JobBatch::Batch.exists?(batch_id)
-        raise "This should not be possible, but somehow we opened a Batch that does not exist"
+        Rails.logger.debug "We just opened Batch #{batch_id}"
       end
 
       batch = JobBatch::Batch.new(batch_id)
-      batch.add_job(job.job_id)
-      Rails.logger.debug "Successfully added Job #{job.job_id} to Batch #{batch.id}"
+      jb_job = JobBatch::Job.new(job.job_id)
+      batch.add_job(jb_job)
+      Rails.logger.debug "Successfully added Job #{jb_job.id} to Batch #{batch.id}"
     end
 
     mod.after_perform do |job|
-      job_batch_job = JobBatch::Job.find(job.job_id)
-      job_batch_job.batch.with_lock do
-        job_batch_job.destroy!
-      end
+      jb_job = JobBatch::Job.find(job.job_id)
+      jb_job.destroy!
     end
   end
 
   protected
 
-  def job_batch_job
-    @_job_batch_job ||= JobBatch::Job.new(job_id)
+  def jb_job
+    @_jb_job ||= JobBatch::Job.new(job_id)
   end
 
   def batch
-
-  end
-
-  def open_batch(&block)
-    batch_id = 'find batch id'
-    batch = JobBatch::Batch.new(batch_id)
-    batch.open(&block)
+    jb_job.batch
   end
 end
