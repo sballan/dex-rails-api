@@ -32,7 +32,13 @@ class RankService::Matrix
     num.times do
       iterate
     end
+
+    @rank_pages.each_with_index do |rp, i|
+      rp.finish_rank = @ev[i, 0]
+    end
   end
+
+  private
 
   def iterate
     @ev = @matrix * @ev
