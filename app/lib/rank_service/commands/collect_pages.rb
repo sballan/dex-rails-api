@@ -53,11 +53,13 @@ module RankService::Commands
         next unless v[:links_added]
         v[:page].links_from.pluck(:from_id).each do |from_id|
           next unless rank_pages[from_id].present?
-          rank_pages[k].back_links << rank_pages[from_id]
+          back_link_page = rank_pages[from_id]
+          back_link_position = back_link_page.position
+          rank_pages[k].back_links[back_link_position] = back_link_page
         end
       end
 
-      rank_pages
+      rank_pages.values
     end
   end
 end

@@ -5,7 +5,7 @@ class RankService::Page
     @id = id
     @position = position
     @start_rank = start_rank
-    @back_links = []
+    @back_links = {}
     @finish_rank = nil
   end
 end
