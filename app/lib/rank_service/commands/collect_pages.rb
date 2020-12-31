@@ -52,6 +52,7 @@ module RankService::Commands
       pages_map.each do |k, v|
         next unless v[:links_added]
         v[:page].links_from.pluck(:from_id).each do |from_id|
+          next unless rank_pages[from_id].present?
           rank_pages[k].back_links << rank_pages[from_id]
         end
       end
