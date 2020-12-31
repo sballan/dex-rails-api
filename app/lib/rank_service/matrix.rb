@@ -36,8 +36,8 @@ class RankService::Matrix
 
   def iterate
     @ev = @matrix * @ev
-    # @ev *= DAMPING * @matrix.row_size
-    # @ev += ::Matrix.column_vector([(1.0 - DAMPING) / @matrix.row_size] * @matrix.row_size)
+    @ev *= DAMPING
+    @ev += ::Matrix.column_vector([(1.0 - DAMPING) / @matrix.row_size] * @matrix.row_size)
     @iterations += 1
   end
 end
