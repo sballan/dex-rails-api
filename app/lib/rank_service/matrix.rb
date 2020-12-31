@@ -14,7 +14,7 @@ class RankService::Matrix
 
   def generate_matrix
     @matrix = ::Matrix.build(pages.size, pages.size) do |row, col|
-      
+
     end
   end
 end
