@@ -6,6 +6,10 @@ class JobBatch::Batch
     @id = batch_id
   end
 
+  def key
+    self.class.key_for(id)
+  end
+
   def with_lock(&block)
     self.class.with_lock(id, &block)
   end
@@ -53,10 +57,19 @@ class JobBatch::Batch
     end
   end
 
-  def self.create!(batch_id, callback_klass=nil, callback_args=nil)
+  def with_data(&block)
+    with_lock do
+      data = self.class.fetch_data(id)
+      block.call(data)
+    end
+  end
+
+  def self.create!(callback_klass=nil, callback_args=nil)
     callback_klass = callback_klass.to_s
     callback_args = callback_args.to_json if callback_args.is_a? Array
-    raise "Invalid callback args" unless callback_args.is_a? String
+    raise "Invalid callback args" unless callback_args.is_a?(String) || callback_args.nil?
+
+    batch_id = SecureRandom.uuid
 
     JobBatch.redis.mapped_hmset(
       key_for(batch_id),
@@ -65,6 +78,8 @@ class JobBatch::Batch
       callback_args: callback_args,
       created_at: DateTime.now.utc.to_s
     )
+
+    JobBatch::Batch.new(batch_id)
   end
 
   def self.key_for(batch_id)
@@ -81,7 +96,7 @@ class JobBatch::Batch
     raise "could not unlock Batch #{batch_id}" unless unlock_result
   end
 
-  def self.fetch_batch_data(batch_id)
+  def self.fetch_data(batch_id)
     data = JobBatch.redis.mapped_hmget(key_for(batch_id), *REDIS_HASH_KEYS).with_indifferent_access
     raise unless data.present?
 

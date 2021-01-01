@@ -12,6 +12,20 @@ describe JobBatch::Batch do
       expect(batch).to be
     end
 
+    it "can be created" do
+      batch = JobBatch::Batch.create!
+      found = @mock_redis.exists?(batch.key)
+      expect(found).to be_truthy
+    end
+
+    it "can have data" do
+      batch = JobBatch::Batch.create!
+
+      batch.with_data do |data|
+        expect(data).to be_present
+      end
+    end
+
     it "can have a job" do
       batch_id = SecureRandom.uuid
       job_id = SecureRandom.uuid
