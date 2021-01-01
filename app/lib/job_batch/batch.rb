@@ -1,8 +1,7 @@
 class JobBatch::Batch
-  PREFIX = "Batch/"
+  REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
 
   attr_reader :id
-
   def initialize(batch_id)
     @id = batch_id
   end
@@ -83,10 +82,10 @@ class JobBatch::Batch
   end
 
   def self.fetch_batch_data(batch_id)
-    result = JobBatch::Store.get(PREFIX + batch_id)
-    raise unless result.present?
+    data = JobBatch.redis.mapped_hmget(key_for(batch_id), *REDIS_HASH_KEYS).with_indifferent_access
+    raise unless data.present?
 
-    JSON.parse(result, symbolize_keys: true)
+    data
   end
 
   def self.exists?(batch_id)
