@@ -52,6 +52,23 @@ class JobBatch::Batch
         end
       end
     end
+
+  def self.create!(batch_id, callback_klass=nil, callback_args=nil)
+    callback_klass = callback_klass.to_s
+    callback_args = callback_args.to_json if callback_args.is_a? Array
+    raise "Invalid callback args" unless callback_args.is_a? String
+
+    JobBatch.redis.mapped_hmset(
+      key_for(batch_id),
+      active: true,
+      callback_klass: callback_klass,
+      callback_args: callback_args,
+      created_at: DateTime.now.utc.to_s
+    )
+  end
+
+  def self.key_for(batch_id)
+    JobBatch::BATCHES_PREFIX + batch_id
   end
 
   def self.with_lock(batch_id, &block)
