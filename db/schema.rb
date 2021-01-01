@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_22_032013) do
+ActiveRecord::Schema.define(version: 2021_01_01_030154) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -54,6 +54,7 @@ ActiveRecord::Schema.define(version: 2020_12_22_032013) do
     t.datetime "index_finished_at"
     t.datetime "cache_started_at"
     t.datetime "cache_finished_at"
+    t.decimal "rank"
     t.index ["cache_status"], name: "index_pages_on_cache_status"
     t.index ["index_status"], name: "index_pages_on_index_status"
     t.index ["parse_status"], name: "index_pages_on_parse_status"
