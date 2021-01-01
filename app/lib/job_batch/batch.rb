@@ -52,6 +52,7 @@ class JobBatch::Batch
         end
       end
     end
+  end
 
   def self.create!(batch_id, callback_klass=nil, callback_args=nil)
     callback_klass = callback_klass.to_s
