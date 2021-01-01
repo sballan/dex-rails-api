@@ -5,7 +5,6 @@ module RankService
     def rank_from_start_page(start_page, max_size)
       rank_pages = collect_pages(start_page, max_size)
       calculate(rank_pages)
-
     end
 
     private
@@ -18,6 +17,11 @@ module RankService
 
     def calculate(rank_pages)
       command = Commands::Calculate.new(rank_pages)
+      command.run!
+    end
+
+    def update_pages(rank_pages)
+      command = Commands::UpdatePages.new(rank_pages)
       command.run!
     end
   end
