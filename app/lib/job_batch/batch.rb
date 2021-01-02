@@ -1,14 +1,20 @@
-class JobBatch::Batch
-  PREFIX = "Batch/"
+class JobBatch::Batch < RedisModel
+  REDIS_PREFIX = "JobBatch/Batches/"
+  REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
+  REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
 
-  attr_reader :id
+  def finished!
+    callback_klass_name = self[:callback_klass]
+    callback_klass = Object.const_get(callback_klass_name) unless callback_klass_name.blank?
 
-  def initialize(batch_id)
-    @id = batch_id
-  end
+    callback_args = JSON.parse(self[:callback_args]) unless self[:callback_args].blank?
+    callback_args ||= []
 
-  def with_lock(&block)
-    self.class.with_lock(id, &block)
+    if callback_klass.respond_to? :perform_later
+      callback_klass.perform_later *callback_args
+    end
+
+    self[:active] = false
   end
 
   # TODO: There may be an edge case here...What happens if we create the job somewhere else in between
@@ -24,7 +30,7 @@ class JobBatch::Batch
         end
       end
     else
-      JobBatch::Job.create(job.id, id)
+      JobBatch::Job.create(job.id, batch_id: id)
     end
   end
 
@@ -38,40 +44,24 @@ class JobBatch::Batch
   # This awesome method locks the batch, and then gives us every job_id that matches the batch - with a lock
   # on the job too.
   def jobs
-    Enumerator.new do |y|
-      with_lock do
-        # Iterate over all jobs
-        JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "*") do |job_id|
-          job = JobBatch::Job.new(job_id)
-          # For each job, check if it has the right batch id - yield to block if it does.
-          job.with_data do |data|
-            break unless data[:batch_id] == id
-            # TODO: think about this carefully.  Is this safe?
-            y << job
-          end
-        end
-      end
+    JobBatch::Job.all.filter do |job|
+      job.batch.id == id
     end
   end
 
-  def self.with_lock(batch_id, &block)
-    lock_key = ActiveLock::Lock.lock(batch_id)
-    raise "could not lock Batch #{batch_id}" unless lock_key
 
-    block.call(lock_key)
+  def self.create(id=nil, attrs={})
+    callback_klass = attrs[:callback_klass].to_s
+    callback_args = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array
+    raise "Invalid callback args" unless callback_args.is_a?(String) || callback_args.nil?
 
-    unlock_result = ActiveLock::Lock.unlock(batch_id, lock_key)
-    raise "could not unlock Batch #{batch_id}" unless unlock_result
+    id ||= SecureRandom.uuid
+
+    super(id, {
+      callback_klass: callback_klass,
+      callback_args: callback_args,
+      created_at: DateTime.now.utc.to_s
+    })
   end
 
-  def self.fetch_batch_data(batch_id)
-    result = JobBatch::Store.get(PREFIX + batch_id)
-    raise unless result.present?
-
-    JSON.parse(result, symbolize_keys: true)
-  end
-
-  def self.exists?(batch_id)
-    JobBatch::Store.exists?(PREFIX + batch_id)
-  end
 end

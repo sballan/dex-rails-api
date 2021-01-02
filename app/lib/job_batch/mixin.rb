@@ -26,7 +26,12 @@ module JobBatch::Mixin
 
     mod.after_perform do |job|
       jb_job = JobBatch::Job.find(job.job_id)
+      batch = jb_job.batch
       jb_job.destroy!
+
+      if batch.jobs.empty?
+        batch.finished!
+      end
     end
   end
 

@@ -7,7 +7,6 @@ module JobBatch
 
   PREFIX = "JobBatch/"
   LOCK_PREFIX = PREFIX + "Lock/"
-  STORE_PREFIX = PREFIX + "Store/"
   JOBS_PREFIX = PREFIX + "Jobs/"
   BATCHES_PREFIX = PREFIX + "Batches/"
 

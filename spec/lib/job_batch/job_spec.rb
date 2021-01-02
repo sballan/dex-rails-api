@@ -4,6 +4,7 @@ describe JobBatch::Job do
   before do
     @mock_redis = MockRedis.new
     allow(JobBatch).to receive(:redis).and_return(@mock_redis)
+    allow(RedisModel).to receive(:redis).and_return(@mock_redis)
   end
 
   context "Basics" do
@@ -15,11 +16,11 @@ describe JobBatch::Job do
 
     it "has a Redis key" do
       key = job.key
-      expect(@mock_redis.exists?(key)).to be_truthy 
+      expect(@mock_redis.exists?(key)).to be_truthy
     end
 
     it "has a Batch" do
-      expect(job.batch).to be  
+      expect(job.batch).to be
     end
 
     it "can be found" do
