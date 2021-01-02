@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.6.5'
+ruby '2.7.2'
 
 gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
 gem 'puma', '~> 4.1'
@@ -47,6 +47,7 @@ group :test do
   gem 'capybara', '>= 2.15'
   gem 'selenium-webdriver'
   gem 'webdrivers'
+  gem 'mock_redis'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
