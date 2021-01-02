@@ -30,7 +30,7 @@ class RedisModel
 
   def self.all(&block)
     Enumerator.new do |y|
-      redis.scan_each(match: REDIS_PREFIX + "*") do |id|
+      redis.scan_each(match: self::REDIS_PREFIX + "*") do |id|
         y << new(id)
       end
     end
@@ -46,7 +46,7 @@ class RedisModel
     raise "Invalid attrs" unless attrs.is_a?(Hash)
 
     id ||= SecureRandom.uuid
-    attrs = REDIS_DEFAULT_DATA.call(id).merge(attrs)
+    attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
     redis.mapped_hmset(key_for(id), attrs)
     new(id)
@@ -56,8 +56,8 @@ class RedisModel
     with_lock(id) do
       model = find(id)
       return model unless model.nil?
-      binding.pry
-      attrs = REDIS_DEFAULT_DATA.call(id)
+
+      attrs = self::REDIS_DEFAULT_DATA.call(id)
       return create(id, attrs)
     end
   end
@@ -75,18 +75,18 @@ class RedisModel
   end
 
   def self.fetch_data(id)
-    data = redis.mapped_hmget(key_for(id), *REDIS_HASH_KEYS).with_indifferent_access
+    data = redis.mapped_hmget(key_for(id), *self::REDIS_HASH_KEYS).with_indifferent_access
     raise unless data.present?
 
     data
   end
 
   def self.key_for(id)
-    REDIS_PREFIX + id
+    self::REDIS_PREFIX + id
   end
 
   def self.exists?(id)
-    redis.exists?(REDIS_PREFIX + id)
+    redis.exists?(self::REDIS_PREFIX + id)
   end
 
   def self.redis
