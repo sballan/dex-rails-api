@@ -4,4 +4,5 @@
   - [refresh, 8]
   - [parse, 8]
   - [index, 16]
+  - [rank, 32]
   - [cache, 32]
