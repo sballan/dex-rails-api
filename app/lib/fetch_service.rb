@@ -1,0 +1,2 @@
+module FetchService
+end
