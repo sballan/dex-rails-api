@@ -90,7 +90,7 @@ describe JobBatch::Batch do
 
     context "jobs exist" do
       let(:batch) { JobBatch::Batch.create }
-      let(:job1) { JobBatch::Job.create(SecureRandom.uuid, batch.id) }
+      let(:job1) { JobBatch::Job.create(SecureRandom.uuid, batch_id: batch.id) }
 
       it "can get a job in it's batch" do
         job1 # So dumb - but for some reason, if we don't invoke job1 first - rspec doesn't run the let block? or something?  it doesn't exist until we do this.

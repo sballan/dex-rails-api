@@ -36,7 +36,7 @@ class JobBatch::Batch < RedisModel
         end
       end
     else
-      JobBatch::Job.create(job.id, id)
+      JobBatch::Job.create(job.id, batch_id: id)
     end
   end
 

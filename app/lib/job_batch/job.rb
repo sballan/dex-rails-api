@@ -1,40 +1,26 @@
-class JobBatch::Job
-  REDIS_HASH_KEYS=%w[batch_id created_at]
+class JobBatch::Job < RedisModel
+  REDIS_PREFIX = "JobBatch/Jobs/"
+  REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
+  REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
+
 
   attr_reader :id
 
   def initialize(job_id)
     # If the job_id starts with our Redis prefix, we can safely remove it
-    @id = job_id.remove(/^#{JobBatch::JOBS_PREFIX}/)
-  end
-
-  def key
-    self.class.key_for(id)
+    job_id = job_id.remove(/^#{REDIS_PREFIX}/)
+    super(job_id)
   end
 
   # @return [JobBatch::Batch]
   def batch
-    batch_id = nil
-    with_lock do
-      result = JobBatch.redis.hmget(key, 'batch_id')
-      batch_id = result.first
-    end
+    batch_id = self[:batch_id]
 
     unless batch_id.present?
       raise "Couldn't get batch for Job(#{id})"
     end
 
     JobBatch::Batch.new(batch_id)
-  end
-
-  def with_data(&block)
-    with_lock do
-      block.call(self.class.fetch_data(id))
-    end
-  end
-
-  def with_lock(&block)
-    self.class.with_lock(id, &block)
   end
 
   def destroy!
@@ -47,23 +33,18 @@ class JobBatch::Job
     id == other_job.id && batch.id == other_job.batch.id
   end
 
-  def self.create(job_id, batch_id=nil)
-    batch_id ||= SecureRandom.uuid
-    batch = JobBatch::Batch.new(batch_id)
+  def self.create(job_id, attrs={})
+    attrs[:batch_id] ||= SecureRandom.uuid
+    batch = JobBatch::Batch.new(attrs[:batch_id])
+    job = nil
 
     with_lock(job_id) do
       batch.with_lock do
-        JobBatch.redis.mapped_hmset(
-          key_for(job_id),
-          batch_id: batch_id,
-          active: true,
-          created_at: DateTime.now.utc.to_s
-        )
+        job = super(job_id, attrs)
       end
     end
-    raise "Job not in redis" unless exists?(job_id)
 
-    self.new(job_id)
+    job
   end
 
   def self.with_lock(job_id, &block)
