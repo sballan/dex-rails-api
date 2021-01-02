@@ -23,8 +23,8 @@ class RedisModel
     end
   end
 
-  def [](key_name)
-    value = redis.hmget(key_for(batch_id), key_name)
+  def [](field_name)
+    value = self.class.redis.hmget(key, field_name)
     value.first
   end
 
