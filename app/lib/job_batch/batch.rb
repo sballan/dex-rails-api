@@ -11,13 +11,16 @@ class JobBatch::Batch < RedisModel
 
   def finished!
     callback_klass_name = self[:callback_klass]
-    callback_klass = Object.const_get(callback_klass_name)
-    raise "invalid callback_klass" unless callback_klass.is_a?(ApplicationJob)
+    callback_klass = Object.const_get(callback_klass_name) unless callback_klass_name.blank?
 
-    # set active to false in redis?
-    # perhaps a callback queue??
+    callback_args = JSON.parse(self[:callback_args]) unless self[:callback_args].blank?
+    callback_args ||= []
 
-    callback_klass.perform_later
+    if callback_klass.respond_to? :perform_later
+      callback_klass.perform_later *callback_args
+    end
+
+    self[:active] = false
   end
 
   # TODO: There may be an edge case here...What happens if we create the job somewhere else in between
@@ -55,7 +58,7 @@ class JobBatch::Batch < RedisModel
 
   def self.create(id=nil, attrs={})
     callback_klass = attrs[:callback_klass].to_s
-    callback_args = attrs[:callback_klass].to_json if attrs[:callback_klass].is_a? Array
+    callback_args = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array
     raise "Invalid callback args" unless callback_args.is_a?(String) || callback_args.nil?
 
     id ||= SecureRandom.uuid
