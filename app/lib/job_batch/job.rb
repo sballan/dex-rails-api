@@ -43,6 +43,10 @@ class JobBatch::Job
     end
   end
 
+  def ==(other_job)
+    id == other_job.id && batch.id == other_job.batch.id
+  end
+
   def self.create(job_id, batch_id=nil)
     batch_id ||= SecureRandom.uuid
     batch = JobBatch::Batch.new(batch_id)
