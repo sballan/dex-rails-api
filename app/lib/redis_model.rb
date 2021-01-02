@@ -5,7 +5,7 @@ class RedisModel
 
   attr_reader :id
   def initialize(id)
-    @id = id
+    @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
   end
 
   def key

@@ -3,12 +3,6 @@ class JobBatch::Batch < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
 
-  attr_reader :id
-  def initialize(batch_id)
-    batch_id = batch_id.remove(/^#{REDIS_PREFIX}/)
-    super(batch_id)
-  end
-
   def finished!
     callback_klass_name = self[:callback_klass]
     callback_klass = Object.const_get(callback_klass_name) unless callback_klass_name.blank?
