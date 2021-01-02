@@ -12,7 +12,44 @@ module IndexService
       raise e
     end
 
+    def index_page_title(page, max_length=5, max_distance=5)
+      parsed_page = ParseService::Client.download_cached_parsed_page(page)
+
+      title = parsed_page[:title]
+      return unless title.present?
+
+      index_page_text(title, "title", max_length, max_distance)
+    end
+
+    def index_page_links(page, max_length=3, max_distance=2)
+      link_texts = page.links_to.where.not(text: [nil, ""]).pluck(:text)
+      return if link_texts.blank?
+
+      link_texts.each do |link_text|
+          index_page_text(link_text, "link", max_length, max_distance)
+      end
+    end
+
+    def index_page_headers(page, max_length=5, max_distance=2)
+      parsed_page = ParseService::Client.download_cached_parsed_page(page)
+
+      parsed_page[:headers].each do |header|
+          index_page_text(header, "header", max_length, max_distance)
+      end
+    end
+
     private
+
+    def index_page_text(text, kind, max_length, max_distance)
+      command = IndexPageText.new(
+          @page,
+          text,
+          kind,
+          max_length,
+          max_distance
+      )
+      command.run_with_gc!
+    end
 
     def handle_index_start(page)
       page.index_status = :active
@@ -38,36 +75,6 @@ module IndexService
       Rails.logger.info "Index succeeded for Page(#{page.id})"
     end
 
-    # def body_queries
-    #   fetch_command = Parse::FetchPageFile.new(@scrape_page.page.url)
-    #   run_nested_with_gc!(fetch_command)
-    #
-    #   doc = Nokogiri::HTML(fetch_command.payload)
-    #   doc.xpath('//script').remove
-    #   doc.xpath('//style').remove
-    #
-    #   page_content = Html2Text.convert doc.to_html.force_encoding('UTF-8')
-    #   page_words = page_content.downcase.split(' ')
-    #
-    #   query_ids = Query.where(text: page_words).pluck(:id)
-    #
-    #   if query_ids.empty?
-    #     Rails.logger.debug "ScrapePage (#{@scrape_page.id}) has a page file that does not contain any words that match queries in our database.  Not indexing."
-    #     return []
-    #   end
-    #
-    #   result_atts = query_ids.map do |q_id|
-    #     {
-    #       query_id: q_id,
-    #       page_id: @scrape_page.page.id,
-    #       kind: 'body',
-    #       created_at: DateTime.now.utc,
-    #       updated_at: DateTime.now.utc
-    #     }
-    #   end
-    #   Result.insert_all(result_atts, unique_by: :index_results_on_query_id_and_page_id_and_kind)
-    #
-    #   query_ids
-    # end
+
   end
 end
