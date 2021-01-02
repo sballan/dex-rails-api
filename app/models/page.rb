@@ -13,6 +13,8 @@ class Page < ApplicationRecord
   has_many :pages_linked_to, through: :links_to, source: :to
   has_many :pages_linked_from, through: :links_from, source: :from
 
+  has_one :meta, class_name: "PageMeta"
+
   has_many :page_matches
   has_many :queries, through: :page_matches
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_01_030154) do
+ActiveRecord::Schema.define(version: 2021_01_02_221227) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -35,6 +35,23 @@ ActiveRecord::Schema.define(version: 2021_01_01_030154) do
     t.index ["page_id"], name: "index_page_matches_on_page_id"
     t.index ["query_id", "page_id", "kind", "full", "distance", "length"], name: "index_page_matches_on_query_page_kind_full_distance_length", unique: true
     t.index ["query_id"], name: "index_page_matches_on_query_id"
+  end
+
+  create_table "page_meta", force: :cascade do |t|
+    t.integer "page_id", null: false
+    t.datetime "fetch_started_at"
+    t.datetime "fetch_finished_at"
+    t.datetime "index_started_at"
+    t.datetime "index_finished_at"
+    t.datetime "rank_started_at"
+    t.datetime "rank_finished_at"
+    t.integer "fetch_status", default: 0
+    t.integer "index_status", default: 0
+    t.integer "rank_status", default: 0
+    t.index ["fetch_status"], name: "index_page_meta_on_fetch_status"
+    t.index ["index_status"], name: "index_page_meta_on_index_status"
+    t.index ["page_id"], name: "index_page_meta_on_page_id", unique: true
+    t.index ["rank_status"], name: "index_page_meta_on_rank_status"
   end
 
   create_table "pages", force: :cascade do |t|
