@@ -5,6 +5,7 @@ module RankService
     def rank_from_start_page(start_page, max_size)
       rank_pages = collect_pages(start_page, max_size)
       calculate(rank_pages)
+      update_pages(rank_pages)
     end
 
     private

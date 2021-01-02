@@ -10,6 +10,7 @@ module RankService::Commands
         @rank_pages.map(&:id),
         @rank_pages.map {|rp| {rank: rp.finish_rank} }
       )
+      result.succeed!
     end
   end
 end
