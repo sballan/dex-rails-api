@@ -3,11 +3,22 @@ class JobBatch::Batch
 
   attr_reader :id
   def initialize(batch_id)
-    @id = batch_id
+    @id = batch_id.remove(/^#{JobBatch::BATCHES_PREFIX}/)
   end
 
   def key
     self.class.key_for(id)
+  end
+
+  def finished!
+    callback_klass_name = JobBatch.redis.hmget(key, 'callback_klass')
+    callback_klass = Object.const_get(callback_klass_name)
+    raise "invalid callback_klass" unless callback_klass.is_a?(ApplicationJob)
+
+    # set active to false in redis?
+    # perhaps a callback queue??
+
+    callback_klass.perform_later
   end
 
   def with_lock(&block)
@@ -41,19 +52,12 @@ class JobBatch::Batch
   # This awesome method locks the batch, and then gives us every job_id that matches the batch - with a lock
   # on the job too.
   def jobs
-    Enumerator.new do |y|
-      with_lock do
-        # Iterate over all jobs
-        JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "*") do |job_id|
-          job = JobBatch::Job.new(job_id)
-          # For each job, check if it has the right batch id - yield to block if it does.
-          job.with_data do |data|
-            break unless data[:batch_id] == id
-            # TODO: think about this carefully.  Is this safe?
-            y << job
-          end
-        end
+    JobBatch::Job.all.filter do |job|
+      present = false
+      job.with_data do |data|
+        present = data[:batch_id] == id
       end
+      present
     end
   end
 

@@ -29,8 +29,7 @@ class JobBatch::Job
 
   def with_data(&block)
     with_lock do
-      data = JobBatch.redis.mapped_hmget(key, *REDIS_HASH_KEYS).with_indifferent_access
-      block.call(data)
+      block.call(self.class.fetch_data(id))
     end
   end
 
@@ -81,6 +80,18 @@ class JobBatch::Job
 
   def self.key_for(job_id)
     JobBatch::JOBS_PREFIX + job_id
+  end
+
+  def self.all(&block)
+    Enumerator.new do |y|
+      JobBatch.redis.scan_each(match: JobBatch::JOBS_PREFIX + "*") do |job_id|
+        y << new(job_id)
+      end
+    end
+  end
+
+  def self.fetch_data(job_id)
+    JobBatch.redis.mapped_hmget(key_for(job_id), *REDIS_HASH_KEYS).with_indifferent_access
   end
 
   def self.exists?(job_id)
