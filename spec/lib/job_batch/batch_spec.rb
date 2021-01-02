@@ -1,3 +1,5 @@
+require "rails_helper"
+
 describe JobBatch::Batch do
   before do
     @mock_redis = MockRedis.new
