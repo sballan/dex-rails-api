@@ -2,6 +2,7 @@ describe JobBatch::Batch do
   before do
     @mock_redis = MockRedis.new
     allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
+    allow(RedisModel).to receive(:redis).and_return(@mock_redis)
     allow(JobBatch).to receive(:redis).and_return(@mock_redis)
   end
 
@@ -13,13 +14,13 @@ describe JobBatch::Batch do
     end
 
     it "can be created" do
-      batch = JobBatch::Batch.create!
+      batch = JobBatch::Batch.create
       found = @mock_redis.exists?(batch.key)
       expect(found).to be_truthy
     end
 
     it "can have data" do
-      batch = JobBatch::Batch.create!
+      batch = JobBatch::Batch.create
 
       batch.with_data do |data|
         expect(data).to be_present
@@ -29,10 +30,11 @@ describe JobBatch::Batch do
     it "can have a job" do
       batch_id = SecureRandom.uuid
       job_id = SecureRandom.uuid
-      @mock_redis.mapped_hmset(JobBatch::JOBS_PREFIX + job_id, batch_id: batch_id)
+      @mock_redis.mapped_hmset(JobBatch::Job.key_for(job_id), batch_id: batch_id)
 
       batch = JobBatch::Batch.new(batch_id)
       has_job = batch.jobs.any? {|j| j.id == job_id }
+
       expect(has_job).to be_truthy
     end
 
@@ -75,10 +77,10 @@ describe JobBatch::Batch do
 
   describe "jobs" do
     context "no jobs exist" do
-      let(:batch) { JobBatch::Batch.create! }
-      
-      it "returns an enumerator" do
-        expect(batch.jobs).to be_a(Enumerator)
+      let(:batch) { JobBatch::Batch.create }
+
+      it "returns an Array" do
+        expect(batch.jobs).to be_a(Array)
       end
 
       it "can be used to return a count of 0" do
@@ -87,7 +89,7 @@ describe JobBatch::Batch do
     end
 
     context "jobs exist" do
-      let(:batch) { JobBatch::Batch.create! }
+      let(:batch) { JobBatch::Batch.create }
       let(:job1) { JobBatch::Job.create(SecureRandom.uuid, batch.id) }
 
       it "can get a job in it's batch" do

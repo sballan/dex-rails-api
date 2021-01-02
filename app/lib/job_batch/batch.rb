@@ -1,13 +1,12 @@
-class JobBatch::Batch
+class JobBatch::Batch < RedisModel
+  REDIS_PREFIX = "JobBatch/Batches/"
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
+  REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
 
   attr_reader :id
   def initialize(batch_id)
-    @id = batch_id.remove(/^#{JobBatch::BATCHES_PREFIX}/)
-  end
-
-  def key
-    self.class.key_for(id)
+    batch_id = batch_id.remove(/^#{REDIS_PREFIX}/)
+    super(batch_id)
   end
 
   def finished!
@@ -19,10 +18,6 @@ class JobBatch::Batch
     # perhaps a callback queue??
 
     callback_klass.perform_later
-  end
-
-  def with_lock(&block)
-    self.class.with_lock(id, &block)
   end
 
   # TODO: There may be an edge case here...What happens if we create the job somewhere else in between
@@ -53,61 +48,23 @@ class JobBatch::Batch
   # on the job too.
   def jobs
     JobBatch::Job.all.filter do |job|
-      present = false
-      job.with_data do |data|
-        present = data[:batch_id] == id
-      end
-      present
+      job.batch.id == id
     end
   end
 
-  def with_data(&block)
-    with_lock do
-      data = self.class.fetch_data(id)
-      block.call(data)
-    end
-  end
 
-  def self.create!(callback_klass=nil, callback_args=nil)
-    callback_klass = callback_klass.to_s
-    callback_args = callback_args.to_json if callback_args.is_a? Array
+  def self.create(id=nil, attrs={})
+    callback_klass = attrs[:callback_klass].to_s
+    callback_args = attrs[:callback_klass].to_json if attrs[:callback_klass].is_a? Array
     raise "Invalid callback args" unless callback_args.is_a?(String) || callback_args.nil?
 
-    batch_id = SecureRandom.uuid
+    id ||= SecureRandom.uuid
 
-    JobBatch.redis.mapped_hmset(
-      key_for(batch_id),
-      active: true,
+    super(id, {
       callback_klass: callback_klass,
       callback_args: callback_args,
       created_at: DateTime.now.utc.to_s
-    )
-
-    JobBatch::Batch.new(batch_id)
+    })
   end
 
-  def self.key_for(batch_id)
-    JobBatch::BATCHES_PREFIX + batch_id
-  end
-
-  def self.with_lock(batch_id, &block)
-    lock_key = ActiveLock::Lock.lock(batch_id)
-    raise "could not lock Batch #{batch_id}" unless lock_key
-
-    block.call(lock_key)
-
-    unlock_result = ActiveLock::Lock.unlock(batch_id, lock_key)
-    raise "could not unlock Batch #{batch_id}" unless unlock_result
-  end
-
-  def self.fetch_data(batch_id)
-    data = JobBatch.redis.mapped_hmget(key_for(batch_id), *REDIS_HASH_KEYS).with_indifferent_access
-    raise unless data.present?
-
-    data
-  end
-
-  def self.exists?(batch_id)
-    JobBatch::Store.exists?(PREFIX + batch_id)
-  end
 end
