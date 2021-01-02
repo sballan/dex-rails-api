@@ -28,6 +28,10 @@ class RedisModel
     value.first
   end
 
+  def []=(field_name, field_value)
+    self.class.redis.hmset(key, field_name, field_value)
+  end
+
   def self.all(&block)
     Enumerator.new do |y|
       redis.scan_each(match: self::REDIS_PREFIX + "*") do |id|

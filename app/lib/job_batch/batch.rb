@@ -10,7 +10,7 @@ class JobBatch::Batch < RedisModel
   end
 
   def finished!
-    callback_klass_name = JobBatch.redis.hmget(key, 'callback_klass')
+    callback_klass_name = self[:callback_klass]
     callback_klass = Object.const_get(callback_klass_name)
     raise "invalid callback_klass" unless callback_klass.is_a?(ApplicationJob)
 
