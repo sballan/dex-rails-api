@@ -33,7 +33,7 @@ class SearchWithReact extends React.Component<any, any>{
                               <li>
                                   Title: {v.page.title}     <br/>
                                   URL: {v.page.url}         <br/>
-                                  Rank: {v.page.rank.substring(0, 10)}  <br/>
+                                  Rank: {v.page.rank?.substring(0, 10)}  <br/>
                                   Kind: {v.kind}            <br/>
                                   Distance: {v.distance}    <br/>
                                   Length: {v.length}        <br/>
