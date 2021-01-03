@@ -32,7 +32,7 @@ module FetchService
         Rails.logger.info "Page(#{page.url}) is blank, marking as dead"
         page.meta.tap do |meta|
           meta.fetch_status = :dead
-          meta.fetch_finished = DateTime.now.utc
+          meta.fetch_finished_at = DateTime.now.utc
           meta.save!
         end
 
