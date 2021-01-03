@@ -10,10 +10,10 @@ module ActiveLock::Lock
     block.call
 
     success = unlock(name, key)
-    raise "Failed to unlock"
+    raise "Failed to unlock" unless success
   end
 
-  def lock(name, ttl=nil, retry_ttl=5.seconds, retry_length=0.05.seconds)
+  def lock(name, ttl=nil, retry_ttl=10.seconds, retry_length=0.05.seconds)
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
