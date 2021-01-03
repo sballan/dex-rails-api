@@ -45,7 +45,7 @@ module RankService::Commands
       pages_map.each_with_index do |o, i|
         id = o.first
         position = i + 1
-        start_rank = 1.0 / pages_map.size
+        start_rank = o.last[:page].rank || 1.0 / pages_map.size
         rank_pages[id] ||= RankService::Page.new(id: id, position: position, start_rank: start_rank)
       end
 
