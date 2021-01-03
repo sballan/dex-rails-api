@@ -12,11 +12,6 @@ module JobBatch::Mixin
       end
 
       batch_id = Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
-      Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
-
-      unless JobBatch::Batch.exists?(batch_id)
-        Rails.logger.debug "We just opened Batch #{batch_id}"
-      end
 
       batch = JobBatch::Batch.new(batch_id)
       jb_job = JobBatch::Job.new(job.job_id)
