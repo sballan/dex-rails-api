@@ -11,7 +11,7 @@ module RankService::Commands
           ranked_page = @rank_pages_map[page.id]
           new_rank = ranked_page.finish_rank
           new_rank = (new_rank + page.rank / 2.0) if page.rank.present?
-          page.rank = new_rank
+          page.rank = new_rank.to_f
           page.save
         end
       end
