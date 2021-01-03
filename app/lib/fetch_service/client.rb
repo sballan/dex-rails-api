@@ -8,7 +8,7 @@ module FetchService
     def fetch(page)
       page.meta.tap do |meta|
         meta.fetch_status = :active
-        meta.fetch_finished_at = DateTime.now.utc
+        meta.fetch_started_at = DateTime.now.utc
         meta.save!
       end
 
