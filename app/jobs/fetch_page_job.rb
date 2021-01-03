@@ -10,8 +10,8 @@ class FetchPageJob < ApplicationJob
       page.update(meta_attributes: {})
     end
 
-    if page.meta.fetch_success?
-      Rails.logger.info "Not fetching this page, since we've had a success"
+    if page.meta.fetch_success? || page.meta.fetch_dead?
+      Rails.logger.info "Not fetching this page, since fetch status is #{page.meta.fetch_status}"
       return
     end
 
