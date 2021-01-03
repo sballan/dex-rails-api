@@ -18,7 +18,7 @@ module IndexService
       title = parsed_page[:title]
       return unless title.present?
 
-      index_page_text(title, "title", max_length, max_distance)
+      index_page_text(page, title, "title", max_length, max_distance)
     end
 
     def index_page_links(page, max_length=3, max_distance=2)
@@ -26,7 +26,7 @@ module IndexService
       return if link_texts.blank?
 
       link_texts.each do |link_text|
-          index_page_text(link_text, "link", max_length, max_distance)
+          index_page_text(page, link_text, "link", max_length, max_distance)
       end
     end
 
@@ -34,15 +34,15 @@ module IndexService
       parsed_page = ParseService::Client.download_cached_parsed_page(page)
 
       parsed_page[:headers].each do |header|
-          index_page_text(header, "header", max_length, max_distance)
+          index_page_text(page, header, "header", max_length, max_distance)
       end
     end
 
     private
 
-    def index_page_text(text, kind, max_length, max_distance)
-      command = IndexPageText.new(
-          @page,
+    def index_page_text(page, text, kind, max_length, max_distance)
+      command = Commands::IndexPageText.new(
+          page,
           text,
           kind,
           max_length,
