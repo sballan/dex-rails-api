@@ -1,4 +1,4 @@
-class GCCompactJob < ApplicationJob
+class GcCompactJob < ApplicationJob
   queue_as :default
 
   def perform
