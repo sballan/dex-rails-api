@@ -7,7 +7,12 @@ class CrawlSiteJob < ApplicationJob
     site = Site.find(site_id)
     page_ids = Page.by_site(site).pluck(:id)
 
-    batch.open do
+    crawl_batch = JobBatch::Batch.create(nil, {
+      callback_klass: 'BatchCacheQueriesJob',
+      callback_args: [1000]
+    })
+
+    crawl_batch.open do
       page_ids.each do |page_id|
         FetchPageJob.perform_later(page_id, depth)
       end

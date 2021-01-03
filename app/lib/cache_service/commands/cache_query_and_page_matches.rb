@@ -37,7 +37,8 @@ module CacheService::Commands
           full: page_match.full,
           page: {
             url: page_match.page.url,
-            title: page_match.page.title
+            title: page_match.page.title,
+            rank: page_match.page.rank
           }
         }
       end
