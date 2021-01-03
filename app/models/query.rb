@@ -15,6 +15,6 @@ class Query < ApplicationRecord
   }
 
   scope :cached_before, ->(before_date) {
-    where(cached_at: CACHE_EPOCH.utc..before_date)
+    where(cached_at: CACHE_EPOCH..before_date)
   }
 end
