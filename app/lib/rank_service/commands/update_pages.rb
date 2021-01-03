@@ -6,7 +6,7 @@ module RankService::Commands
     end
 
     def run_proc
-      Page.where(id: @rank_pages.keys).find_each do |page|
+      Page.where(id: @rank_pages_map.keys).find_each do |page|
         page.with_lock do
           ranked_page = @rank_pages_map[page.id]
           new_rank = ranked_page.finish_rank
