@@ -29,11 +29,11 @@ class FetchPageJob < ApplicationJob
     batch.open do
       IndexPageFragmentJob.perform_later(page_id, 'title')
 
-      if depth > 2
+      if depth > 1
         IndexPageFragmentJob.perform_later(page_id, 'links')
       end
 
-      if depth > 4
+      if depth > 2
         IndexPageFragmentJob.perform_later(page_id, 'headers')
       end
     end
