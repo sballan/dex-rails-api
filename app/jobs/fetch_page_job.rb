@@ -1,12 +1,21 @@
 class FetchPageJob < ApplicationJob
   include JobBatch::Mixin
 
-  queue_as :crawl
+  queue_as :fetch
 
   def perform(page_id, depth)
     page = Page.find(page_id)
 
-    FetchService::Client.soft_fetch(page)
+    unless page.meta.present?
+      page.update(meta_attributes: {})
+    end
+
+    if page.meta.fetch_success?
+      Rails.logger.info "Not fetching this page, since we've had a success"
+      return
+    end
+
+    FetchService::Client.fetch(page)
 
     return unless depth > 0
 

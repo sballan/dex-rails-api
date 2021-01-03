@@ -2,7 +2,7 @@
 :queues:
   - [default, 128]
   - [refresh, 8]
-  - [crawl, 8]
+  - [fetch, 8]
   - [parse, 8]
   - [index, 16]
   - [rank, 32]

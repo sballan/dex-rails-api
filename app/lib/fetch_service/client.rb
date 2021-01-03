@@ -5,19 +5,10 @@ module FetchService
     extend self
 
     # @param [Page] page
-    def soft_fetch(page)
-      unless page.meta.present?
-        page.update(meta_attributes: {})
-      end
-
-      if page.meta.fetch_success?
-        Rails.logger.info "Soft refresh does not refresh pages that have status refresh success"
-        return
-      end
-
+    def fetch(page)
       page.meta.tap do |meta|
         meta.fetch_status = :active
-        meta.fetch_started_at = DateTime.now.utc
+        meta.fetch_finished_at = DateTime.now.utc
         meta.save!
       end
 
@@ -28,16 +19,7 @@ module FetchService
         sleep 1
       end
 
-      if page_file.blank?
-        Rails.logger.info "Page(#{page.url}) is blank, marking as dead"
-        page.meta.tap do |meta|
-          meta.fetch_status = :dead
-          meta.fetch_finished_at = DateTime.now.utc
-          meta.save!
-        end
-
-        return
-      end
+      return nil if page_file.blank?
 
       parse_page(page, page_file)
 
@@ -46,14 +28,35 @@ module FetchService
         meta.fetch_finished_at = DateTime.now.utc
         meta.save!
       end
+    rescue => e
+      page.meta.tap do |meta|
+        meta.fetch_status = :failure
+        meta.fetch_finished_at = DateTime.now.utc
+        meta.save!
+      end
+
+      raise e
     end
+
 
     private
 
     def refresh_page(page)
       command = Commands::RefreshPage.new(page)
       command.run!
-      command.payload
+      page_file = command.payload
+
+      return page_file unless page_file.blank?
+
+      Rails.logger.info "Page(#{page.url}) is blank, marking as dead"
+
+      page.meta.tap do |meta|
+        meta.fetch_status = :dead
+        meta.fetch_finished_at = DateTime.now.utc
+        meta.save!
+      end
+
+      nil
     end
 
     def parse_page(page, page_file)
