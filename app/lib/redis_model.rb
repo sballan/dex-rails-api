@@ -138,12 +138,17 @@ class RedisModel
 
     belongs_to_klasses[relation_name] = {
         class: klass,
-        inverse_of: inverse_of
+        inverse_of: inverse_of,
+        required: required
     }
 
     define_method(relation_name) do
       relation_id = self.send(:[], :"#{relation_name}_id")
-      klass.find(relation_id)
+      relation = klass.find(relation_id) unless relation_id.blank?
+      if relation.blank? && self.class.belongs_to_klasses[relation_name][:required]
+        raise "#{self.class.name} #{id} is missing required relation #{relation_name}"
+      end
+      relation
     end
   end
 

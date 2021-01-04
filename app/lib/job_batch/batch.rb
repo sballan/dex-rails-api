@@ -7,6 +7,15 @@ class JobBatch::Batch < RedisModel
   has_many :children, 'JobBatch::Batch', inverse_of: :parent
   has_many :jobs, 'JobBatch::Job', inverse_of: :batches
 
+  def destroy!
+    # parent is a relation, so we need to grab it before using multi
+    p = parent
+    self.class.redis.multi do
+      self.class.redis.del(key)
+      p.present? && p.children_delete(id)
+    end
+  end
+
   def finished!
     callback_klass_name = self[:callback_klass]
     callback_klass = Object.const_get(callback_klass_name) unless callback_klass_name.blank?
@@ -21,24 +30,7 @@ class JobBatch::Batch < RedisModel
       raise "Batch #{id} tried to use an invalid callback"
     end
 
-    self[:active] = false
-  end
-
-  # TODO: There may be an edge case here...What happens if we create the job somewhere else in between
-  # checking that it exists and trying to create it here?
-  def add_job(job)
-    if JobBatch::Job.exists?(job.id)
-      job.with_lock do
-        if job.batch.id == id
-          Rails.logger.warn "Trying to add a job to a batch that already belongs to this batch"
-        else
-          # NOTE: This case might actually make sense...maybe we should allow putting a job in a different batch...
-          raise "Trying to add a job to this batch that is already in a different batch"
-        end
-      end
-    else
-      JobBatch::Job.create(job.id, batch_id: id)
-    end
+    destroy!
   end
 
   def open(&block)
