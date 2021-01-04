@@ -38,10 +38,10 @@ module CacheService::Commands
           page: {
             url: page_match.page.url,
             title: page_match.page.title,
-            rank: page_match.page.rank
+            rank: page_match.page.rank || 0
           }
         }
-      end.sort_by {|pm| pm[:page][:rank] rescue 0 }.reverse
+      end.sort_by {|pm| pm[:page][:rank] }.reverse
     end
   end
 end
