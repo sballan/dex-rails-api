@@ -21,7 +21,7 @@ module ActiveLock::Lock
       key
     elsif retry_length < retry_ttl
       sleep retry_length
-      lock(name, ttl, retry_ttl - retry_length, retry_length * 2)
+      lock(name, ttl, retry_ttl - retry_length, retry_length * 2 * rand(0.5..1.5))
     else
       raise "Failed to acquire lock"
     end
