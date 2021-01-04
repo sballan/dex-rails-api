@@ -45,15 +45,6 @@ class JobBatch::Batch < RedisModel
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
 
-  # This awesome method locks the batch, and then gives us every job_id that matches the batch - with a lock
-  # on the job too.
-  def jobs
-    JobBatch::Job.all.filter do |job|
-      job.batch.id == id
-    end
-  end
-
-
   def self.create(id=nil, attrs={})
     callback_klass = attrs[:callback_klass].to_s
     callback_args = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array

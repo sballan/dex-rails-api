@@ -5,17 +5,6 @@ class JobBatch::Job < RedisModel
 
   belongs_to :batch, 'JobBatch::Batch', :jobs
 
-  # @return [JobBatch::Batch]
-  def batch
-    batch_id = self[:batch_id]
-
-    unless batch_id.present?
-      raise "Couldn't get batch for Job(#{id})"
-    end
-
-    JobBatch::Batch.new(batch_id)
-  end
-
   def destroy!
     batch.with_lock do
       JobBatch.redis.del(key)
@@ -27,6 +16,8 @@ class JobBatch::Job < RedisModel
   end
 
   def self.create(job_id, attrs={})
+    raise "job_id required to create #{self.name}" if job_id.blank?
+
     attrs[:batch_id] ||= SecureRandom.uuid
     batch = JobBatch::Batch.new(attrs[:batch_id])
     job = nil
