@@ -3,20 +3,14 @@ class JobBatch::Job < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
 
-  # @return [JobBatch::Batch]
-  def batch
-    batch_id = self[:batch_id]
-
-    unless batch_id.present?
-      raise "Couldn't get batch for Job(#{id})"
-    end
-
-    JobBatch::Batch.new(batch_id)
-  end
+  belongs_to :batch, 'JobBatch::Batch', inverse_of: :jobs, required: true
 
   def destroy!
-    batch.with_lock do
-      JobBatch.redis.del(key)
+    # batch is a relation, so we need to grab it before using multi
+    b = batch
+    self.class.redis.multi do
+      self.class.redis.del(key)
+      b.jobs_delete(id)
     end
   end
 
@@ -25,16 +19,9 @@ class JobBatch::Job < RedisModel
   end
 
   def self.create(job_id, attrs={})
-    attrs[:batch_id] ||= SecureRandom.uuid
-    batch = JobBatch::Batch.new(attrs[:batch_id])
-    job = nil
+    raise "job_id required to create #{self.name}" if job_id.blank?
 
-    with_lock(job_id) do
-      batch.with_lock do
-        job = super(job_id, attrs)
-      end
-    end
-
-    job
+    attrs[:batch_id] ||= JobBatch::Batch.create.id
+    super(job_id, attrs)
   end
 end

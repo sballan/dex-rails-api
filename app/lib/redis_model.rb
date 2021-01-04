@@ -4,6 +4,7 @@ class RedisModel
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
 
   attr_reader :id
+
   def initialize(id)
     @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
   end
@@ -50,9 +51,32 @@ class RedisModel
     raise "Invalid attrs" unless attrs.is_a?(Hash)
 
     id ||= SecureRandom.uuid
+
+    raise "Cannot create #{self.name}: it already exists" if self.exists? id
+
     attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
-    redis.mapped_hmset(key_for(id), attrs)
+    redis.multi do
+      redis.mapped_hmset(key_for(id), attrs)
+
+      # Make sure all belongs_to fields are set
+      belongs_to_klasses.each do |key, value|
+        next unless value[:required] == true
+
+        unless attrs.keys.include?(:"#{key}_id")
+          raise "#{self.name} cannot be created without a #{key} relation"
+        end
+      end
+
+      # Call <relation>_insert for each belongs_to relation
+      attrs.each do |key, value|
+        relation_name = key.to_s.remove(/_id$/).to_sym
+        next unless belongs_to_klasses.has_key?(relation_name)
+
+        relation = belongs_to_klasses[relation_name][:class].find(value)
+        relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
+      end
+    end
     new(id)
   end
 
@@ -65,7 +89,6 @@ class RedisModel
       return create(id, attrs)
     end
   end
-
 
   def self.with_lock(id, &block)
     lock_key = ActiveLock::Lock.lock(id)
@@ -95,5 +118,65 @@ class RedisModel
 
   def self.redis
     Redis.current
+  end
+
+  protected
+
+  def self.belongs_to_klasses
+    @belongs_to_klasses ||= {}
+  end
+
+  def self.has_many_klasses
+    @has_many_klasses ||= {}
+  end
+
+  def self.belongs_to(relation_name, klass_name, inverse_of:, required: false)
+    klass = Object.const_get(klass_name)
+    unless klass.const_defined?(:REDIS_PREFIX)
+      raise "#{self.name} cannot belong_to a class with no REDIS_PREFIX"
+    end
+
+    belongs_to_klasses[relation_name] = {
+        class: klass,
+        inverse_of: inverse_of,
+        required: required
+    }
+
+    define_method(relation_name) do
+      relation_id = self.send(:[], :"#{relation_name}_id")
+      relation = klass.find(relation_id) unless relation_id.blank?
+      if relation.blank? && self.class.belongs_to_klasses[relation_name][:required]
+        raise "#{self.class.name} #{id} is missing required relation #{relation_name}"
+      end
+      relation
+    end
+  end
+
+  def self.has_many(relation_name, klass_name, inverse_of)
+    klass = Object.const_get(klass_name)
+    unless klass.const_defined?(:REDIS_PREFIX)
+      raise "#{self.name} cannot has_many a class with no REDIS_PREFIX"
+    end
+
+    has_many_klasses[relation_name] = {
+        class: klass,
+        inverse_of: inverse_of
+    }
+
+    define_method(:"#{relation_name}_insert") do |relation_id|
+      relation_key = "#{self.send(:key)}/#{relation_name}"
+      self.class.redis.sadd(relation_key, relation_id)
+    end
+
+    define_method(:"#{relation_name}_delete") do |relation_id|
+      relation_key = "#{self.send(:key)}/#{relation_name}"
+      self.class.redis.srem(relation_key, relation_id)
+    end
+
+    define_method(relation_name) do
+      relation_key = "#{self.send(:key)}/#{relation_name}"
+      relation_ids = self.class.redis.smembers(relation_key)
+      relation_ids.map { |r_id| klass.new(r_id) }
+    end
   end
 end
