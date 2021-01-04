@@ -3,7 +3,7 @@ class JobBatch::Job < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
 
-  belongs_to :batch, 'JobBatch::Batch', :jobs
+  belongs_to :batch, 'JobBatch::Batch', :jobs, required: true
 
   def destroy!
     # batch is a relation, so we need to grab it before using multi

@@ -58,6 +58,8 @@ class RedisModel
 
       # Make sure all belongs_to fields are set
       belongs_to_klasses.each do |key, value|
+        next unless value[:required] == true
+
         unless attrs.keys.include?(:"#{key}_id")
           raise "#{self.name} cannot be created without a #{key} relation"
         end
