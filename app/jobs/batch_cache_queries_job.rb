@@ -4,11 +4,30 @@ class BatchCacheQueriesJob < ApplicationJob
   queue_as :cache
 
   def perform(size=1000)
-    Query.never_cached.limit(size).in_batches(of: 100) do |queries|
+    if size < 1
+      Rails.logger.info "BatchCacheQueriesJob size is less than one, not caching"
+      return
+    end
+
+    query_batch = JobBatch::Batch.create(nil, {
+      callback_klass: 'BatchCacheQueriesJob',
+      callback_args: [size / 2]
+    })
+
+    Query.never_cached.limit(size / 2).in_batches(of: 100) do |queries|
       query_ids = queries.pluck(:id)
       # We break this into batches of 100 so we don't lock the batch for too long at one time.
       # Maybe we don't need this, I never actually tested it.
-      batch.open do
+      query_batch.open do
+        query_ids.each {|id| CacheQueryJob.perform_later(id)}
+      end
+    end
+
+    Query.cached_before(1.week.ago).limit(size / 2).in_batches(of: 100) do |queries|
+      query_ids = queries.pluck(:id)
+      # We break this into batches of 100 so we don't lock the batch for too long at one time.
+      # Maybe we don't need this, I never actually tested it.
+      query_batch.open do
         query_ids.each {|id| CacheQueryJob.perform_later(id)}
       end
     end

@@ -1,7 +1,7 @@
 class CrawlSiteJob < ApplicationJob
   include JobBatch::Mixin
 
-  queue_as :default
+  queue_as :crawl
 
   def perform(site_id, depth, limit=100)
     site = Site.find(site_id)
