@@ -6,21 +6,24 @@ module JobBatch::Mixin
 
   def self.included(mod)
     mod.before_enqueue do |job|
-      if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].blank?
-        Rails.logger.debug "There is no currently open batch, so let's open one for this thread"
-        Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = SecureRandom.uuid
+      batch = JobBatch::Batch.opened_batch
+
+      if JobBatch::Batch.opened_batch.blank?
+        Rails.logger.debug "There is no currently open batch, so let's create one"
+        batch = JobBatch::Batch.create
       end
 
-      batch_id = Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
-
-      batch = JobBatch::Batch.new(batch_id)
-      jb_job = JobBatch::Job.new(job.job_id)
-      batch.add_job(jb_job)
+      jb_job = JobBatch::Job.create(job.job_id, batch_id: batch.id)
       Rails.logger.debug "Successfully added Job #{jb_job.id} to Batch #{batch.id}"
     end
 
     mod.after_perform do |job|
       jb_job = JobBatch::Job.find(job.job_id)
+
+      if jb_job.blank?
+        raise "Job performed, but JobBatch::Job #{job.job_id} could not be found in Redis"
+      end
+
       batch = jb_job.batch
       jb_job.destroy!
 

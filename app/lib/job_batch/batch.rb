@@ -60,4 +60,12 @@ class JobBatch::Batch < RedisModel
     super(id, attrs)
   end
 
+  def self.opened_batch
+    if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].present?
+      new(Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL])
+    else
+      nil
+    end
+  end
+
 end
