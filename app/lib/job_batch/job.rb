@@ -3,6 +3,8 @@ class JobBatch::Job < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
 
+  belongs_to :batch, 'JobBatch::Batch', :jobs
+
   # @return [JobBatch::Batch]
   def batch
     batch_id = self[:batch_id]

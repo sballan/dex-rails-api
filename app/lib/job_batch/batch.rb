@@ -3,6 +3,8 @@ class JobBatch::Batch < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
 
+  has_many :jobs, 'JobBatch::Job', :batches
+
   def finished!
     callback_klass_name = self[:callback_klass]
     callback_klass = Object.const_get(callback_klass_name) unless callback_klass_name.blank?
@@ -39,6 +41,7 @@ class JobBatch::Batch < RedisModel
     raise "This should not be possible: batch was already open" if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL]
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = id
     block.call(id)
+  ensure
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
 
