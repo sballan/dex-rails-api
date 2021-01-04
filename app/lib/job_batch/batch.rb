@@ -30,7 +30,12 @@ class JobBatch::Batch < RedisModel
       raise "Batch #{id} tried to use an invalid callback"
     end
 
+    p = parent
     destroy!
+
+    if p.jobs.empty? && p.children.empty?
+      p.finished!
+    end
   end
 
   def open(&block)
