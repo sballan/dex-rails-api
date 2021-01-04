@@ -19,7 +19,7 @@ module ActiveLock::Lock
 
     if success
       key
-    elsif retry_length < retry_ttl
+    elsif retry_ttl > 0.seconds
       sleep retry_length
       lock(name, ttl, retry_ttl - retry_length, retry_length * 2 * rand(0.5..1.5))
     else
