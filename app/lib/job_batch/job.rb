@@ -6,8 +6,11 @@ class JobBatch::Job < RedisModel
   belongs_to :batch, 'JobBatch::Batch', :jobs
 
   def destroy!
-    batch.with_lock do
-      JobBatch.redis.del(key)
+    # batch is a relation, so we need to grab it before using multi
+    b = batch
+    self.class.redis.multi do
+      self.class.redis.del(key)
+      b.jobs_delete(id)
     end
   end
 

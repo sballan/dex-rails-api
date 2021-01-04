@@ -15,6 +15,8 @@ class JobBatch::Batch < RedisModel
     if callback_klass.respond_to? :perform_later
       Rails.logger.info "Finished Batch #{id}, about to queue callback #{callback_klass_name}"
       callback_klass.perform_later *callback_args
+    else
+      raise "Batch #{id} tried to use an invalid callback"
     end
 
     self[:active] = false
