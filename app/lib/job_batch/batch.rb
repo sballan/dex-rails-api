@@ -23,10 +23,10 @@ class JobBatch::Batch < RedisModel
     callback_args = JSON.parse(self[:callback_args]) unless self[:callback_args].blank?
     callback_args ||= []
 
-    if callback_klass.respond_to? :perform_later
+    if callback_klass.respond_to?(:perform_later)
       Rails.logger.info "Finished Batch #{id}, about to queue callback #{callback_klass_name}"
       callback_klass.perform_later *callback_args
-    else
+    elsif callback_klass.present?
       raise "Batch #{id} tried to use an invalid callback"
     end
 
