@@ -21,7 +21,7 @@ class FetchPageJob < ApplicationJob
     return unless depth > 0
 
     batch.open do
-      CrawlPageJob.perform_later(link.to_id, depth - 1)
+      CrawlPageJob.perform_later(page.id, depth - 1)
     end
 
     # index_batch = JobBatch::Batch.create
