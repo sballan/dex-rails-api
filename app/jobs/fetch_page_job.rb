@@ -4,14 +4,15 @@ class FetchPageJob < ApplicationJob
   queue_as :fetch
 
   def perform(page_id, depth)
-    page = Page.find(page_id)
+    page = Page.includes(:meta).find(page_id)
 
     unless page.meta.present?
+      Rails.logger.info "No metadata for Page(#{page_id}); inserting metadata record"
       page.update(meta_attributes: {})
     end
 
     if page.meta.fetch_success? || page.meta.fetch_dead?
-      Rails.logger.info "Not fetching this page, since fetch status is #{page.meta.fetch_status}"
+      Rails.logger.info "Not fetching Page(#{page_id}), since fetch status is #{page.meta.fetch_status}"
       return
     end
 
