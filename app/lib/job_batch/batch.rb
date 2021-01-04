@@ -3,7 +3,9 @@ class JobBatch::Batch < RedisModel
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
 
-  has_many :jobs, 'JobBatch::Job', :batches
+  belongs_to :parent, 'JobBatch::Batch', inverse_of: :children
+  has_many :children, 'JobBatch::Batch', inverse_of: :parent
+  has_many :jobs, 'JobBatch::Job', inverse_of: :batches
 
   def finished!
     callback_klass_name = self[:callback_klass]
@@ -48,17 +50,14 @@ class JobBatch::Batch < RedisModel
   end
 
   def self.create(id=nil, attrs={})
-    callback_klass = attrs[:callback_klass].to_s
-    callback_args = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array
-    raise "Invalid callback args" unless callback_args.is_a?(String) || callback_args.nil?
+    attrs[:callback_klass] = attrs[:callback_klass].to_s
+    attrs[:callback_args] = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array
+    raise "Invalid callback args" unless attrs[:callback_args].is_a?(String) || attrs[:callback_args].nil?
 
+    attrs[:created_at] ||= DateTime.now.utc.to_s
     id ||= SecureRandom.uuid
 
-    super(id, {
-      callback_klass: callback_klass,
-      callback_args: callback_args,
-      created_at: DateTime.now.utc.to_s
-    })
+    super(id, attrs)
   end
 
 end

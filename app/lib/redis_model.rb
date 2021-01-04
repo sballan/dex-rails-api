@@ -51,6 +51,9 @@ class RedisModel
     raise "Invalid attrs" unless attrs.is_a?(Hash)
 
     id ||= SecureRandom.uuid
+
+    raise "Cannot create #{self.name}: it already exists" if self.exists? id
+
     attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
     redis.multi do
@@ -127,7 +130,7 @@ class RedisModel
     @has_many_klasses ||= {}
   end
 
-  def self.belongs_to(relation_name, klass_name, inverse_of)
+  def self.belongs_to(relation_name, klass_name, inverse_of:, required: false)
     klass = Object.const_get(klass_name)
     unless klass.const_defined?(:REDIS_PREFIX)
       raise "#{self.name} cannot belong_to a class with no REDIS_PREFIX"
