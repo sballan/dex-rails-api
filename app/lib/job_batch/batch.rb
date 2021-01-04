@@ -33,7 +33,7 @@ class JobBatch::Batch < RedisModel
     p = parent
     destroy!
 
-    if p.jobs.empty? && p.children.empty?
+    if p.present? && p.jobs.empty? && p.children.empty?
       p.finished!
     end
   end
