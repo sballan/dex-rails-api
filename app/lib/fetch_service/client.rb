@@ -16,7 +16,7 @@ module FetchService
       host = URI(page.url).host
       ActiveLock::Lock.with_lock("Host/#{host}") do
         page_file = refresh_page(page)
-        sleep 1
+        sleep 2
       end
 
       return nil if page_file.blank?
