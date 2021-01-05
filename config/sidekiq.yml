@@ -1,7 +1,7 @@
 :concurrency: <%= ENV['RAILS_MAX_THREADS'] || 5 %>
 :queues:
   - [default, 2048]
-  - [cache, 512]
+  - [cache, 1024]
   - [fetch, 256]
   - [rank, 32]
   - [index, 16]
