@@ -17,7 +17,7 @@ module RankService::Commands
       while current_page.present? && pages_map.size < @max_pages
         break unless (pages_map.size + current_page.links_from.count) < @max_pages
 
-        current_page.links_from.includes(:from).each do |link|
+        current_page.links_from.in_batches(load: :from).each_record do |link|
           pages_map[link.from.id] ||= {
             page: link.from,
             links_added: false
