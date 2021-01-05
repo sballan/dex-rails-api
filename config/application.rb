@@ -8,6 +8,9 @@ Bundler.require(*Rails.groups)
 
 module DexRailsApi
   class Application < Rails::Application
+    # Let's get GC profiler stats!
+    GC::Profiler.enable
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
