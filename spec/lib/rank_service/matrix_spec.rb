@@ -28,7 +28,7 @@ describe RankService::Matrix do
     it "can iterate a few times" do
       matrix = RankService::Matrix.new rank_pages
       matrix.generate_matrix
-      
+
       expect {
         matrix.iterate_times(10)
       }.to_not raise_error

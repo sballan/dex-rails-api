@@ -3,6 +3,6 @@
   - [default, 2048]
   - [cache, 1024]
   - [fetch, 256]
-  - [rank, 32]
   - [index, 16]
-  - [crawl, 4]
+  - [rank, 8]
+  - [crawl, 2]
