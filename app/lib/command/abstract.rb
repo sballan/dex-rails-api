@@ -94,7 +94,7 @@ module Command
     def with_gc(&block)
       GC.start(full_mark: true, immediate_sweep: true)
       block.call
-      GC.start(full_mark: true, immediate_sweep: true)
+      GC.start(full_mark: false, immediate_sweep: false)
     end
   end
 end
