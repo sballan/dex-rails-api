@@ -4,11 +4,6 @@ class BatchCacheQueriesJob < ApplicationJob
   queue_as :cache
 
   def perform(size=1000, iter=1)
-    if iter < 1
-      Rails.logger.info "BatchCacheQueriesJob iter is less than one, not caching"
-      return
-    end
-
     if iter > 1
       batch_attrs = {
         callback_klass: 'BatchCacheQueriesJob',
