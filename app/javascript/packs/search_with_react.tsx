@@ -54,7 +54,16 @@ class SearchWithReact extends React.Component<any, any>{
             .then(response => response.json())
             .then(data => {
                 const matches = _.mapValues(data.matches, arr => {
-                    return _.sortBy(arr, m => m.length / (m.distance + 1))
+                    const grouped = _.groupBy(arr, 'kind')
+                    let titleMatches = grouped['title'] || []
+                    let linkMatches = grouped['link'] || []
+                    let headerMatches = grouped['header'] || []
+
+                    titleMatches = _.sortBy(titleMatches, m => m.length / (m.distance + 1))
+                    linkMatches = _.sortBy(linkMatches, m => m.length / (m.distance + 1))
+                    headerMatches = _.sortBy(headerMatches, m => m.length / (m.distance + 1))
+
+                    return _.flatten([titleMatches, linkMatches, headerMatches])
                 })
                 this.setState({matches})
                 console.log(data)
