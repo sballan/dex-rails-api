@@ -24,4 +24,9 @@ class JobBatch::Job < RedisModel
     attrs[:batch_id] ||= JobBatch::Batch.create.id
     super(job_id, attrs)
   end
+
+  def self.redis
+    JobBatch.redis
+  end
+
 end

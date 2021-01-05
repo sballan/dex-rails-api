@@ -65,4 +65,8 @@ class JobBatch::Batch < RedisModel
     end
   end
 
+  def self.redis
+    JobBatch.redis
+  end
+
 end
