@@ -22,9 +22,10 @@ gem 'aws-sdk-s3' # to use digital ocean spaces... terrible......
 gem 'sidekiq'
 gem 'html2text'
 
-gem "barnes"
+# gem "barnes" # For Heroku stats. Pretty expensive.
 gem 'newrelic_rpm'
 gem "bugsnag", "~> 6.18"
+# gem 'dotenv-rails'
 
 
 group :development, :test do
@@ -34,6 +35,7 @@ group :development, :test do
   gem 'dotenv-rails'
   gem 'standard'
   gem 'rubocop'
+  gem 'debase' # for debugging
 end
 
 group :development do
