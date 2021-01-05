@@ -13,7 +13,7 @@ module ActiveLock::Lock
     raise "Failed to unlock" unless success
   end
 
-  def lock(name, ttl=nil, retry_ttl=5.minutes, retry_length=0.001.seconds)
+  def lock(name, ttl=nil, retry_ttl=15.seconds, retry_length=0.001.seconds)
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
