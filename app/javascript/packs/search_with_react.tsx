@@ -55,7 +55,7 @@ class SearchWithReact extends React.Component<any, any>{
             .then(data => {
                 this.setState({
                     matches: _.sortBy(data.matches, m => {
-                        return m.length / m.distance + 1
+                        return m.length / (m.distance + 1)
                     })
                 })
                 console.log(data)
