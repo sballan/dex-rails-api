@@ -3,16 +3,22 @@ class BatchCacheQueriesJob < ApplicationJob
 
   queue_as :cache
 
-  def perform(size=1000)
-    if size < 1
-      Rails.logger.info "BatchCacheQueriesJob size is less than one, not caching"
+  def perform(size=1000, iter=1)
+    if iter < 1
+      Rails.logger.info "BatchCacheQueriesJob iter is less than one, not caching"
       return
     end
 
-    query_batch = JobBatch::Batch.create(nil, {
-      callback_klass: 'BatchCacheQueriesJob',
-      callback_args: [size / 2]
-    })
+    if iter > 1
+      batch_attrs = {
+        callback_klass: 'BatchCacheQueriesJob',
+        callback_args: [size, iter - 1]
+      }
+    else
+      batch_attrs = {}
+    end
+
+    query_batch = JobBatch::Batch.create(nil, batch_attrs)
 
     Query.never_cached.limit(size / 2).in_batches(of: 100) do |queries|
       query_ids = queries.pluck(:id)
