@@ -38,7 +38,7 @@ class FetchPageJob < ApplicationJob
     end
 
     batch.open do
-      RankPageJob.perform_later(page.id, 1000)
+      RankPageJob.perform_later(page.id, 150)
     end
   end
 end
