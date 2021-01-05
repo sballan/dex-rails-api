@@ -317,6 +317,7 @@ DEPENDENCIES
   bugsnag (~> 6.18)
   byebug
   capybara (>= 2.15)
+  connection_pool
   debase
   dotenv-rails
   html2text
