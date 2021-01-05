@@ -59,9 +59,9 @@ class SearchWithReact extends React.Component<any, any>{
                     let linkMatches = grouped['link'] || []
                     let headerMatches = grouped['header'] || []
 
-                    titleMatches = _.sortBy(titleMatches, m => m.length / (m.distance + 1))
-                    linkMatches = _.sortBy(linkMatches, m => m.length / (m.distance + 1))
-                    headerMatches = _.sortBy(headerMatches, m => m.length / (m.distance + 1))
+                    titleMatches = _.sortBy(titleMatches, m => (m.distance + 1) / m.length)
+                    linkMatches = _.sortBy(linkMatches, m => (m.distance + 1) / m.length)
+                    headerMatches = _.sortBy(headerMatches, m => (m.distance + 1) / m.length)
 
                     return _.flatten([titleMatches, linkMatches, headerMatches])
                 })
