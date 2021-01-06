@@ -4,6 +4,9 @@ class IndexPageFragmentJob < ApplicationJob
   queue_as :index
 
   def perform(page_id, fragment_name)
+    GC.start full_mark: true, immediate_sweep: true
+    GC.compact
+
     page = Page.find(page_id)
 
     case fragment_name
