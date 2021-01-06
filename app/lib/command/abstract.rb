@@ -92,7 +92,8 @@ module Command
     end
 
     def with_gc(&block)
-      GC.start(full_mark: true, immediate_sweep: true)
+      # Do minor GCs here, which only affect recently created objects. Immediate sweep before, deferable sweep after
+      GC.start(full_mark: false, immediate_sweep: true)
       block.call
       GC.start(full_mark: false, immediate_sweep: false)
     end
