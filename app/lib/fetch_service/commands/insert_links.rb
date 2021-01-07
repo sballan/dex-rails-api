@@ -13,8 +13,6 @@ module FetchService::Commands
         link.delete(:url)
         link[:text] = link[:text] || ""
         link[:from_id] = @page.id
-        link[:created_at] = DateTime.now.utc
-        link[:updated_at] = DateTime.now.utc
       end
     end
 
@@ -35,7 +33,7 @@ module FetchService::Commands
 
     def fetch_to_ids
       # Once pages have been inserted, we can get all the ids and urls we need in a single query
-      Page.where(url: @links_by_url.keys).in_batches do|pages|
+      Page.where(url: @links_by_url.keys).in_batches do |pages|
         pages.pluck(:id, :url).each do |page|
           @links_by_url[page.second][:to_id] = page.first
         end
@@ -44,12 +42,7 @@ module FetchService::Commands
 
     def page_insert_attributes
       @links_by_url.map do |url, link|
-        {
-          url: url,
-          refresh_status: :ready,
-          created_at: link[:created_at],
-          updated_at: link[:updated_at]
-        }
+        { url: url }
       end
     end
   end
