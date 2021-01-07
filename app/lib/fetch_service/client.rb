@@ -6,11 +6,11 @@ module FetchService
 
     # @param [Page] page
     def fetch(page)
-      page.meta.tap do |meta|
-        meta.fetch_status = :active
-        meta.fetch_started_at = DateTime.now.utc
-        meta.save!
-      end
+      page.meta.update!(
+        fetch_status: :active,
+        fetch_started_at: DateTime.now.utc,
+        fetch_finished_at: nil
+      )
 
       page_file = nil
       host = URI(page.url).host
@@ -23,17 +23,17 @@ module FetchService
 
       parse_page(page, page_file)
 
-      page.meta.tap do |meta|
-        meta.fetch_status = :success
-        meta.fetch_finished_at = DateTime.now.utc
-        meta.save!
-      end
+      page.meta.update!(
+        crawl_status: :ready,
+        fetch_status: :success,
+        fetch_finished_at: DateTime.now.utc
+      )
+
     rescue => e
-      page.meta.tap do |meta|
-        meta.fetch_status = :failure
-        meta.fetch_finished_at = DateTime.now.utc
-        meta.save!
-      end
+      page.meta.update!(
+        fetch_status: :failure,
+        fetch_finished_at: DateTime.now.utc
+      )
 
       raise e
     end
@@ -50,11 +50,10 @@ module FetchService
 
       Rails.logger.info "Page(#{page.url}) is blank, marking as dead"
 
-      page.meta.tap do |meta|
-        meta.fetch_status = :dead
-        meta.fetch_finished_at = DateTime.now.utc
-        meta.save!
-      end
+      page.meta.update!(
+        fetch_status: :dead,
+        fetch_finished_at: DateTime.now.utc
+      )
 
       nil
     end
