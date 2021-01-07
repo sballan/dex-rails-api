@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_07_163444) do
+ActiveRecord::Schema.define(version: 2021_01_07_231947) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -49,6 +49,9 @@ ActiveRecord::Schema.define(version: 2021_01_07_163444) do
     t.integer "crawl_status", default: 0
     t.datetime "crawl_started_at"
     t.datetime "crawl_finished_at"
+    t.boolean "indexed_title"
+    t.boolean "indexed_links"
+    t.boolean "indexed_headers_"
     t.index ["crawl_status"], name: "index_page_meta_on_crawl_status"
     t.index ["fetch_status"], name: "index_page_meta_on_fetch_status"
     t.index ["index_status"], name: "index_page_meta_on_index_status"
