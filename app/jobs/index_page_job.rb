@@ -17,16 +17,45 @@ class IndexPageJob < ApplicationJob
       return
     end
 
+    fields_to_index = {
+      title: false,
+      links: false,
+      headers: false
+    }
+
     # If we're scraping this Site, do next deepest indexing
-    matching_host = Site.for_page(page).where(scrape_active: true)
-    if matching_host.present?
-      IndexPageFragmentJob.perform_later(page_id, 'headers')
+    matching_site = Site.for_page(page).where(scrape_active: true)
+    if matching_site.present?
+      # If we're scraping this Site, we get title and links
+      fields_to_index[:title] = true
+      fields_to_index[:links] = true
+
+      # If home page links to us, also grab headers
+      home_page = Page.includes(:links_to, :links_from).find_by_url(matching_site.home_url)
+      if home_page.links_to.include?(page.id) || home_page.links_from.include?(page.id)
+        fields_to_index[:headers] = true
+      end
+    else
+      # Otherwise, see if we're 1 link away from an active Site, and if so grab the title
+      linked_to_hosts = page_to_index.pages_linked_to.pluck(:url).map {|url| URI(url).host }
+      linked_from_hosts = page_to_index.pages_linked_from.pluck(:url).map {|url| URI(url).host }
+      connected_sites = Site.where(scrape_active: true, host: [linked_to_hosts, linked_from_hosts].flatten)
+
+      if connected_sites.any?
+        fields_to_index[:title] = true
+      end
     end
 
+    crawl_batch = JobBatch::Batch.create(
+      nil,
+      callback_klass: 'CrawlPageCallbackJob',
+      callback_args: [page_to_index.id, fields_to_index]
+    )
 
-    linked_to_hosts = page_to_index.pages_linked_to.pluck(:url).map {|url| URI(url).host }
-    linked_from_hosts = page_to_index.pages_linked_from.pluck(:url).map {|url| URI(url).host }
-
-
+    crawl_batch.open do
+      fields_to_index.each do |key, _value|
+        IndexPageFragmentJob.perform_later(page_to_index.id, key.to_s) if fields_to_index[key]
+      end
+    end
   end
 end
