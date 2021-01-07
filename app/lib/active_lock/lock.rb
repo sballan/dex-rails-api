@@ -2,15 +2,15 @@ module ActiveLock::Lock
   extend self
 
   def with_lock(name, ttl=nil, &block)
-    raise "Block required" unless block
+    raise ArgumentError.new("Block required") unless block
 
     key = lock(name, ttl)
-    raise "Failed to acquire lock" unless key
+    raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") unless key
 
     block.call
 
     success = unlock(name, key)
-    raise "Failed to unlock" unless success
+    raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless success
   end
 
   def lock(name, ttl=nil, retry_ttl=30.seconds, retry_length=0.001.seconds)
@@ -23,7 +23,7 @@ module ActiveLock::Lock
       sleep retry_length
       lock(name, ttl, retry_ttl - retry_length, retry_length * 2 * rand(0.5..1.5))
     else
-      raise "Failed to acquire lock"
+      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock")
     end
   end
 
@@ -45,7 +45,7 @@ module ActiveLock::Lock
 
   def write_lock(name, key, ex: nil)
     ex ||= ActiveLock::Config::DEFAULT_LOCK_TTL
-    raise "Cannot write_lock with blank name" if name.blank?
+    raise ArgumentError.new("Cannot write_lock with blank name") if name.blank?
 
     ActiveLock::Config.redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
   end
