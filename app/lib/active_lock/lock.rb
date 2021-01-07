@@ -1,7 +1,10 @@
 module ActiveLock::Lock
   extend self
 
-  def with_lock(name, ttl=nil, &block)
+  def with_lock(name, ttl=nil, retry_ttl=nil, retry_length=nil, &block)
+    retry_ttl ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_TIME
+    retry_length ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_LENGTH
+
     raise ArgumentError.new("Block required") unless block
 
     key = lock(name, ttl)
@@ -13,7 +16,10 @@ module ActiveLock::Lock
     raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless success
   end
 
-  def lock(name, ttl=nil, retry_ttl=30.seconds, retry_length=0.001.seconds)
+  def lock(name, ttl=nil, retry_ttl=nil, retry_length=nil)
+    retry_ttl ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_TIME
+    retry_length ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_LENGTH
+
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
