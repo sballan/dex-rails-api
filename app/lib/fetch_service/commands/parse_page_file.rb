@@ -28,10 +28,15 @@ module FetchService::Commands
       doc.css('a').each do |link_node|
         next if link_node['href'].blank?
 
-        parsed_page[:links] << {
-            url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
-            text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
-        }
+        begin
+          parsed_page[:links] << {
+              url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
+              text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
+          }
+        rescue URI::InvalidURIError
+          # TODO: revisit how we're parsing this URL
+          next
+        end
       end
 
       doc.css('h1').each do |header_node|
