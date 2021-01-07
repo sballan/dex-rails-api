@@ -4,13 +4,42 @@ class CrawlPageJob < ApplicationJob
   queue_as :crawl
 
   def perform(page_id, depth)
-    page = Page.find(page_id)
+    page_to_crawl = Page.includes(:meta).find(page_id)
 
-    batch.open do
-      page.links_to.includes(:to).each do |link|
-        next if link.to.meta.present? && (link.to.meta.fetch_success? || link.to.meta.fetch_dead?)
+    # Cannot crawl unless we have meta
+    unless page_to_crawl.meta.present?
+      raise "No metadata for Page(#{page_id}); cannot crawl this page"
+    end
 
-        FetchPageJob.perform_later(link.to_id, depth)
+    # We can only crawl pages if they are ready or failed
+    unless page_to_crawl.meta.crawl_ready? || !page.meta.crawl_failure?
+      Rails.logger.warn "Not crawling Page(#{page_id}), since crawl status is #{page_to_crawl.meta.crawl_status}"
+      return
+    end
+
+    # Mark crawl as active
+    page_to_crawl.meta.update!(crawl_status: :active)
+
+    # Mark any new PageMeta for these links as ready
+    PageMeta.where(
+      fetch_status: :new,
+      page_id: page_to_crawl.pages_linked_to.pluck(:id)
+    ).update_all(
+      fetch_status: :ready
+    )
+
+    crawl_batch = JobBatch::Batch.create(
+      nil,
+      callback_klass: 'CrawlPageCallbackJob',
+      callback_args: [page_to_crawl.id]
+    )
+
+    crawl_batch.open do
+      page_to_crawl.pages_linked_to.includes(:meta).find_each do |page|
+        # Skip if we already got it or it's not valid
+        next if page.meta.present? && (page.meta.fetch_success? || page.meta.fetch_dead?)
+
+        FetchPageJob.perform_later(page.id)
       end
     end
   end
