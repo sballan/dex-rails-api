@@ -13,7 +13,7 @@ module JobBatch::Mixin
         batch = JobBatch::Batch.create
       end
 
-      jb_job = JobBatch::Job.create(job.job_id, batch_id: batch.id)
+      jb_job = JobBatch::Job.find_or_create(job.job_id, batch_id: batch.id)
       Rails.logger.debug "Successfully added Job #{jb_job.id} to Batch #{batch.id}"
     end
 

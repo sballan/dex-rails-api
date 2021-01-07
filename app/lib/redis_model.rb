@@ -80,7 +80,7 @@ class RedisModel
     new(id)
   end
 
-  def self.find_or_create(id)
+  def self.find_or_create(id, attrs)
     with_lock(id) do
       model = find(id)
       return model unless model.nil?
