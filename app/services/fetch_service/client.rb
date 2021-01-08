@@ -44,6 +44,7 @@ module FetchService
       parse_page(page, page_file)
 
       page.update!(meta_attributes: {
+        index_status: :ready,
         crawl_status: :ready,
         fetch_status: :success,
         fetch_finished_at: DateTime.now.utc
