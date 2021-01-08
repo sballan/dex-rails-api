@@ -15,6 +15,6 @@ module JobBatch
   # @return [Redis]
   def redis
     # This might be really stupid, but I think it actually will work
-    Sidekiq.redis {|r| r}
+    DEFAULT_REDIS
   end
 end
