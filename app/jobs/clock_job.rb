@@ -4,6 +4,12 @@ class ClockJob < ApplicationJob
   def perform
     Rails.logger.info "Clock Tick started"
 
+    JobBatch::Batch.all.each do |jb|
+      next unless jb.jobs.empty? && jb.children.empty?
+
+      jb.finished!
+    end
+
     # To start off, we synchronously fetch all unsuccessful home pages for our sites
     FetchService::Client.tick do |page_ids|
       if page_ids.present?
