@@ -8,7 +8,7 @@ class FetchPageJob < ApplicationJob
     retry_job(wait: rand(10.minutes))
   end
 
-  def perform(page_id, depth)
+  def perform(page_id)
     page = Page.includes(:meta).find(page_id)
 
     unless page.meta.present?
