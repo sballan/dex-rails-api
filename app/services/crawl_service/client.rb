@@ -18,7 +18,7 @@ module CrawlService
       # Now let's collect pages to pass to the block
       page_ids = []
       if num_active_pages >= MAX_CRAWL_PAGES
-        Rails.logger.error "We're at crawl capacity with #{count} pages being crawled"
+        Rails.logger.error "We're at crawl capacity with #{num_active_pages} pages being crawled"
       else
         # Update all pages for active Sites that have crawl_status: :ready, which means they have already been fetched
         num_additional_pages = MAX_CRAWL_PAGES - num_active_pages
