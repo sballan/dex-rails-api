@@ -14,6 +14,6 @@ module JobBatch
 
   # @return [Redis]
   def redis
-    ConnectionPool::Wrapper.new(size: ENV.fetch('RAILS_MAX_THREADS', 5), timeout: 3) { DEFAULT_REDIS}
+    DEFAULT_REDIS
   end
 end

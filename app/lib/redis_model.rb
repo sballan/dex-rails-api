@@ -119,7 +119,7 @@ class RedisModel
   end
 
   def self.redis
-    Redis.current
+    DEFAULT_REDIS
   end
 
   protected

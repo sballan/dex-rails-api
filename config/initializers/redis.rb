@@ -16,10 +16,10 @@ else
   sidekiq_redis_connection = default_redis_connection
 end
 
-DEFAULT_REDIS = default_redis_connection
+DEFAULT_REDIS = ConnectionPool::Wrapper.new(size: ENV.fetch('RAILS_MAX_THREADS', 5), timeout: 3) { default_redis_connection}
 SIDEKIQ_REDIS = sidekiq_redis_connection
 
-DEFAULT_REDIS_POOL = ConnectionPool.new(size: 1) { DEFAULT_REDIS }
+# DEFAULT_REDIS_POOL = ConnectionPool.new(size: 1) { DEFAULT_REDIS }
 SIDEKIQ_REDIS_POOL = ConnectionPool.new(size: sidekiq_concurrency) { SIDEKIQ_REDIS }
 
 Sidekiq.configure_server do |config|
