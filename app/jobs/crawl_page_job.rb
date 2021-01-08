@@ -18,7 +18,10 @@ class CrawlPageJob < ApplicationJob
     end
 
     # Mark crawl as active
-    page_to_crawl.meta.update!(crawl_status: :active)
+    page_to_crawl.meta.update!(
+      crawl_started_at: DateTime.now.utc,
+      crawl_status: :active
+    )
 
     # Mark any new PageMeta for these links as ready
     PageMeta.where(
