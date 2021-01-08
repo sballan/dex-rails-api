@@ -15,6 +15,10 @@ class RedisModel
     self.class.key_for(id)
   end
 
+  def relation_key(relation)
+    self.class.relation_key_for(id, relation)
+  end
+
   def with_lock(&block)
     self.class.with_lock(id, &block)
   end
@@ -114,6 +118,10 @@ class RedisModel
     self::REDIS_PREFIX + id
   end
 
+  def self.relation_key_for(id, relation)
+    self::REDIS_PREFIX + "#{relation}_relation/" + id
+  end
+
   def self.exists?(id)
     redis.exists?(self::REDIS_PREFIX + id)
   end
@@ -166,18 +174,15 @@ class RedisModel
     }
 
     define_method(:"#{relation_name}_insert") do |relation_id|
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      self.class.redis.sadd(relation_key, relation_id)
+      self.class.redis.sadd(self.send(:relation_key, relation_name), relation_id)
     end
 
-    define_method(:"#{relation_name}_delete") do |relation_id|
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      self.class.redis.srem(relation_key, relation_id)
+    define_method(:"#{relation_name}_delete") do |relation_id, connection|
+      self.class.redis.srem(self.send(:relation_key, relation_name), relation_id)
     end
 
     define_method(relation_name) do
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      relation_ids = self.class.redis.smembers(relation_key)
+      relation_ids = self.class.redis.smembers(self.send(:relation_key, relation_name))
       relation_ids.map { |r_id| klass.new(r_id) }
     end
   end
