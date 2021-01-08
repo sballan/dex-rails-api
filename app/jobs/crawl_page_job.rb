@@ -12,7 +12,7 @@ class CrawlPageJob < ApplicationJob
     end
 
     # We can only crawl pages if they are ready or failed
-    unless page_to_crawl.meta.crawl_ready? || !page.meta.crawl_failure?
+    unless page_to_crawl.meta.crawl_ready? || page_to_crawl.meta.crawl_failure?
       Rails.logger.warn "Not crawling Page(#{page_id}), since crawl status is #{page_to_crawl.meta.crawl_status}"
       return
     end

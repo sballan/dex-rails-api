@@ -4,25 +4,26 @@ class ClockJob < ApplicationJob
   def perform
     Rails.logger.info "Clock Tick started"
 
-    if Page.by_meta(crawl_status: :active).count > 1
-      Rails.logger.error "We can currently only crawl 1 page at a time"
+    # To start off, we synchronously fetch all unsuccessful home pages for our sites
+    FetchService::Client.tick do |page_ids|
+      if page_ids.present?
+        Page.where(id: page_ids).find_each do |page|
+          FetchService::Client.fetch(page)
+        end
+      else
+        Rails.logger.info "No Sites have a need for fetching"
+      end
     end
 
-    page_crawling = Page.includes(:meta).by_meta(crawl_status: :active).first
-    if page_crawling && page_crawling.meta.crawl_started_at && (page_crawling.meta.crawl_started_at < 2.hour.ago)
-      Rails.logger.warn "Page(#{page_crawling.id}) has been crawling for more than 2 hours"
-      page_crawling.meta.update!(crawl_status: :failure)
+    CrawlService::Client.tick do |page_ids|
+      if page_ids.present?
+        Rails.logger.info "Queueing for crawl: Page(#{page_ids.first})"
+        CrawlPageJob.perform_later(page_ids.first)
+      else
+        Rails.logger.info "No pages are crawl_ready"
+      end
     end
 
-    # Update all pages for active Sites that have crawl_status: :ready, which means they have already been fetched
-    page_to_crawl = Page.by_meta(crawl_status: :ready).first
-    # Queue crawl job
-    if page_to_crawl
-      Rails.logger.info "Queueing for crawl: #{page_to_crawl.id}"
-      CrawlPageJob.perform_later(page_to_crawl.id)
-    else
-      Rails.logger.info "No pages are crawl_ready"
-    end
     # When a page has finished being crawled, it's callback will mark it as rank_ready
 
     # Fetch 1 page for SCRAPE_ACTIVE sites that are index_ready

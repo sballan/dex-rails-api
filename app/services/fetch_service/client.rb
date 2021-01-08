@@ -6,11 +6,11 @@ module FetchService
 
     # @param [Page] page
     def fetch(page)
-      page.meta.update!(
+      page.update!(meta_attributes: {
         fetch_status: :active,
         fetch_started_at: DateTime.now.utc,
         fetch_finished_at: nil
-      )
+      })
 
       page_file = nil
       host = URI(page.url).host
@@ -23,21 +23,35 @@ module FetchService
 
       parse_page(page, page_file)
 
-      page.meta.update!(
+      page.update!(meta_attributes: {
         crawl_status: :ready,
         fetch_status: :success,
         fetch_finished_at: DateTime.now.utc
-      )
+      })
 
     rescue => e
-      page.meta.update!(
+      page.update!(meta_attributes: {
         fetch_status: :failure,
         fetch_finished_at: DateTime.now.utc
-      )
+      })
 
       raise e
     end
 
+    # Typically, Page fetching is queued by a crawl...EXCEPT for when a Site needs to get fetched.
+    def tick(&block)
+      # NOTE: This is the pain we have for not putting site_id on Page. Still not sure about this decision.
+      page_ids = (
+          Site.where(scrape_active: true)
+              .all
+              .map do |s|
+            s.fetch_home_page
+          end.select do |p|
+            !p.meta.fetch_success?
+          end.map(&:id)
+      )
+      block.call(page_ids)
+    end
 
     private
 
@@ -50,10 +64,10 @@ module FetchService
 
       Rails.logger.info "Page(#{page.url}) is blank, marking as dead"
 
-      page.meta.update!(
+      page.update!(meta_attributes: {
         fetch_status: :dead,
         fetch_finished_at: DateTime.now.utc
-      )
+      })
 
       nil
     end
