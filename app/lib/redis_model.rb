@@ -8,7 +8,7 @@ class RedisModel
   def initialize(id)
     # This will match an ActiveJob id
     # TODO: does ActiveJob have a matcher for this?
-    @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
+    @id = id.remove(/^#{self.class::REDIS_PREFIX}/).remove(/\/record$/)
   end
 
   def key
@@ -41,7 +41,7 @@ class RedisModel
 
   def self.all(&block)
     Enumerator.new do |y|
-      redis.scan_each(match: self::REDIS_PREFIX + "*") do |id|
+      redis.scan_each(match: self::REDIS_PREFIX + "*" + "/record") do |id|
         y << new(id)
       end
     end
@@ -91,8 +91,7 @@ class RedisModel
       model = find(id)
       return model unless model.nil?
 
-      attrs = self::REDIS_DEFAULT_DATA.call(id)
-      return create(id, attrs)
+      return create(id, self::REDIS_DEFAULT_DATA.call(id).merge(attrs))
     end
   end
 
@@ -115,15 +114,15 @@ class RedisModel
   end
 
   def self.key_for(id)
-    self::REDIS_PREFIX + id
+    self::REDIS_PREFIX + id + "/record"
   end
 
   def self.relation_key_for(id, relation)
-    self::REDIS_PREFIX + "#{relation}_relation/" + id
+    self::REDIS_PREFIX + id + "/#{relation}_relation"
   end
 
   def self.exists?(id)
-    redis.exists?(self::REDIS_PREFIX + id)
+    redis.exists?(key_for(id))
   end
 
   def self.redis
