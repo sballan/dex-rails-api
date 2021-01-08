@@ -6,7 +6,9 @@ class RedisModel
   attr_reader :id
 
   def initialize(id)
-    @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
+    # This will match an ActiveJob id
+    # TODO: does ActiveJob have a matcher for this?
+    @id = id.remove(/^#{self.class::REDIS_PREFIX}[a-z\d-]+$/)
   end
 
   def key
