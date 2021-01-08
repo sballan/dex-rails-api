@@ -3,7 +3,7 @@ class CrawlPageJob < ApplicationJob
 
   queue_as :crawl
 
-  def perform(page_id, depth)
+  def perform(page_id)
     page_to_crawl = Page.includes(:meta).find(page_id)
 
     # Cannot crawl unless we have meta
