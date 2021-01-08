@@ -2,7 +2,7 @@ class Page < ApplicationRecord
   validates_presence_of :url
 
   has_one :meta, class_name: "PageMeta"
-  accepts_nested_attributes_for :meta
+  accepts_nested_attributes_for :meta, update_only: true
 
   # This might seem a little backwards - but that's just because language is weird.
   has_many :links_to, inverse_of: :from, foreign_key: :from_id, class_name: "Link"
