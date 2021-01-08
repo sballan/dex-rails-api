@@ -24,7 +24,7 @@ class IndexPageJob < ApplicationJob
     }
 
     # If we're scraping this Site, do next deepest indexing
-    matching_site = Site.for_page(page).where(scrape_active: true)
+    matching_site = Site.where(scrape_active: true).for_page(page_to_index)
     if matching_site.present?
       # If we're scraping this Site, we get title and links
       fields_to_index[:title] = true
@@ -32,7 +32,7 @@ class IndexPageJob < ApplicationJob
 
       # If home page links to us, also grab headers
       home_page = Page.includes(:links_to, :links_from).find_by_url(matching_site.home_url)
-      if home_page.links_to.include?(page.id) || home_page.links_from.include?(page.id)
+      if home_page.links_to.include?(page_to_index.id) || home_page.links_from.include?(page_to_index.id)
         fields_to_index[:headers] = true
       end
     else
