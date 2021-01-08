@@ -1,8 +1,16 @@
 module RankService
+  MAX_RANK_PAGES = ENV.fetch("MAX_RANK_PAGES", 1)
+  MAX_RANK_TIME = ENV.fetch("MAX_RANK_TIME", 6.hours)
+
   module Client
     extend self
 
-    def tick
+    def tick(&block)
+      PageMeta.where(rank_status: :active, rank_started_at: DateTime.new(0)..MAX_RANK_TIME.ago)
+          .update_all(rank_status: :failure)
+
+      page_ids = Page.by_meta(rank_status: :ready).limit(MAX_RANK_PAGES).pluck(:id)
+      block.call(page_ids)
     end
 
     def rank_from_start_page(start_page, max_size)

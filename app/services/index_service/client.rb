@@ -1,9 +1,18 @@
 module IndexService
+  MAX_INDEX_PAGES = ENV.fetch("MAX_INDEX_PAGES", 5)
+  MAX_INDEX_TIME = ENV.fetch("MAX_INDEX_TIME", 6.hours)
+
   module Client
     extend self
 
     def tick(&block)
+    # Update old PageMeta to have failed status. The assumption is that pages indexing longer than
+    # the MAX_INDEX_TIME are actually not running.
+    PageMeta.where(index_status: :active, index_started_at: DateTime.new(0)..MAX_INDEX_TIME.ago)
+        .update_all(index_status: :failure)
 
+      page_ids = Page.by_meta(index_status: :ready).limit(MAX_INDEX_PAGES).pluck(:id)
+      block.call(page_ids)
     end
 
     def index_page(page, level)
