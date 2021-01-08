@@ -9,7 +9,8 @@ module RankService
       PageMeta.where(rank_status: :active, rank_started_at: DateTime.new(0)..MAX_RANK_TIME.ago)
           .update_all(rank_status: :failure)
 
-      page_ids = Page.by_meta(rank_status: :ready).limit(MAX_RANK_PAGES).pluck(:id)
+                 # uggg...I guess having a Page constant in this module _did_ come back to bite me
+      page_ids = ::Page.by_meta(rank_status: :ready).limit(MAX_RANK_PAGES).pluck(:id)
       block.call(page_ids)
     end
 
