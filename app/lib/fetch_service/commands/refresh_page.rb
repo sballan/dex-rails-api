@@ -28,13 +28,9 @@ module FetchService::Commands
       command.payload
     rescue Command::Errors::CommandInvalid => e
       Rails.logger.warn "This Page failed permanently to download #{page.id}."
-      page.refresh_status = :dead
-      page.refresh_finished_at = DateTime.now.utc
-      page.save
       nil
     rescue Command::Errors::CommandFailed => e
       Rails.logger.error "This ScrapePage failed to download #{page.id}"
-      page.refresh_status = :failure
       page.save
       raise e
     end
