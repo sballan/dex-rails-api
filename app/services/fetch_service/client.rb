@@ -4,6 +4,21 @@ module FetchService
   module Client
     extend self
 
+    # Typically, Page fetching is queued by a crawl...EXCEPT for when a Site needs to get fetched.
+    def tick(&block)
+      # NOTE: This is the pain we have for not putting site_id on Page. Still not sure about this decision.
+      page_ids = (
+          Site.where(scrape_active: true)
+              .all
+              .map do |s|
+            s.fetch_home_page
+          end.select do |p|
+            !p.meta.fetch_success?
+          end.map(&:id)
+      )
+      block.call(page_ids)
+    end
+
     # @param [Page] page
     def fetch(page)
       page.update!(meta_attributes: {
@@ -36,21 +51,6 @@ module FetchService
       })
 
       raise e
-    end
-
-    # Typically, Page fetching is queued by a crawl...EXCEPT for when a Site needs to get fetched.
-    def tick(&block)
-      # NOTE: This is the pain we have for not putting site_id on Page. Still not sure about this decision.
-      page_ids = (
-          Site.where(scrape_active: true)
-              .all
-              .map do |s|
-            s.fetch_home_page
-          end.select do |p|
-            !p.meta.fetch_success?
-          end.map(&:id)
-      )
-      block.call(page_ids)
     end
 
     private
