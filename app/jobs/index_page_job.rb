@@ -24,7 +24,7 @@ class IndexPageJob < ApplicationJob
     }
 
     # If we're scraping this Site, do next deepest indexing
-    matching_site = Site.where(scrape_active: true).for_page(page_to_index)
+    matching_site = Site.where(scrape_active: true).for_page(page_to_index).first
     if matching_site.present?
       # If we're scraping this Site, we get title and links
       fields_to_index[:title] = true
