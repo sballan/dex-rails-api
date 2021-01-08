@@ -20,12 +20,7 @@ DEFAULT_REDIS = default_redis_connection
 SIDEKIQ_REDIS = sidekiq_redis_connection
 
 DEFAULT_REDIS_POOL = ConnectionPool.new(size: 1) { DEFAULT_REDIS }
-# For now, we're using a ConnectionPool wrapper.  This is lower performance, but easier to work with.
-# I have set the concurrency to sidekiq_concurrency * 2, on the silly assumption that by sharing it we'll double
-# the need for connections. This is sloppy, but there are other more interesting problems to work on.
-#
-# SIDEKIQ_REDIS_POOL = ConnectionPool.new(size: sidekiq_concurrency) { SIDEKIQ_REDIS }
-SIDEKIQ_REDIS_POOL = ConnectionPool::Wrapper.new(size: sidekiq_concurrency * 2) { SIDEKIQ_REDIS }
+SIDEKIQ_REDIS_POOL = ConnectionPool.new(size: sidekiq_concurrency) { SIDEKIQ_REDIS }
 
 Sidekiq.configure_server do |config|
   config.redis = SIDEKIQ_REDIS_POOL
