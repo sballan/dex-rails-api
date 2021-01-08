@@ -9,8 +9,11 @@ module RankService
       PageMeta.where(rank_status: :active, rank_started_at: DateTime.new(0)..MAX_RANK_TIME.ago)
           .update_all(rank_status: :failure)
 
+      num_active_pages = Page.by_meta(rank_status: :active).count
+      num_additional_pages = MAX_RANK_PAGES - num_active_pages
+
                  # uggg...I guess having a Page constant in this module _did_ come back to bite me
-      page_ids = ::Page.by_meta(rank_status: :ready).limit(MAX_RANK_PAGES).pluck(:id)
+      page_ids = ::Page.by_meta(rank_status: :ready).limit(num_additional_pages).pluck(:id)
       block.call(page_ids)
     end
 
