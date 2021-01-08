@@ -3,7 +3,7 @@ class CrawlPageCallbackJob < ApplicationJob
 
   queue_as :crawl
 
-  def perform(page_id, depth)
+  def perform(page_id)
     # Count pages successfully fetched, and determine whether the crawl was a success
 
     page_crawled = Page.includes(:meta).find(page_id)
