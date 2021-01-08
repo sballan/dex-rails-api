@@ -14,6 +14,7 @@ module JobBatch
 
   # @return [Redis]
   def redis
-    SIDEKIQ_REDIS
+    # Note that this may be a "wrapper", not a real pool.  Hammer out the details in RedisModel
+    SIDEKIQ_REDIS_POOL
   end
 end
