@@ -8,7 +8,7 @@ class RedisModel
   def initialize(id)
     # This will match an ActiveJob id
     # TODO: does ActiveJob have a matcher for this?
-    @id = id.remove(/^#{self.class::REDIS_PREFIX}[a-z\d-]+$/)
+    @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
   end
 
   def key
