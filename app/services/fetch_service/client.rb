@@ -59,6 +59,12 @@ module FetchService
       raise e
     end
 
+    def download_parsed_page(page)
+      command = Commands::DownloadParsedPageFromS3.new(page)
+      command.run!
+      command.payload
+    end
+
     private
 
     def refresh_page(page)

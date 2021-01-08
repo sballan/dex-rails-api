@@ -9,7 +9,7 @@ module IndexService::Commands
     def run_proc
       Rails.logger.debug "Starting IndexPage for Page(#{@page.id})"
 
-      parsed_page = ParseService::Client.download_cached_parsed_page(@page)
+      parsed_page = FetchService::Client.download_parsed_page(@page)
 
       index_title(parsed_page)
       index_links unless @level < 2

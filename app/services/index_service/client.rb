@@ -29,7 +29,7 @@ module IndexService
     end
 
     def index_page_title(page, max_length=5, max_distance=5)
-      parsed_page = ParseService::Client.download_cached_parsed_page(page)
+      parsed_page = FetchService::Client.download_parsed_page(page)
 
       title = parsed_page[:title]
       return unless title.present?
@@ -47,7 +47,7 @@ module IndexService
     end
 
     def index_page_headers(page, max_length=5, max_distance=2)
-      parsed_page = ParseService::Client.download_cached_parsed_page(page)
+      parsed_page = FetchService::Client.download_parsed_page(page)
 
       parsed_page[:headers].each do |header|
           index_page_text(page, header, "header", max_length, max_distance)
