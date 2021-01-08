@@ -7,6 +7,7 @@ class ClockJob < ApplicationJob
     JobBatch::Batch.all.each do |jb|
       next unless jb.jobs.empty? && jb.children.empty?
 
+      Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
       jb.finished!
     end
 
