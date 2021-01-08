@@ -2,6 +2,9 @@ module RankService
   module Client
     extend self
 
+    def tick
+    end
+
     def rank_from_start_page(start_page, max_size)
       GC.start full_mark: true, immediate_sweep: true
       GC.compact

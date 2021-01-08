@@ -2,6 +2,10 @@ module IndexService
   module Client
     extend self
 
+    def tick(&block)
+
+    end
+
     def index_page(page, level)
       handle_index_start(page)
       command = Commands::IndexPage.new(page, level)
