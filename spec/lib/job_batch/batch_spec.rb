@@ -5,6 +5,7 @@ describe JobBatch::Batch do
     @mock_redis = MockRedis.new
     allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
     allow(RedisModel).to receive(:redis).and_return(@mock_redis)
+    allow(JobBatch).to receive(:redis).and_return(@mock_redis)
   end
 
   describe "Basics" do
@@ -31,26 +32,10 @@ describe JobBatch::Batch do
     it "can have a job" do
       batch_id = SecureRandom.uuid
       job_id = SecureRandom.uuid
-      job_key = JobBatch::Job.key_for(job_id)
-      batch_key = JobBatch::Batch.key_for(batch_id)
 
-      @mock_redis.mapped_hmset(job_key, batch_id: batch_id)
-      @mock_redis.sadd(batch_key + '/jobs', job_key)
+      batch = JobBatch::Batch.create(batch_id)
+      job = JobBatch::Job.create(job_id, batch_id: batch.id)
 
-      batch = JobBatch::Batch.new(batch_id)
-      has_job = batch.jobs.any? {|j| j.id == job_id }
-
-      expect(has_job).to be_truthy
-    end
-
-    it "can add a job" do
-      batch_id = SecureRandom.uuid
-      job_id = SecureRandom.uuid
-
-      batch = JobBatch::Batch.new(batch_id)
-      job = JobBatch::Job.new(job_id)
-
-      batch.add_job(job)
       has_job = batch.jobs.any? {|j| j.id == job_id }
       expect(has_job).to be_truthy
     end
@@ -59,7 +44,7 @@ describe JobBatch::Batch do
   describe "key" do
     it "returns the key for the Batch" do
       job = JobBatch::Batch.new 'test_id'
-      expect(job.key).to eql('JobBatch/Batches/test_id')
+      expect(job.key).to eql('JobBatch/Batches/test_id/record')
     end
   end
 
