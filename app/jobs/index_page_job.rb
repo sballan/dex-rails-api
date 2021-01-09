@@ -46,13 +46,13 @@ class IndexPageJob < ApplicationJob
       end
     end
 
-    crawl_batch = JobBatch::Batch.create(
+    index_batch = JobBatch::Batch.create(
       nil,
       callback_klass: 'IndexPageCallbackJob',
       callback_args: [page_to_index.id, fields_to_index]
     )
 
-    crawl_batch.open do
+    index_batch.open do
       fields_to_index.each do |key, _value|
         IndexPageFragmentJob.perform_later(page_to_index.id, key.to_s) if fields_to_index[key]
       end
