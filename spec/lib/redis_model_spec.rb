@@ -55,4 +55,25 @@ describe RedisModel do
     end
   end
 
+  context "Subclasses" do
+    class MockAuthor < RedisModel; end
+    class MockBook < RedisModel; end
+
+    class MockAuthor < RedisModel
+      has_many :books, 'MockBook', inverse_of: :author
+    end
+
+    class MockBook < RedisModel
+      belongs_to :author, 'MockAuthor', inverse_of: :books
+    end
+
+    describe "belongs_to" do
+      it "can be created with the id of the class it belongs to" do
+        author = MockAuthor.create
+        book = MockBook.create nil, author_id: author.id
+        expect(book.author == author).to be_truthy
+        #expect(book.author).to eql(author)
+      end
+    end
+  end
 end

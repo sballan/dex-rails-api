@@ -19,6 +19,14 @@ class RedisModel
     self.class.relation_key_for(id, relation)
   end
 
+  def ==(other_object)
+    if other_object.respond_to? :key
+      key == other_object.key
+    else
+      false
+    end
+  end
+
   def with_lock(&block)
     self.class.with_lock(id, &block)
   end
