@@ -48,7 +48,7 @@ class IndexPageJob < ApplicationJob
 
     crawl_batch = JobBatch::Batch.create(
       nil,
-      callback_klass: 'CrawlPageCallbackJob',
+      callback_klass: 'IndexPageCallbackJob',
       callback_args: [page_to_index.id, fields_to_index]
     )
 
