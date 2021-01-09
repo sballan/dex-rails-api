@@ -88,6 +88,8 @@ class RedisModel
         next unless belongs_to_klasses.has_key?(relation_name)
 
         relation = belongs_to_klasses[relation_name][:class].find(value)
+        raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
+
         relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
       end
     end
