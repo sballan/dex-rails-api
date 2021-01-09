@@ -176,7 +176,7 @@ class RedisModel
       self.class.redis.sadd(self.send(:relation_key, relation_name), relation_id)
     end
 
-    define_method(:"#{relation_name}_delete") do |relation_id, connection|
+    define_method(:"#{relation_name}_delete") do |relation_id|
       self.class.redis.srem(self.send(:relation_key, relation_name), relation_id)
     end
 
