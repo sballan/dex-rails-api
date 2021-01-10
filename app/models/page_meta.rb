@@ -3,6 +3,7 @@ class PageMeta < ApplicationRecord
 
   enum fetch_status: VALID_STATUSES_ENUM, _prefix: :fetch
   enum index_status: VALID_STATUSES_ENUM, _prefix: :index
+  enum crawl_status: VALID_STATUSES_ENUM, _prefix: :crawl
   enum rank_status: VALID_STATUSES_ENUM, _prefix: :rank
 
   belongs_to :page, inverse_of: :meta

@@ -1,6 +1,6 @@
 class JobBatch::Job < RedisModel
   REDIS_PREFIX = "JobBatch/Jobs/"
-  REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
+  REDIS_HASH_KEYS = %w[id active created_at]
   REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
 
   belongs_to :batch, 'JobBatch::Batch', inverse_of: :jobs, required: true

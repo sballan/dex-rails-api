@@ -6,11 +6,25 @@ class RedisModel
   attr_reader :id
 
   def initialize(id)
-    @id = id.remove(/^#{self.class::REDIS_PREFIX}/)
+    # This will match an ActiveJob id
+    # TODO: does ActiveJob have a matcher for this?
+    @id = id.remove(/^#{self.class::REDIS_PREFIX}/).remove(/\/record$/)
   end
 
   def key
     self.class.key_for(id)
+  end
+
+  def relation_key(relation)
+    self.class.relation_key_for(id, relation)
+  end
+
+  def ==(other_object)
+    if other_object.respond_to? :key
+      key == other_object.key
+    else
+      false
+    end
   end
 
   def with_lock(&block)
@@ -35,7 +49,7 @@ class RedisModel
 
   def self.all(&block)
     Enumerator.new do |y|
-      redis.scan_each(match: self::REDIS_PREFIX + "*") do |id|
+      redis.scan_each(match: self::REDIS_PREFIX + "*" + "/record") do |id|
         y << new(id)
       end
     end
@@ -74,6 +88,8 @@ class RedisModel
         next unless belongs_to_klasses.has_key?(relation_name)
 
         relation = belongs_to_klasses[relation_name][:class].find(value)
+        raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
+
         relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
       end
     end
@@ -85,8 +101,7 @@ class RedisModel
       model = find(id)
       return model unless model.nil?
 
-      attrs = self::REDIS_DEFAULT_DATA.call(id)
-      return create(id, attrs)
+      return create(id, self::REDIS_DEFAULT_DATA.call(id).merge(attrs))
     end
   end
 
@@ -109,15 +124,19 @@ class RedisModel
   end
 
   def self.key_for(id)
-    self::REDIS_PREFIX + id
+    self::REDIS_PREFIX + id + "/record"
+  end
+
+  def self.relation_key_for(id, relation)
+    self::REDIS_PREFIX + id + "/#{relation}_relation"
   end
 
   def self.exists?(id)
-    redis.exists?(self::REDIS_PREFIX + id)
+    redis.exists?(key_for(id))
   end
 
   def self.redis
-    Redis.current
+    DEFAULT_REDIS
   end
 
   protected
@@ -164,18 +183,15 @@ class RedisModel
     }
 
     define_method(:"#{relation_name}_insert") do |relation_id|
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      self.class.redis.sadd(relation_key, relation_id)
+      self.class.redis.sadd(self.send(:relation_key, relation_name), relation_id)
     end
 
     define_method(:"#{relation_name}_delete") do |relation_id|
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      self.class.redis.srem(relation_key, relation_id)
+      self.class.redis.srem(self.send(:relation_key, relation_name), relation_id)
     end
 
     define_method(relation_name) do
-      relation_key = "#{self.send(:key)}/#{relation_name}"
-      relation_ids = self.class.redis.smembers(relation_key)
+      relation_ids = self.class.redis.smembers(self.send(:relation_key, relation_name))
       relation_ids.map { |r_id| klass.new(r_id) }
     end
   end

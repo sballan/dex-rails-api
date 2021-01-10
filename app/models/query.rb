@@ -1,7 +1,7 @@
 class Query < ApplicationRecord
   CACHE_EPOCH = DateTime.new(0).utc
 
-  has_many :page_matches
+  has_many :page_matches, dependent: :destroy
   has_many :pages, through: :page_matches
 
   validates_presence_of :cached_at

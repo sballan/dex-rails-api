@@ -14,6 +14,6 @@ module JobBatch
 
   # @return [Redis]
   def redis
-    SIDEKIQ_REDIS
+    DEFAULT_REDIS
   end
 end
