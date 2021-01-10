@@ -12,7 +12,7 @@ class IndexPageJob < ApplicationJob
     end
 
     # We can only index pages if they are ready or failed
-    unless page_to_index.meta.index_ready? || !page.meta.index_failure?
+    unless page_to_index.meta.index_ready? || !page_to_index.meta.index_failure?
       Rails.logger.warn "Not indexing Page(#{page_id}), since index status is #{page_to_index.meta.index_status}"
       return
     end
