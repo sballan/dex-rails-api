@@ -8,7 +8,7 @@ class ClockJob < ApplicationJob
   def perform
     Rails.logger.info "Clock Tick started"
 
-    ClockJob.set(wait: ENV.fetch('CLOCK_INTERVAL', 10.minutes)).perform_later
+    ClockJob.set(wait: ENV.fetch('CLOCK_INTERVAL', 1.minute).to_i).perform_later
 
     JobBatch::Batch.all.each do |jb|
       next unless jb.jobs.empty? && jb.children.empty?
