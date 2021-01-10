@@ -1,6 +1,10 @@
 class ClockJob < ApplicationJob
   queue_as :default
 
+  discard_on(Exception) do |job, error|
+    Rails.logger.error "Encountered an error while running ClockJob #{job.job_id}.  We cannot retry clock jobs. Error: #{error.message}"
+  end
+
   def perform
     Rails.logger.info "Clock Tick started"
 
