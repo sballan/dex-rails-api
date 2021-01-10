@@ -87,8 +87,12 @@ class RedisModel
         relation_name = key.to_s.remove(/_id$/).to_sym
         next unless belongs_to_klasses.has_key?(relation_name)
 
-        relation = belongs_to_klasses[relation_name][:class].find(value)
-        raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
+        # TODO: This doesn't work because we're doing a FIND in the middle of a MULTI? Connection pool messing this up?
+        # I don't even know how this _ever_ worked.  For now, comment out - and then consider just doing this check
+        # AFTER the multi is finished.
+        #
+        # relation = belongs_to_klasses[relation_name][:class].find(value)
+        # raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
 
         relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
       end
