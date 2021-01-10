@@ -5,6 +5,7 @@ class IndexPageCallbackJob < ApplicationJob
 
   def perform(page_id, index_fields)
     page_to_index = Page.includes(:meta).find(page_id)
+    index_fields.symbolize_keys!
 
     success = index_fields[:title] == page_to_index.meta.indexed_title &&
               index_fields[:links] == page_to_index.meta.indexed_links &&
