@@ -96,7 +96,7 @@ class RedisModel
         # relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
         #
         # TODO: refactor so we're not reaching into redis here
-        redis.sadd(relation_key_for(id, relation_name), relation_id)
+        redis.sadd(relation_key_for(id, relation_name), id)
       end
     end
     new(id)
