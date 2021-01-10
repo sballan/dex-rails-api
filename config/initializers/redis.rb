@@ -6,7 +6,8 @@
 
 default_redis_url = ENV['REDIS_URL'] || nil
 default_redis_connection = Redis.new(url: default_redis_url)
-DEFAULT_REDIS = ConnectionPool::Wrapper.new(size: ENV.fetch('RAILS_MAX_THREADS', 5) + 5, timeout: 3) { default_redis_connection}
+default_redis_pool_concurrency = ENV.fetch('RAILS_MAX_THREADS', 5).to_i + 5
+DEFAULT_REDIS = ConnectionPool::Wrapper.new(size: default_redis_pool_concurrency, timeout: 3) { default_redis_connection}
 
 sidekiq_redis_url = ENV['SIDEKIQ_REDIS_URL'] || default_redis_url
 Sidekiq.configure_server do |config|
