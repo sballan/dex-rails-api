@@ -1,6 +1,6 @@
 module CrawlService
-  MAX_CRAWL_PAGES = ENV.fetch("MAX_CRAWL_PAGES", 1)
-  MAX_CRAWL_TIME = ENV.fetch("MAX_CRAWL_TIME", 6.hours)
+  MAX_CRAWL_PAGES = ENV.fetch("MAX_CRAWL_PAGES", 1).to_i
+  MAX_CRAWL_TIME = ENV.fetch("MAX_CRAWL_TIME", 6.hours).to_i
 
   module Client
     extend self

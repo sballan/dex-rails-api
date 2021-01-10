@@ -1,7 +1,7 @@
 require 'net/http'
 
 module FetchService
-  MAX_FETCH_TIME = ENV.fetch("MAX_FETCH_TIME", 1.hour)
+  MAX_FETCH_TIME = ENV.fetch("MAX_FETCH_TIME", 1.hour).to_i
 
   module Client
     extend self

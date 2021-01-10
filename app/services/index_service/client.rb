@@ -1,6 +1,6 @@
 module IndexService
-  MAX_INDEX_PAGES = ENV.fetch("MAX_INDEX_PAGES", 5)
-  MAX_INDEX_TIME = ENV.fetch("MAX_INDEX_TIME", 6.hours)
+  MAX_INDEX_PAGES = ENV.fetch("MAX_INDEX_PAGES", 5).to_i
+  MAX_INDEX_TIME = ENV.fetch("MAX_INDEX_TIME", 6.hours).to_i
 
   module Client
     extend self
