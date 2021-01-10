@@ -1,6 +1,6 @@
 module RankService
-  MAX_RANK_PAGES = ENV.fetch("MAX_RANK_PAGES", 1).to_i
-  MAX_RANK_TIME = ENV.fetch("MAX_RANK_TIME", 6.hours).to_i
+  MAX_RANK_PAGES = ENV.fetch("MAX_RANK_PAGES", 1).to_i.seconds
+  MAX_RANK_TIME = ENV.fetch("MAX_RANK_TIME", 6.hours).to_i.seconds
 
   module Client
     extend self
