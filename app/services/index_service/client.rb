@@ -35,6 +35,8 @@ module IndexService
       return unless title.present?
 
       index_page_text(page, title, "title", max_length, max_distance)
+
+      page.meta.update(indexed_title: true)
     end
 
     def index_page_links(page, max_length=3, max_distance=2)
@@ -44,6 +46,8 @@ module IndexService
       link_texts.each do |link_text|
           index_page_text(page, link_text, "link", max_length, max_distance)
       end
+
+      page.meta.update(indexed_links: true)
     end
 
     def index_page_headers(page, max_length=5, max_distance=2)
@@ -52,6 +56,8 @@ module IndexService
       parsed_page[:headers].each do |header|
           index_page_text(page, header, "header", max_length, max_distance)
       end
+
+      page.meta.update(indexed_headers: true)
     end
 
     private
