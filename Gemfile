@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.2'
 
-gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
+gem 'rails', '~> 6.1', '>= 6.1.1'
 gem 'puma', '~> 4.1'
 gem 'jbuilder', '~> 2.7'
 gem 'redis', '~> 4.0'
@@ -26,7 +26,7 @@ gem 'connection_pool' # use to manually share sidekiq connection with sidekiq ad
 # gem "barnes" # For Heroku stats. Pretty expensive.
 gem 'newrelic_rpm'
 gem "bugsnag", "~> 6.18"
-# gem 'dotenv-rails'
+gem 'dotenv-rails'
 
 
 group :development, :test do
