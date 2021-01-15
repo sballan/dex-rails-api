@@ -2,10 +2,11 @@
 module JobBatch::Mixin
   PREFIX = "Job/"
 
-  attr_reader :batch_id
-
   def self.included(mod)
+    # Horribly, ActiveJob will sometimes run callbacks more than once.  UGG.
     mod.before_enqueue do |job|
+      Rails.logger.info "before_enqueue callback for #{job.job_id}"
+
       jb_job = JobBatch::Job.find job.job_id
 
       # If Job is present and is in batch, just queue it up.
@@ -13,7 +14,6 @@ module JobBatch::Mixin
         # If Job is present and is in batch, just queue it up.
         if jb_job.batch.present?
           Rails.logger.debug "Job already exists, enqueueing existing Job #{jb_job.id}"
-          return
         else
           # if Job is present but has not batch, it's an error!
           raise "Job #{jb_job.id} already exists, but is not in Batch"
@@ -30,33 +30,42 @@ module JobBatch::Mixin
         end
 
         jb_job = JobBatch::Job.create(job.job_id, batch_id: batch.id)
-        Rails.logger.debug "Successfully added Job #{jb_job.id} to Batch #{batch.id}"
+        Rails.logger.debug "Successfully added Job #{jb_job.id} to Batch #{jb_job.batch.id}"
       end
     end
 
     mod.after_perform do |job|
+      Rails.logger.info "after_perform callback for #{job.job_id}"
+
       jb_job = JobBatch::Job.find(job.job_id)
 
       if jb_job.blank?
         raise "Job performed, but JobBatch::Job #{job.job_id} could not be found in Redis"
+      else
+        batch = jb_job.batch
+        jb_job.destroy!
       end
 
-      batch = jb_job.batch
-      jb_job.destroy!
-
-      if batch.jobs.empty? && batch.children.empty?
-        batch.finished!
-      end
+      # begin
+      #   batch.with_lock do |lock_key|
+      #     if batch.jobs.empty? && batch.children.empty?
+      #       batch.finished!(lock_key)
+      #     end
+      #   end
+      # rescue => e
+      #   # TODO: don't just rescue any error, if we can't get the lock that's ok
+      #   Rails.logger.error e
+      # end
     end
   end
 
   protected
 
   def jb_job
-    @_jb_job ||= JobBatch::Job.new(job_id)
+    @_jb_job ||= JobBatch::Job.find(job_id)
   end
 
   def batch
-    jb_job.batch
+    jb_job && jb_job.batch
   end
 end

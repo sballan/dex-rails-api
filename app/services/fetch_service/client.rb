@@ -9,7 +9,7 @@ module FetchService
     # Typically, Page fetching is queued by a crawl...EXCEPT for when a Site needs to get fetched.
     def tick(&block)
       PageMeta.where(fetch_status: :active, fetch_started_at: DateTime.new(0)..MAX_FETCH_TIME.ago)
-          .update_all(fetch_status: :failure)
+          .update_all(fetch_status: :failure, fetch_finished_at: DateTime.now.utc)
 
       # NOTE: This is the pain we have for not putting site_id on Page. Still not sure about this decision.
       page_ids = (

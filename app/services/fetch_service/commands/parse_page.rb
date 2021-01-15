@@ -28,7 +28,7 @@ module FetchService::Commands
 
     def upload_parsed_page_to_s3(url, parsed_page)
       command = UploadParsedPageToS3.new(url, parsed_page)
-      command.run_with_gc!
+      command.run!
       command.payload
     end
   end

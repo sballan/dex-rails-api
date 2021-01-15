@@ -10,7 +10,7 @@ module CrawlService
       # the MAX_CRAWL_TIME are actually not running.
       # TODO: consider tracking thread ids in a way that would let us kill long running crawls etc.
       PageMeta.where(crawl_status: :active, crawl_started_at: DateTime.new(0)..MAX_CRAWL_TIME.ago)
-          .update_all(crawl_status: :failure)
+        .update_all(crawl_status: :failure)
 
       # Now that we've marked failures, let's count real active pages
       num_active_pages = Page.by_meta(crawl_status: :active).count

@@ -1,16 +1,20 @@
 class JobBatch::Job < RedisModel
   REDIS_PREFIX = "JobBatch/Jobs/"
-  REDIS_HASH_KEYS = %w[id active created_at]
+  REDIS_HASH_KEYS = %w[id batch_id active created_at]
   REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
 
   belongs_to :batch, 'JobBatch::Batch', inverse_of: :jobs, required: true
 
-  def destroy!
-    # batch is a relation, so we need to grab it before using multi
-    b = batch
-    self.class.redis.multi do
-      self.class.redis.del(key)
-      b.jobs_delete(id)
+  def destroy!(lock_key=nil)
+    Rails.logger.info "Destroying Job #{id}"
+
+    with_lock(lock_key) do
+      # batch is a relation, so we need to grab it before using multi
+      b = batch
+      self.class.redis.multi do
+        self.class.redis.del(key)
+        b.jobs_delete(id)
+      end
     end
   end
 
@@ -18,11 +22,10 @@ class JobBatch::Job < RedisModel
     id == other_job.id && batch.id == other_job.batch.id
   end
 
-  def self.create(job_id, attrs={})
-    raise "job_id required to create #{self.name}" if job_id.blank?
+  def self.create(id, attrs={})
+    raise "id required to create #{self.name}" if id.blank?
 
-    attrs[:batch_id] ||= JobBatch::Batch.create.id
-    super(job_id, attrs)
+    super(id, attrs)
   end
 
   def self.redis

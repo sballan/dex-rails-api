@@ -11,10 +11,19 @@ class ClockJob < ApplicationJob
     ClockJob.set(wait: ENV.fetch('CLOCK_INTERVAL', 1.minute).to_i).perform_later
 
     JobBatch::Batch.all.each do |jb|
-      next unless jb.jobs.empty? && jb.children.empty?
+      begin
+        jb.with_lock do |lock_key|
+          next unless jb.jobs.empty? && jb.children.empty?
 
-      Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
-      jb.finished!
+          Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
+          jb.finished!(lock_key)
+        end
+      rescue => e
+        # TODO: don't just rescue any error, if we can't get the lock that's ok
+        Rails.logger.error e
+      end
+
+      next # extra, but clear
     end
 
     # To start off, we synchronously fetch all unsuccessful home pages for our sites
