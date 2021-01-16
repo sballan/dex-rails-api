@@ -1,4 +1,4 @@
-class JobBatch::Batch < RedisModel
+class JobBatch::Batch < RedisModelOld
   REDIS_PREFIX = "JobBatch/Batches/"
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
   REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }

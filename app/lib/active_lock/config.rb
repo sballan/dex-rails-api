@@ -15,10 +15,13 @@ module ActiveLock::Config
     }
   end
 
+  def redis_connection
+    Redis.current
+  end
+
   def with_redis(&block)
     raise ArgumentError, "with_redis requires block" unless block.present?
 
-    block.call(Redis.current)
-    Redis.current
+    block.call(redis_connection)
   end
 end
