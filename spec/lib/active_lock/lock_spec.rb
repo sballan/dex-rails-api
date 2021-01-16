@@ -14,11 +14,20 @@ describe ActiveLock::Lock do
   end
 
   describe "lock" do
-    context "lock is available" do
+    context "is available" do
       it "gets the lock" do
         key = ActiveLock::Lock.lock(test_lock_name)
         found_key = @mock_redis.get(redis_test_lock_name)
         expect(found_key).to eql(key)
+      end
+    end
+
+    context "is not available" do
+      it "does not get the lock" do
+        real_key = ActiveLock::Lock.lock(test_lock_name)
+        false_key = ActiveLock::Lock.lock(test_lock_name)
+
+        expect(false_key).to eql(false)
       end
     end
   end
@@ -34,6 +43,16 @@ describe ActiveLock::Lock do
 
       found_key = @mock_redis.get(redis_test_lock_name)
       expect(found_key).to be_nil
+    end
+
+    it "returns false with wrong key" do
+      correct_key = 'test_lock_key'
+      incorrect_key = 'bad_key'
+      @mock_redis.set(redis_test_lock_name, correct_key)
+
+      success = ActiveLock::Lock.unlock(test_lock_name, incorrect_key)
+
+      expect(success).to be_falsey
     end
   end
 

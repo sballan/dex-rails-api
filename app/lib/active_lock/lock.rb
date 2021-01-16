@@ -13,10 +13,12 @@ module ActiveLock::Lock
       raise ActiveLock::Errors::FailedToLockError.new("Used incorrect existing key")
     else
       key = lock(name, opts)
+      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") if (key == false)
 
       ret_val = block.call(key)
 
-      unlock(name, key)
+      unlock_success = unlock(name, key)
+      raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless unlock_success
     end
 
     ret_val
@@ -41,16 +43,16 @@ module ActiveLock::Lock
         retry_length: retry_length * 2 * rand(0.5..1.5)
       )
     else
-      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock")
+      false
     end
   end
 
   def unlock(name, key)
-    unless correct_key?(name, key)
-
+    if correct_key?(name, key)
+      delete_lock(name)
+    else
+      false
     end
-
-    delete_lock(name)
   end
 
   def correct_key?(name, possible_key)
@@ -66,29 +68,22 @@ module ActiveLock::Lock
     ex ||= ActiveLock::Config::DEFAULT_LOCK_TTL
     raise ArgumentError.new("Cannot write_lock with blank name") if name.blank?
 
-    res = nil
-    ActiveLock::Config.with_redis do |redis|
-      res = redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
-      raise ActiveLock::Errors::FailedToLockError.new "Failed to write lock" unless res == true
+    res = ActiveLock::Config.with_redis do |redis|
+      redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
     end
-    res
+    res == true
   end
 
   def fetch_lock_key(name)
-    res = nil
     ActiveLock::Config.with_redis do |redis|
-      res = redis.get(ActiveLock::Config::PREFIX + name)
-      raise ActiveLock::Errors::Base.new "Failed fetch lock" unless res.present?
+      redis.get(ActiveLock::Config::PREFIX + name)
     end
-    res
   end
 
   def delete_lock(name)
-    res = nil
-    ActiveLock::Config.with_redis do |redis|
-      res = redis.del(ActiveLock::Config::PREFIX + name)
-      raise ActiveLock::Errors::FailedToUnlockError.new "Failed to delete lock" unless res == 1
+    res = ActiveLock::Config.with_redis do |redis|
+      redis.del(ActiveLock::Config::PREFIX + name)
     end
-    res
+    res == 1
   end
 end
