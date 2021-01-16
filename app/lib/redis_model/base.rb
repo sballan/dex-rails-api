@@ -2,6 +2,7 @@ class RedisModel::Base
   set_key_prefix :base
   set_key_suffix :record
   set_field_names %i[id]
+  set_redis_connection DEFAULT_REDIS
 
   include ActiveLock::Lockable
   set_lock_id_name :id
@@ -100,11 +101,11 @@ class RedisModel::Base
   def self.with_redis(&block)
     raise ArgumentError.new('need block') unless block_given?
 
-    yield(DEFAULT_REDIS)
+    yield(redis_connection)
   end
 
   class << self
-    attr_reader :key_prefix, :field_names, :key_suffix
+    attr_reader :key_prefix, :field_names, :key_suffix, :redis_connection
 
     def set_key_prefix(key_prefix)
       unless key_prefix.is_a? Symbol
@@ -132,6 +133,10 @@ class RedisModel::Base
       end
 
       @field_names = field_names
+    end
+
+    def set_redis_connection(redis_connection)
+      @redis_connection = redis_connection
     end
   end
 end
