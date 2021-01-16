@@ -62,21 +62,29 @@ module ActiveLock::Lock
     ex ||= ActiveLock::Config::DEFAULT_LOCK_TTL
     raise ArgumentError.new("Cannot write_lock with blank name") if name.blank?
 
-    res = ActiveLock::Config.redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
-    raise ActiveLock::Errors::FailedToLockError.new "Failed to write lock" unless res == true
+    res = nil
+    ActiveLock::Config.with_redis do |redis|
+      res = redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
+      raise ActiveLock::Errors::FailedToLockError.new "Failed to write lock" unless res == true
+    end
+    res
   end
 
   def fetch_lock_key(name)
-    res = ActiveLock::Config.redis.get(ActiveLock::Config::PREFIX + name)
-    raise ActiveLock::Errors::Base.new "Failed fetch lock" unless res.present?
-
+    res = nil
+    ActiveLock::Config.with_redis do |redis|
+      res = redis.get(ActiveLock::Config::PREFIX + name)
+      raise ActiveLock::Errors::Base.new "Failed fetch lock" unless res.present?
+    end
     res
   end
 
   def delete_lock(name)
-    res = ActiveLock::Config.redis.del(ActiveLock::Config::PREFIX + name)
-    raise ActiveLock::Errors::FailedToUnlockError.new "Failed to delete lock" unless res == 1
-
+    res = nil
+    ActiveLock::Config.with_redis do |redis|
+      res = redis.del(ActiveLock::Config::PREFIX + name)
+      raise ActiveLock::Errors::FailedToUnlockError.new "Failed to delete lock" unless res == 1
+    end
     res
   end
 end
