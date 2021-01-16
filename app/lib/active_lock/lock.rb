@@ -26,7 +26,7 @@ module ActiveLock::Lock
 
   def lock(name, opts={})
     opts = ActiveLock::Config.lock_default_opts.merge(opts)
-    ttl, retry_time, retry_length = opts.values_at(:ttl, :retry_time, :retry_length)
+    ttl, retry_time, retry_wait = opts.values_at(:ttl, :retry_time, :retry_wait)
 
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
@@ -34,13 +34,13 @@ module ActiveLock::Lock
     if success
       key
     elsif retry_time > 0.seconds
-      sleep retry_length
+      sleep retry_wait
 
       lock(
         name,
         ttl: ttl,
-        retry_time: retry_time - retry_length,
-        retry_length: retry_length * 2 * rand(0.5..1.5)
+        retry_time: retry_time - retry_wait,
+        retry_wait: retry_wait * 2 * rand(0.5..1.5)
       )
     else
       false

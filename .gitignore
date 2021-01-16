@@ -6,6 +6,7 @@
 
 /.env*
 /**/*.swp
+coverage
 
 # Ignore bundler config.
 /.bundle
@@ -42,4 +43,3 @@
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
-coverage
