@@ -18,7 +18,9 @@ module ActiveLock::Lockable
   end
 
   class_methods do
-    attr_reader :lock_id_name
+    def lock_id_name
+      @lock_id_name || :id
+    end
 
     def set_lock_id_name(lock_id_name)
       raise "Lock name must be symbol" unless lock_id_name.is_a? Symbol
