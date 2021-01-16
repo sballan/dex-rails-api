@@ -5,17 +5,21 @@ module ActiveLock::Lock
     opts = ActiveLock::Config.lock_default_opts.merge(opts)
     raise ArgumentError.new("Block required") unless block.present?
 
+    ret_val = nil
+
     if existing_key.present? && correct_key?(name, existing_key)
-      block.call(existing_key)
+      ret_val = block.call(existing_key)
     elsif existing_key.present?
       raise ActiveLock::Errors::FailedToLockError.new("Used incorrect existing key")
     else
       key = lock(name, opts)
 
-      block.call(key)
+      ret_val = block.call(key)
 
       unlock(name, key)
     end
+
+    ret_val
   end
 
   def lock(name, opts={})
