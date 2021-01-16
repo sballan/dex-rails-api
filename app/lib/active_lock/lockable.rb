@@ -1,4 +1,6 @@
 module ActiveLock::Lockable
+  extend ActiveSupport::Concern
+
   def lock_id
     send(self.class.lock_id_name)
   end
@@ -15,7 +17,7 @@ module ActiveLock::Lockable
     ActiveLock::Lock.with_lock(lock_id, existing_key, &block)
   end
 
-  class << self
+  class_methods do
     attr_reader :lock_id_name
 
     def set_lock_id_name(lock_id_name)
