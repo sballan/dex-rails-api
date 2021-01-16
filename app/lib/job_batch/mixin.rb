@@ -13,7 +13,6 @@ module JobBatch::Mixin
         # If Job is present and is in batch, just queue it up.
         if jb_job.batch.present?
           Rails.logger.debug "Job already exists, enqueueing existing Job #{jb_job.id}"
-          return
         else
           # if Job is present but has not batch, it's an error!
           raise "Job #{jb_job.id} already exists, but is not in Batch"
