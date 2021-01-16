@@ -3,6 +3,9 @@ class RedisModel
   REDIS_HASH_KEYS = %w[id]
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
 
+  include ActiveLock::Lockable
+  set_lock_id_name :id
+
   attr_reader :id
 
   def initialize(id)
@@ -25,10 +28,6 @@ class RedisModel
     else
       false
     end
-  end
-
-  def with_lock(existing_key=nil, &block)
-    self.class.with_lock(id, existing_key, &block)
   end
 
   def with_data(&block)
@@ -111,27 +110,6 @@ class RedisModel
 
       return create(id, self::REDIS_DEFAULT_DATA.call(id).merge(attrs))
     end
-  end
-
-  def self.with_lock(id, existing_key=nil, &block)
-    if existing_key.present? && ActiveLock::Lock.correct_key?(id, existing_key)
-      lock_key = existing_key
-    elsif existing_key.present?
-      raise "Tried #{self.name} #{id} with_lock with existing key, but failed"
-    else
-      lock_key = ActiveLock::Lock.lock(id)
-    end
-
-    raise "could not lock #{self.name} #{id}" unless lock_key
-
-    block.call(lock_key)
-  ensure
-    # Don't unlock if we didn't create this lock
-    return if existing_key.present?
-
-    # If something goes wrong, we want to unlock. If this behavior is not desired, manage the lock manually
-    unlock_result = ActiveLock::Lock.unlock(id, lock_key)
-    raise "could not unlock #{self.name} #{id}" unless unlock_result
   end
 
   def self.fetch_data(id)
