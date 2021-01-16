@@ -17,7 +17,7 @@ class FetchPageJob < ApplicationJob
     end
 
     # We can only fetch fetch pages if they are ready or failed
-    unless page.meta.fetch_ready? || !page.meta.fetch_failure?
+    unless page.meta.fetch_ready? || page.meta.fetch_failure?
       Rails.logger.warn "Not fetching Page(#{page_id}), since fetch status is #{page.meta.fetch_status}"
       return
     end
