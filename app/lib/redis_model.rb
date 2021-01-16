@@ -2,6 +2,7 @@ class RedisModel
   REDIS_PREFIX = "Abstract"
   REDIS_HASH_KEYS = %w[id]
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
+  REDIS_DEFAULT_TTL = 1.week
 
   attr_reader :id
 
@@ -70,8 +71,10 @@ class RedisModel
 
     attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
-    redis.multi do
-      redis.mapped_hmset(key_for(id), attrs)
+    redis.multi do |multi|
+      multi.mapped_hmset(key_for(id), attrs)
+      multi.expire(key_for(id), REDIS_DEFAULT_TTL)
+
 
       # Make sure all belongs_to fields are set
       belongs_to_klasses.each do |key, value|
@@ -98,7 +101,8 @@ class RedisModel
         # TODO: refactor so we're not reaching into redis here
         relation_klass = belongs_to_klasses[relation_name][:class]
         inverse_of = belongs_to_klasses[relation_name][:inverse_of]
-        redis.sadd(relation_klass.relation_key_for(value, inverse_of), id)
+        multi.sadd(relation_klass.relation_key_for(value, inverse_of), id)
+        multi.expire(relation_klass.relation_key_for(value, inverse_of), REDIS_DEFAULT_TTL)
       end
     end
     new(id)
