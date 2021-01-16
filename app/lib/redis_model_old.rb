@@ -1,4 +1,4 @@
-class RedisModel
+class RedisModelOld
   REDIS_PREFIX = "Abstract"
   REDIS_HASH_KEYS = %w[id]
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
