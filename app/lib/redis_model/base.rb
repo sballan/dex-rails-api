@@ -1,9 +1,4 @@
 class RedisModel::Base
-  set_key_prefix :base
-  set_key_suffix :record
-  set_field_names %i[id]
-  set_redis_connection DEFAULT_REDIS
-
   include ActiveLock::Lockable
   set_lock_id_name :id
 
@@ -139,4 +134,9 @@ class RedisModel::Base
       @redis_connection = redis_connection
     end
   end
+
+  set_key_prefix :base
+  set_key_suffix :record
+  set_field_names %i[id]
+  set_redis_connection DEFAULT_REDIS
 end
