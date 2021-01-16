@@ -69,17 +69,17 @@ class RedisModelOld
 
     attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
+    # Make sure all belongs_to fields are set
+    belongs_to_klasses.each do |key, value|
+      next unless value[:required] == true
+
+      unless attrs.keys.include?(:"#{key}_id")
+        raise "#{self.name} cannot be created without a #{key} relation"
+      end
+    end
+
     res_multi = redis.multi do |multi|
       multi.mapped_hmset(key_for(id), attrs)
-
-      # Make sure all belongs_to fields are set
-      belongs_to_klasses.each do |key, value|
-        next unless value[:required] == true
-
-        unless attrs.keys.include?(:"#{key}_id")
-          raise "#{self.name} cannot be created without a #{key} relation"
-        end
-      end
 
       # Call <relation>_insert for each belongs_to relation
       attrs.each do |key, value|
@@ -95,7 +95,8 @@ class RedisModelOld
         # relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
         #
         # TODO: refactor so we're not reaching into redis here
-        multi.sadd(relation_key_for(id, relation_name), id)
+
+        multi.sadd(relation_key_for(value, relation_name), id)
       end
     end
 
