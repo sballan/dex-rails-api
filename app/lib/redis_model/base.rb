@@ -1,7 +1,7 @@
 class RedisModel::Base
-  REDIS_PREFIX = "Base"
-  REDIS_HASH_KEYS = %w[id]
-  REDIS_DEFAULT_DATA = ->(id) { {id: id} }
+  set_key_prefix :base
+  set_key_suffix :record
+  set_field_names %i[id]
 
   include ActiveLock::Lockable
   set_lock_id_name :id
@@ -9,9 +9,7 @@ class RedisModel::Base
   attr_reader :id
 
   def initialize(id)
-    # This will match an ActiveJob id
-    # TODO: does ActiveJob have a matcher for this?
-    @id = id.remove(/^#{self.class::REDIS_PREFIX}/).remove(/\/record$/)
+    @id = id.remove(/^#{self.class.key_prefix}\//).remove(/\/#{self.class.key_prefix}$/)
   end
 
   def key
@@ -19,11 +17,9 @@ class RedisModel::Base
   end
 
   def ==(other_object)
-    if other_object.respond_to? :key
-      key == other_object.key
-    else
-      false
-    end
+    return (key == other_object.key) if other_object.respond_to? :key
+
+    false
   end
 
   def fetch_data
@@ -41,9 +37,15 @@ class RedisModel::Base
 
   def self.each(&block)
     Enumerator.new do |y|
-      redis.scan_each(match: self::REDIS_PREFIX + "*" + "/record") do |id|
+      redis.scan_each(match: key_prefix + "/*/" + key_suffix) do |id|
         y << new(id)
       end
+    end
+  end
+
+  def self.all
+    redis.scan_each(match: key_prefix + "/*/" + key_suffix).map do |id|
+      new(id)
     end
   end
 
@@ -54,74 +56,82 @@ class RedisModel::Base
   end
 
   def self.create(id=nil, attrs={})
-    raise "Invalid attrs" unless attrs.is_a?(Hash)
-
     id ||= SecureRandom.uuid
+    raise RedisModel::Errors::IdNotUniqueError.new("Cannot create #{name}: it already exists") if exists? id
 
-    raise "Cannot create #{self.name}: it already exists" if self.exists? id
+    raise ArgumentError.new("Invalid attrs") unless attrs.is_a?(Hash)
+    attrs = {id: id}.merge(attrs)
 
-    attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
-
-    res_multi = redis.multi do |multi|
-      multi.mapped_hmset(key_for(id), attrs)
-
-      # Make sure all belongs_to fields are set
-      belongs_to_klasses.each do |key, value|
-        next unless value[:required] == true
-
-        unless attrs.keys.include?(:"#{key}_id")
-          raise "#{self.name} cannot be created without a #{key} relation"
-        end
-      end
-
-      # Call <relation>_insert for each belongs_to relation
-      attrs.each do |key, value|
-        relation_name = key.to_s.remove(/_id$/).to_sym
-        next unless belongs_to_klasses.has_key?(relation_name)
-
-        # TODO: This doesn't work because we're doing a FIND in the middle of a MULTI? Connection pool messing this up?
-        # I don't even know how this _ever_ worked.  For now, comment out - and then consider just doing this check
-        # AFTER the multi is finished.
-        #
-        # relation = belongs_to_klasses[relation_name][:class].find(value)
-        # raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
-        # relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
-        #
-        # TODO: refactor so we're not reaching into redis here
-        multi.sadd(relation_key_for(id, relation_name), id)
-      end
+    with_redis do |r|
+      r.mapped_hmset(key_for(id), attrs)
     end
 
-    raise "Failed to create #{self.name}: Redis.multi failed" unless res_multi.first == "OK"
     new(id)
   end
 
   def self.find_or_create(id, attrs)
     with_lock(id) do
       model = find(id)
-      return model unless model.nil?
+      return model unless model.blank?
 
-      return create(id, self::REDIS_DEFAULT_DATA.call(id).merge(attrs))
+      return create(id, attrs)
     end
   end
 
   def self.fetch_data(id)
-    data = redis.mapped_hmget(key_for(id), *self::REDIS_HASH_KEYS).with_indifferent_access
-    raise unless data.present?
+    with_redis do |r|
+      data = r.mapped_hmget(key_for(id), *field_names).with_indifferent_access
+      raise RedisModel::Errors::RecordMissingError.new("Missing #{name}(#{id})") unless data.present?
 
-    data
+      data
+    end
   end
 
   def self.key_for(id)
-    self::REDIS_PREFIX + id + "/record"
+    key_prefix + "/#{id}/" + key_suffix
   end
-
 
   def self.exists?(id)
-    redis.exists?(key_for(id))
+    with_redis {|r| r.exists?(key_for(id)) }
   end
 
-  def self.redis
-    DEFAULT_REDIS
+  # @yield [r] Redis connection
+  # @yieldparam [Redis] a Redis connection
+  def self.with_redis(&block)
+    raise ArgumentError.new('need block') unless block_given?
+
+    yield(DEFAULT_REDIS)
+  end
+
+  class << self
+    attr_reader :key_prefix, :field_names, :key_suffix
+
+    def set_key_prefix(key_prefix)
+      unless key_prefix.is_a? Symbol
+        raise RedisModel::Errors::ModelConfigurationError.new("key_prefix must be symbol")
+      end
+
+      @key_prefix = key_prefix
+    end
+
+    def set_key_suffix(key_suffix)
+      unless key_suffix.is_a? Symbol
+        raise RedisModel::Errors::ModelConfigurationError.new("key_suffix must be symbol")
+      end
+
+      @key_suffix = key_suffix
+    end
+
+    def set_field_names(field_names)
+      unless field_names.is_a? Array
+        raise RedisModel::Errors::ModelConfigurationError.new("field_names must be an Array")
+      end
+
+      unless field_names.all? {|fn| fn.is_a? Symbol }
+        raise RedisModel::Errors::ModelConfigurationError.new("field_names must be Symbols")
+      end
+
+      @field_names = field_names
+    end
   end
 end
