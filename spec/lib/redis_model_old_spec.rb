@@ -1,14 +1,14 @@
 require "rails_helper"
 
-describe RedisModel do
+describe RedisModelOld do
   before do
     @mock_redis = MockRedis.new
-    allow(RedisModel).to receive(:redis).and_return(@mock_redis)
-    allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
+    allow(RedisModelOld).to receive(:redis).and_return(@mock_redis)
+    allow(ActiveLock::Config).to receive(:redis_connection).and_return(@mock_redis)
   end
 
   context "Basics" do
-    let(:model) { RedisModel.create SecureRandom.uuid }
+    let(:model) { RedisModelOld.create SecureRandom.uuid }
 
     it "can be created with an id" do
       expect(model).to be
@@ -21,13 +21,13 @@ describe RedisModel do
 
 
     it "can be found" do
-      m = RedisModel.find(model.id)
+      m = RedisModelOld.find(model.id)
       expect(m.id).to eql(model.id)
     end
 
 
     it "can have data" do
-      model = RedisModel.create
+      model = RedisModelOld.create
 
       model.with_data do |data|
         expect(data).to be_present
@@ -38,7 +38,7 @@ describe RedisModel do
 
   describe "with_lock" do
     let(:id) { SecureRandom.uuid }
-    let(:model) { RedisModel.new(id) }
+    let(:model) { RedisModelOld.new(id) }
 
     it "is locked inside the block" do
       model.with_lock do
@@ -56,14 +56,14 @@ describe RedisModel do
   end
 
   context "Subclasses" do
-    class MockAuthor < RedisModel; end
-    class MockBook < RedisModel; end
+    class MockAuthor < RedisModelOld; end
+    class MockBook < RedisModelOld; end
 
-    class MockAuthor < RedisModel
+    class MockAuthor < RedisModelOld
       has_many :books, 'MockBook', inverse_of: :author
     end
 
-    class MockBook < RedisModel
+    class MockBook < RedisModelOld
       belongs_to :author, 'MockAuthor', inverse_of: :books
     end
 

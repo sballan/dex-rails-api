@@ -3,7 +3,7 @@ require "rails_helper"
 describe ActiveLock::Lock do
   before do
     @mock_redis = MockRedis.new
-    allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
+    allow(ActiveLock::Config).to receive(:redis_connection).and_return(@mock_redis)
   end
 
   let(:test_lock_name) { 'test_lock_name' }

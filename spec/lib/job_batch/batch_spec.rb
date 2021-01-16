@@ -3,8 +3,8 @@ require "rails_helper"
 describe JobBatch::Batch do
   before do
     @mock_redis = MockRedis.new
-    allow(ActiveLock::Config).to receive(:redis).and_return(@mock_redis)
-    allow(RedisModel).to receive(:redis).and_return(@mock_redis)
+    allow(ActiveLock::Config).to receive(:redis_connection).and_return(@mock_redis)
+    allow(RedisModelOld).to receive(:redis).and_return(@mock_redis)
     allow(JobBatch).to receive(:redis).and_return(@mock_redis)
   end
 

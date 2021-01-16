@@ -4,7 +4,7 @@ describe JobBatch::Job do
   before do
     @mock_redis = MockRedis.new
     allow(JobBatch).to receive(:redis).and_return(@mock_redis)
-    allow(RedisModel).to receive(:redis).and_return(@mock_redis)
+    allow(RedisModelOld).to receive(:redis).and_return(@mock_redis)
   end
 
   context "Basics" do
