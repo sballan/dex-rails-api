@@ -5,7 +5,7 @@ class FetchPageJob < ApplicationJob
 
   # If we can't get the lock, retry at random time between now and 5 minutes from now
   rescue_from(ActiveLock::Errors::FailedToLockError) do
-    retry_job(wait: rand(10.minutes))
+    retry_job(wait: rand(30.minutes))
   end
 
   def perform(page_id)
