@@ -2,6 +2,7 @@ require 'net/http'
 
 module FetchService
   MAX_FETCH_TIME = ENV.fetch("MAX_FETCH_TIME", 1.hour).to_i.seconds
+  MAX_REFRESH_TIME = ENV.fetch("MAX_REFRESH_TIME", 10.minutes).to_i.seconds
 
   module Client
     extend self
@@ -34,7 +35,7 @@ module FetchService
 
       page_file = nil
       host = URI(page.url).host
-      ActiveLock::Lock.with_lock("Host/#{host}") do
+      ActiveLock::Lock.with_lock("Host/#{host}", MAX_REFRESH_TIME) do
         page_file = refresh_page(page)
         sleep 2
       end
