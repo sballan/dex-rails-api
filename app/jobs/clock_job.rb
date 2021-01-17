@@ -56,9 +56,9 @@ class ClockJob < ApplicationJob
     end
 
     Rails.logger.info "Clock Tick finished"
-
+  ensure
     duration = Time.now - start_time
-    clock_wait_time = [CLOCK_INTERVAL - duration, 0].max
+    clock_wait_time = [CLOCK_INTERVAL - duration, 1].max
     ClockJob.set(wait: clock_wait_time).perform_later
   end
 end
