@@ -24,7 +24,7 @@ module FetchService::Commands
 
     def mechanize_page(page)
       command = DownloadMechanizePage.new(page.url)
-      command.run_with_gc!
+      command.run!
       command.payload
     rescue Command::Errors::CommandInvalid => e
       Rails.logger.warn "This Page failed permanently to download #{page.id}."
@@ -40,13 +40,13 @@ module FetchService::Commands
 
       nokogiri_doc = mechanize_page.parser
       command = ProcessNokogiriDoc.new(nokogiri_doc)
-      command.run_with_gc!
+      command.run!
       command.payload
     end
 
     def upload_page_file_to_s3(key, body)
       command = UploadPageFileToS3.new(key, body)
-      command.run_with_gc!
+      command.run!
       command.payload
     end
   end

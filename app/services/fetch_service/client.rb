@@ -70,7 +70,7 @@ module FetchService
 
     def refresh_page(page)
       command = Commands::RefreshPage.new(page)
-      command.run!
+      command.run_with_gc!
       page_file = command.payload
 
       return page_file unless page_file.blank?
@@ -87,7 +87,7 @@ module FetchService
 
     def parse_page(page, page_file)
       command = Commands::ParsePage.new(page, page_file)
-      command.run!
+      command.run_with_gc!
       command.payload
     end
   end
