@@ -13,7 +13,7 @@ module CrawlService
           .update_all(crawl_status: :failure)
 
       # Now that we've marked failures, let's count real active pages
-      num_active_pages = Page.by_meta(crawl_status: :active).count
+      num_active_pages = PageMeta.crawl_active.count
 
       # Now let's collect pages to pass to the block
       page_ids = []
