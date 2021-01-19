@@ -2,6 +2,7 @@ class RedisModelOld
   REDIS_PREFIX = "Abstract"
   REDIS_HASH_KEYS = %w[id]
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
+  REDIS_DEFAULT_TTL = 1.week
 
   include ActiveLock::Lockable
   set_lock_id_name :id
@@ -78,11 +79,13 @@ class RedisModelOld
       end
     end
 
-    res_multi = redis.multi do |multi|
+
+    redis.multi do |multi|
       multi.mapped_hmset(key_for(id), attrs)
+      multi.expire(key_for(id), REDIS_DEFAULT_TTL)
 
       # Call <relation>_insert for each belongs_to relation
-      attrs.each do |key, value|
+      attrs.each do |key, relation_id|
         relation_name = key.to_s.remove(/_id$/).to_sym
         next unless belongs_to_klasses.has_key?(relation_name)
 
@@ -90,13 +93,17 @@ class RedisModelOld
         # I don't even know how this _ever_ worked.  For now, comment out - and then consider just doing this check
         # AFTER the multi is finished.
         #
-        # relation = belongs_to_klasses[relation_name][:class].find(value)
-        # raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
+        # relation = belongs_to_klasses[relation_name][:class].find(relation_id)
+        # raise "Cannot find relation #{relation_name} #{relation_id} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
         # relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
         #
         # TODO: refactor so we're not reaching into redis here
+        relation_klass = belongs_to_klasses[relation_name][:class]
+        inverse_of = belongs_to_klasses[relation_name][:inverse_of]
 
-        multi.sadd(relation_key_for(value, relation_name), id)
+        multi.sadd(relation_klass.relation_key_for(relation_id, inverse_of), id)
+        multi.expire(relation_klass.relation_key_for(relation_id, inverse_of), REDIS_DEFAULT_TTL)
+
       end
     end
 

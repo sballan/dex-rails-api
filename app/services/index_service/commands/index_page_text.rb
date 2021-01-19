@@ -36,7 +36,7 @@ module IndexService::Commands
 
     def insert_queries_and_page_matches(attributes)
       command = InsertQueriesAndPageMatches.new(attributes)
-      command.run_with_gc!
+      command.run!
     end
   end
 end
