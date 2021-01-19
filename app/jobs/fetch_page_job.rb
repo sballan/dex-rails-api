@@ -11,16 +11,10 @@ class FetchPageJob < ApplicationJob
   def perform(page_id)
     page = Page.includes(:meta).find(page_id)
 
-    unless page.meta.present?
-      Rails.logger.info "No metadata for Page(#{page_id}); inserting metadata record"
-      page.update(meta_attributes: { fetch_status: :ready })
-    end
+    Rails.logger.debug "Inserting metadata record for Page(#{page_id}" unless page.meta.present?
 
-    # We can only fetch fetch pages if they are ready or failed
-    unless page.meta.fetch_ready? || page.meta.fetch_failure?
-      Rails.logger.warn "Not fetching Page(#{page_id}), since fetch status is #{page.meta.fetch_status}"
-      return
-    end
+    # Will create the meta if it doesn't exist
+    page.update(meta_attributes: { fetch_status: :active })
 
     FetchService::Client.fetch(page)
   end
