@@ -11,12 +11,6 @@ class CrawlPageJob < ApplicationJob
       raise "No metadata for Page(#{page_id}); cannot crawl this page"
     end
 
-    # We can only crawl pages if they are ready or failed
-    unless page_to_crawl.meta.crawl_ready? || page_to_crawl.meta.crawl_failure?
-      Rails.logger.warn "Not crawling Page(#{page_id}), since crawl status is #{page_to_crawl.meta.crawl_status}"
-      return
-    end
-
     # Mark crawl as active
     page_to_crawl.meta.update!(
       crawl_started_at: DateTime.now.utc,
@@ -25,10 +19,10 @@ class CrawlPageJob < ApplicationJob
 
     # Mark any new PageMeta for these links as ready
     PageMeta.where(
-      fetch_status: :new,
+      fetch_status: %i[new ready failed],
       page_id: page_to_crawl.pages_linked_to.pluck(:id)
     ).update_all(
-      fetch_status: :ready
+      fetch_status: :active
     )
 
     crawl_batch = JobBatch::Batch.create(
@@ -39,7 +33,8 @@ class CrawlPageJob < ApplicationJob
 
     crawl_batch.open do
       page_to_crawl.pages_linked_to.includes(:meta).find_each do |page|
-        # Skip if we already got it or it's not valid
+        # Skip if we already got it or it's not valid.
+        # TODO: Do this with a join
         next if page.meta.present? && (page.meta.fetch_success? || page.meta.fetch_dead?)
 
         FetchPageJob.perform_later(page.id)
