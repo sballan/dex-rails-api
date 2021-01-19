@@ -11,10 +11,14 @@ module IndexService
       PageMeta.where(index_status: :active, index_started_at: DateTime.new(0)..MAX_INDEX_TIME.ago)
           .update_all(index_status: :failure)
 
-      num_active_pages = Page.by_meta(index_status: :active).count
+      num_active_pages = PageMeta.index_active.count
       num_additional_pages = MAX_INDEX_PAGES - num_active_pages
 
-      page_ids = Page.by_meta(index_status: :ready).limit(num_additional_pages).pluck(:id)
+
+      meta = PageMeta.index_ready.limit(num_additional_pages)
+      meta.update!(index_status: :active, index_started_at: DateTime.now.utc)
+      page_ids = meta.pluck(:id)
+
       block.call(page_ids)
     end
 
