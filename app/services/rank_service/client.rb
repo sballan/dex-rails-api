@@ -25,6 +25,8 @@ module RankService
       calculate(rank_pages)
       update_pages(rank_pages)
 
+      start_page.meta.update(rank_status: :success, rank_finished_at: DateTime.now.utc)
+
       GC.start full_mark: true, immediate_sweep: true
       GC.compact
     end
