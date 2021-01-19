@@ -29,7 +29,13 @@ class CrawlPageJob < ApplicationJob
       page_to_crawl.pages_linked_to.includes(:meta).find_each do |page|
         # Skip if we already got it or it's not valid.
         # TODO: Do this with a join
-        next if page.meta.present? && (page.meta.fetch_success? || page.meta.fetch_dead?)
+        next if page.meta.present? && (page.meta.fetch_success? || page.meta.fetch_dead? || page.meta.fetch_active?)
+
+        page.update!(meta_attributes: {
+          fetch_status: :active,
+          fetch_started_at: DateTime.now.utc,
+          fetch_finished_at: nil
+        })
 
         FetchPageJob.perform_later(page.id)
       end
