@@ -7,9 +7,9 @@ module RankService
 
     def tick(&block)
       PageMeta.where(rank_status: :active, rank_started_at: DateTime.new(0)..MAX_RANK_TIME.ago)
-          .update_all(rank_status: :failure)
+          .update_all(rank_status: :failure, rank_finished_at: DateTime.now.utc)
 
-      num_active_pages = ::Page.by_meta(rank_status: :active).count
+      num_active_pages = PageMeta.rank_active.count
       num_additional_pages = MAX_RANK_PAGES - num_active_pages
 
                  # uggg...I guess having a Page constant in this module _did_ come back to bite me

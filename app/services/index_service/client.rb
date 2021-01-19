@@ -9,7 +9,7 @@ module IndexService
       # Update old PageMeta to have failed status. The assumption is that pages indexing longer than
       # the MAX_INDEX_TIME are actually not running.
       PageMeta.where(index_status: :active, index_started_at: DateTime.new(0)..MAX_INDEX_TIME.ago)
-          .update_all(index_status: :failure)
+          .update_all(index_status: :failure, index_finished_at: DateTime.now.utc)
 
       num_active_pages = PageMeta.index_active.count
       num_additional_pages = MAX_INDEX_PAGES - num_active_pages
