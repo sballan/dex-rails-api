@@ -22,7 +22,11 @@ module CrawlService
       else
         # Update all pages for active Sites that have crawl_status: :ready, which means they have already been fetched
         num_additional_pages = MAX_CRAWL_PAGES - num_active_pages
-        page_ids.concat Page.by_meta(crawl_status: :ready).limit(num_additional_pages).pluck(:id)
+
+        # can this be done in one query?
+        meta = PageMeta.crawl_ready.limit(num_additional_pages)
+        meta.update!(crawl_status: :active)
+        page_ids.concat(meta.pluck(:id))
       end
 
       Rails.logger.info "Collected Page ids for tick"
