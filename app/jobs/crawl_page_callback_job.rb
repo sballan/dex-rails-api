@@ -14,10 +14,17 @@ class CrawlPageCallbackJob < ApplicationJob
 
     if success_ratio > 0.5
       Rails.logger.info "Crawl success ratio for Page(#{page_id}) is #{success_ratio}, which is successful"
-      page_crawled.meta.update(crawl_status: :success, rank_status: :ready)
+      page_crawled.meta.update(
+        crawl_status: :success,
+        crawl_finished_at: DateTime.now.utc,
+        rank_status: :ready
+      )
     else
       Rails.logger.info "Crawl success ratio for Page(#{page_id}) is #{success_ratio}, which is unsuccessful"
-      page_crawled.meta.update(crawl_status: :failure)
+      page_crawled.meta.update(
+        crawl_status: :failure,
+        crawl_finished_at: DateTime.now.utc
+      )
     end
   end
 end
