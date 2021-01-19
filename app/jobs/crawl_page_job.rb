@@ -11,13 +11,7 @@ class CrawlPageJob < ApplicationJob
       raise "No metadata for Page(#{page_id}); cannot crawl this page"
     end
 
-    # Mark crawl as active
-    page_to_crawl.meta.update!(
-      crawl_started_at: DateTime.now.utc,
-      crawl_status: :active
-    )
-
-    # Mark any new PageMeta for these links as ready
+    # Mark any existing but not successful/dead PageMeta for these links as active
     PageMeta.where(
       fetch_status: %i[new ready failed],
       page_id: page_to_crawl.pages_linked_to.pluck(:id)

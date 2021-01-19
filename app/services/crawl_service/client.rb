@@ -25,7 +25,7 @@ module CrawlService
 
         # can this be done in one query?
         meta = PageMeta.crawl_ready.limit(num_additional_pages)
-        meta.update!(crawl_status: :active)
+        meta.update!(crawl_status: :active, crawl_started_at: DateTime.now.utc)
         page_ids.concat(meta.pluck(:id))
       end
 
