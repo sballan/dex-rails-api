@@ -16,7 +16,7 @@ module IndexService
 
 
       meta = PageMeta.index_ready.limit(num_additional_pages)
-      meta.update!(index_status: :active, index_started_at: DateTime.now.utc)
+      meta.update(index_status: :active, index_started_at: DateTime.now.utc)
       page_ids = meta.pluck(:id)
 
       block.call(page_ids)
