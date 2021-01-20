@@ -5,7 +5,7 @@ module ActiveLock::Config
 
   DEFAULT_LOCK_TTL = 6.hours
   DEFAULT_LOCK_RETRY_TIME = 15.seconds
-  DEFAULT_LOCK_RETRY_LENGTH = 0.1.seconds
+  DEFAULT_LOCK_RETRY_WAIT = 0.1.seconds
 
   def lock_default_opts
     {
