@@ -10,7 +10,7 @@ module RankService
           .update_all(rank_status: :failure, rank_finished_at: DateTime.now.utc)
 
       num_active_pages = PageMeta.rank_active.count
-      num_additional_pages = MAX_RANK_PAGES - num_active_pages
+      num_additional_pages = [MAX_RANK_PAGES - num_active_pages, 0].max
 
                  # uggg...I guess having a Page constant in this module _did_ come back to bite me
       page_ids = ::Page.by_meta(rank_status: :ready).limit(num_additional_pages).pluck(:id)

@@ -12,7 +12,7 @@ module IndexService
           .update_all(index_status: :failure, index_finished_at: DateTime.now.utc)
 
       num_active_pages = PageMeta.index_active.count
-      num_additional_pages = MAX_INDEX_PAGES - num_active_pages
+      num_additional_pages = [MAX_INDEX_PAGES - num_active_pages, 0].max
 
 
       meta = PageMeta.index_ready.limit(num_additional_pages)

@@ -42,7 +42,7 @@ module JobBatch::Mixin
       if jb_job.blank?
         raise "Job performed, but JobBatch::Job #{job.job_id} could not be found in Redis"
       else
-        batch = jb_job.batch
+        # batch = jb_job.batch
         jb_job.destroy!
       end
 

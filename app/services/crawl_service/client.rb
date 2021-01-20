@@ -21,7 +21,7 @@ module CrawlService
         Rails.logger.error "We're at crawl capacity with #{num_active_pages} pages being crawled"
       else
         # Update all pages for active Sites that have crawl_status: :ready, which means they have already been fetched
-        num_additional_pages = MAX_CRAWL_PAGES - num_active_pages
+        num_additional_pages = [MAX_CRAWL_PAGES - num_active_pages, 0].max
 
         # can this be done in one query?
         meta = PageMeta.crawl_ready.limit(num_additional_pages)
