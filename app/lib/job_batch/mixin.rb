@@ -40,7 +40,6 @@ module JobBatch::Mixin
         raise "Job performed, but JobBatch::Job #{job.job_id} could not be found in Redis"
       end
 
-      batch = jb_job.batch
       jb_job.destroy!
     end
   end
