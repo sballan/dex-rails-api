@@ -13,8 +13,8 @@ module ActiveLock::Lockable
     ActiveLock::Lock.unlock(lock_id, key)
   end
 
-  def with_lock(existing_key=nil, &block)
-    ActiveLock::Lock.with_lock(lock_id, existing_key, &block)
+  def with_lock(existing_key=nil, opts={}, &block)
+    ActiveLock::Lock.with_lock(lock_id, existing_key, opts, &block)
   end
 
   class_methods do
