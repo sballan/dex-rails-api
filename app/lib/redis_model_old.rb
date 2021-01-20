@@ -107,7 +107,6 @@ class RedisModelOld
       end
     end
 
-    raise "Failed to create #{self.name}: Redis.multi failed" unless res_multi.first == "OK"
     new(id)
   end
 
