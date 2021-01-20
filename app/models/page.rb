@@ -1,6 +1,8 @@
 class Page < ApplicationRecord
   validates_presence_of :url
 
+  belongs_to :site, optional: true
+
   has_one :meta, class_name: "PageMeta", dependent: :destroy
   accepts_nested_attributes_for :meta, update_only: true
 
