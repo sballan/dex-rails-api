@@ -33,14 +33,14 @@ class RedisModel::Base
 
   def self.each(&block)
     Enumerator.new do |y|
-      redis.scan_each(match: key_prefix + "/*/" + key_suffix) do |id|
+      redis.scan_each(match: "#{key_prefix}/*/#{key_suffix}") do |id|
         y << new(id)
       end
     end
   end
 
   def self.all
-    redis.scan_each(match: key_prefix + "/*/" + key_suffix).map do |id|
+    redis.scan_each(match: "#{key_prefix}/*/#{key_suffix}").map do |id|
       new(id)
     end
   end
@@ -84,7 +84,7 @@ class RedisModel::Base
   end
 
   def self.key_for(id)
-    key_prefix + "/#{id}/" + key_suffix
+    "#{key_prefix}/#{id}/#{key_suffix}"
   end
 
   def self.exists?(id)

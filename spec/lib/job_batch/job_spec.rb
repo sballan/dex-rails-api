@@ -8,7 +8,8 @@ describe JobBatch::Job do
   end
 
   context "Basics" do
-    let(:job) { JobBatch::Job.create SecureRandom.uuid }
+    let(:batch) { JobBatch::Batch.create SecureRandom.uuid }
+    let(:job) { JobBatch::Job.create SecureRandom.uuid, batch_id: batch.id}
 
     it "can be created with a job_id" do
       expect(job).to be
