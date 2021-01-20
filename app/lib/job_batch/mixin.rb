@@ -42,10 +42,6 @@ module JobBatch::Mixin
 
       batch = jb_job.batch
       jb_job.destroy!
-
-      if batch.jobs.empty? && batch.children.empty?
-        batch.finished!
-      end
     end
   end
 
