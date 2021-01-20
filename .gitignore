@@ -6,6 +6,7 @@
 
 /.env*
 /**/*.swp
+coverage
 
 # Ignore bundler config.
 /.bundle
