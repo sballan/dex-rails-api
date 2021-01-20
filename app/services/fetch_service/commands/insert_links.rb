@@ -42,7 +42,7 @@ module FetchService::Commands
 
     def page_insert_attributes
       @links_by_url.map do |url, link|
-        { url: url }
+        { url: url, host: (URI(url).host rescue nil) }
       end
     end
   end
