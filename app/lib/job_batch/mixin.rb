@@ -5,7 +5,7 @@ module JobBatch::Mixin
   def self.included(mod)
     # Horribly, ActiveJob will sometimes run callbacks more than once.  UGG.
     mod.before_enqueue do |job|
-      Rails.logger.info "before_enqueue callback for #{job.job_id}"
+      Rails.logger.debug "before_enqueue callback for #{job.job_id}"
 
       jb_job = JobBatch::Job.find job.job_id
 
@@ -19,7 +19,7 @@ module JobBatch::Mixin
           raise "Job #{jb_job.id} already exists, but is not in Batch"
         end
       else
-        Rails.logger.info "Job does not exist, creating it now"
+        Rails.logger.debug "Job does not exist, creating it now"
 
         if JobBatch::Batch.opened_batch.present?
           Rails.logger.debug "There is an open batch, so let's use it"
@@ -35,7 +35,7 @@ module JobBatch::Mixin
     end
 
     mod.after_perform do |job|
-      Rails.logger.info "after_perform callback for #{job.job_id}"
+      Rails.logger.debug "after_perform callback for #{job.job_id}"
 
       jb_job = JobBatch::Job.find(job.job_id)
 
