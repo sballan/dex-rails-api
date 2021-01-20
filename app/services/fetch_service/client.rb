@@ -35,7 +35,7 @@ module FetchService
 
       page_file = nil
       host = URI(page.url).host
-      ActiveLock::Lock.with_lock("Host/#{host}", MAX_REFRESH_TIME) do
+      ActiveLock::Lock.with_lock("Host/#{host}", nil, ttl: MAX_REFRESH_TIME) do
         page_file = refresh_page(page)
         sleep 2
       end

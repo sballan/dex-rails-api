@@ -11,16 +11,21 @@ class ClockJob < ApplicationJob
     start_time = Time.now
     Rails.logger.info "Clock Tick started"
 
-    ActiveLock::Lock.with_lock('GlobalClock', 10.minutes) do
+    ActiveLock::Lock.with_lock('GlobalClock', nil, ttl: 10.minutes) do
       JobBatch::Batch.all.each do |jb|
-        jb.with_lock do
-          next unless jb.jobs.empty? && jb.children.empty?
+        begin
+          jb.with_lock do |lock_key|
+            next unless jb.jobs.empty? && jb.children.empty?
 
-          Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
-          jb.finished!
+            Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
+            jb.finished!(lock_key)
+          end
+        rescue => e
+          # TODO: don't just rescue any error, if we can't get the lock that's ok
+          Rails.logger.error e
         end
 
-        next # for clarity
+        next # extra, but clear
       end
 
       # To start off, we synchronously fetch all unsuccessful home pages for our sites

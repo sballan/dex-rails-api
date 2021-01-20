@@ -1,13 +1,27 @@
 module ActiveLock::Config
   extend self
 
-  DEFAULT_LOCK_TTL = 6.hours
-  DEFAULT_LOCK_RETRY_TIME = 15.seconds
-  DEFAULT_LOCK_RETRY_LENGTH = 0.1.seconds
-
   PREFIX = "ActiveLock/"
 
-  def redis
+  DEFAULT_LOCK_TTL = 6.hours
+  DEFAULT_LOCK_RETRY_TIME = 15.seconds
+  DEFAULT_LOCK_RETRY_WAIT = 0.1.seconds
+
+  def lock_default_opts
+    {
+      ttl: DEFAULT_LOCK_TTL,
+      retry_time: DEFAULT_LOCK_RETRY_TIME,
+      retry_wait: DEFAULT_LOCK_RETRY_WAIT
+    }
+  end
+
+  def redis_connection
     Redis.current
+  end
+
+  def with_redis(&block)
+    raise ArgumentError, "with_redis requires block" unless block.present?
+
+    block.call(redis_connection)
   end
 end

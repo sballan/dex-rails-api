@@ -1,3 +1,22 @@
+# simplecov must be at the very top
+
+require 'simplecov'
+SimpleCov.start do
+  # Let's also see branch coverage
+  enable_coverage :branch
+
+  add_group "Models", "app/models"
+  add_group "Services", "app/services"
+  add_group "Jobs", "app/jobs"
+  add_group "Lib", "app/lib"
+
+  # Don't run coverage on test files...
+  add_filter "/spec/"
+  # Don't run coverage on config files
+  add_filter "/config/"
+end
+
+
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'

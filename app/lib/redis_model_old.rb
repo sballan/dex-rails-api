@@ -1,8 +1,11 @@
-class RedisModel
+class RedisModelOld
   REDIS_PREFIX = "Abstract"
   REDIS_HASH_KEYS = %w[id]
   REDIS_DEFAULT_DATA = ->(id) { {id: id} }
   REDIS_DEFAULT_TTL = 1.week
+
+  include ActiveLock::Lockable
+  set_lock_id_name :id
 
   attr_reader :id
 
@@ -26,10 +29,6 @@ class RedisModel
     else
       false
     end
-  end
-
-  def with_lock(&block)
-    self.class.with_lock(id, &block)
   end
 
   def with_data(&block)
@@ -71,22 +70,22 @@ class RedisModel
 
     attrs = self::REDIS_DEFAULT_DATA.call(id).merge(attrs)
 
+    # Make sure all belongs_to fields are set
+    belongs_to_klasses.each do |key, value|
+      next unless value[:required] == true
+
+      unless attrs.keys.include?(:"#{key}_id")
+        raise "#{self.name} cannot be created without a #{key} relation"
+      end
+    end
+
+
     redis.multi do |multi|
       multi.mapped_hmset(key_for(id), attrs)
       multi.expire(key_for(id), REDIS_DEFAULT_TTL)
 
-
-      # Make sure all belongs_to fields are set
-      belongs_to_klasses.each do |key, value|
-        next unless value[:required] == true
-
-        unless attrs.keys.include?(:"#{key}_id")
-          raise "#{self.name} cannot be created without a #{key} relation"
-        end
-      end
-
       # Call <relation>_insert for each belongs_to relation
-      attrs.each do |key, value|
+      attrs.each do |key, relation_id|
         relation_name = key.to_s.remove(/_id$/).to_sym
         next unless belongs_to_klasses.has_key?(relation_name)
 
@@ -94,17 +93,20 @@ class RedisModel
         # I don't even know how this _ever_ worked.  For now, comment out - and then consider just doing this check
         # AFTER the multi is finished.
         #
-        # relation = belongs_to_klasses[relation_name][:class].find(value)
-        # raise "Cannot find relation #{relation_name} #{value} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
+        # relation = belongs_to_klasses[relation_name][:class].find(relation_id)
+        # raise "Cannot find relation #{relation_name} #{relation_id} for #{belongs_to_klasses[relation_name][:class]}" unless relation.present?
         # relation.send(:"#{belongs_to_klasses[relation_name][:inverse_of]}_insert", id)
         #
         # TODO: refactor so we're not reaching into redis here
         relation_klass = belongs_to_klasses[relation_name][:class]
         inverse_of = belongs_to_klasses[relation_name][:inverse_of]
-        multi.sadd(relation_klass.relation_key_for(value, inverse_of), id)
-        multi.expire(relation_klass.relation_key_for(value, inverse_of), REDIS_DEFAULT_TTL)
+
+        multi.sadd(relation_klass.relation_key_for(relation_id, inverse_of), id)
+        multi.expire(relation_klass.relation_key_for(relation_id, inverse_of), REDIS_DEFAULT_TTL)
+
       end
     end
+
     new(id)
   end
 
@@ -115,17 +117,6 @@ class RedisModel
 
       return create(id, self::REDIS_DEFAULT_DATA.call(id).merge(attrs))
     end
-  end
-
-  def self.with_lock(id, &block)
-    lock_key = ActiveLock::Lock.lock(id)
-    raise "could not lock #{self.name} #{id}" unless lock_key
-
-    block.call(lock_key)
-  ensure
-    # If something goes wrong, we want to unlock. If this behavior is not desired, manage the lock manually
-    unlock_result = ActiveLock::Lock.unlock(id, lock_key)
-    raise "could not unlock #{self.name} #{id}" unless unlock_result
   end
 
   def self.fetch_data(id)
@@ -176,9 +167,15 @@ class RedisModel
     define_method(relation_name) do
       relation_id = self.send(:[], :"#{relation_name}_id")
       relation = klass.find(relation_id) unless relation_id.blank?
-      if relation.blank? && self.class.belongs_to_klasses[relation_name][:required]
-        raise "#{self.class.name} #{id} is missing required relation #{relation_name}"
+
+      if self.class.belongs_to_klasses[relation_name][:required]
+        if relation_id.blank?
+          raise "#{self.class.name} #{id} is missing required field `#{relation_name}_id`"
+        elsif relation.blank?
+          raise "#{self.class.name} #{id} is missing required relation #{relation_name}"
+        end
       end
+
       relation
     end
   end
@@ -190,8 +187,8 @@ class RedisModel
     end
 
     has_many_klasses[relation_name] = {
-        class: klass,
-        inverse_of: inverse_of
+      class: klass,
+      inverse_of: inverse_of
     }
 
     define_method(:"#{relation_name}_insert") do |relation_id|

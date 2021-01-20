@@ -1,47 +1,62 @@
 module ActiveLock::Lock
   extend self
 
-  def with_lock(name, ttl=nil, retry_ttl=nil, retry_length=nil, &block)
-    retry_ttl ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_TIME
-    retry_length ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_LENGTH
+  def with_lock(name, existing_key=nil, opts={}, &block)
+    opts = ActiveLock::Config.lock_default_opts.merge(opts)
+    raise ArgumentError.new("Block required") unless block.present?
 
-    raise ArgumentError.new("Block required") unless block
+    ret_val = nil
 
-    key = lock(name, ttl)
-    raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") unless key
+    if existing_key.present? && correct_key?(name, existing_key)
+      ret_val = block.call(existing_key)
+    elsif existing_key.present?
+      raise ActiveLock::Errors::FailedToLockError.new("Used incorrect existing key")
+    else
+      key = lock(name, opts)
+      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") if (key == false)
 
-    block.call
+      ret_val = block.call(key)
 
-    success = unlock(name, key)
-    raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless success
+      unlock_success = unlock(name, key)
+      raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless unlock_success
+    end
+
+    ret_val
   end
 
-  def lock(name, ttl=nil, retry_ttl=nil, retry_length=nil)
-    retry_ttl ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_TIME
-    retry_length ||= ActiveLock::Config::DEFAULT_LOCK_RETRY_LENGTH
+  def lock(name, opts={})
+    opts = ActiveLock::Config.lock_default_opts.merge(opts)
+    ttl, retry_time, retry_wait = opts.values_at(:ttl, :retry_time, :retry_wait)
 
     key = SecureRandom.uuid
     success = write_lock(name, key, ex: ttl)
 
     if success
       key
-    elsif retry_ttl > 0.seconds
-      sleep retry_length
-      lock(name, ttl, retry_ttl - retry_length, retry_length * 2 * rand(0.5..1.5))
+    elsif retry_time > 0.seconds
+      sleep retry_wait
+
+      lock(
+        name,
+        ttl: ttl,
+        retry_time: retry_time - retry_wait,
+        retry_wait: retry_wait * 2 * rand(0.5..1.5)
+      )
     else
-      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock")
+      false
     end
   end
 
   def unlock(name, key)
-    return false unless correct_key?(name, key)
-
-    success = delete_lock(name)
-    success == 1
+    if correct_key?(name, key)
+      delete_lock(name)
+    else
+      false
+    end
   end
 
   def correct_key?(name, possible_key)
-    return false if name.nil? || possible_key.nil?
+    return false unless name.present? && possible_key.present?
 
     actual_key = fetch_lock_key(name)
     possible_key == actual_key
@@ -53,14 +68,22 @@ module ActiveLock::Lock
     ex ||= ActiveLock::Config::DEFAULT_LOCK_TTL
     raise ArgumentError.new("Cannot write_lock with blank name") if name.blank?
 
-    ActiveLock::Config.redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
+    res = ActiveLock::Config.with_redis do |redis|
+      redis.set(ActiveLock::Config::PREFIX + name, key, ex: ex, nx: true)
+    end
+    res == true
   end
 
   def fetch_lock_key(name)
-    ActiveLock::Config.redis.get(ActiveLock::Config::PREFIX + name)
+    ActiveLock::Config.with_redis do |redis|
+      redis.get(ActiveLock::Config::PREFIX + name)
+    end
   end
 
   def delete_lock(name)
-    ActiveLock::Config.redis.del(ActiveLock::Config::PREFIX + name)
+    res = ActiveLock::Config.with_redis do |redis|
+      redis.del(ActiveLock::Config::PREFIX + name)
+    end
+    res == 1
   end
 end
