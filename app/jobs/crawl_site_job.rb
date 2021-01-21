@@ -9,7 +9,7 @@ class CrawlSiteJob < ApplicationJob
 
     crawl_batch = JobBatch::Batch.create(nil, {
       callback_klass: 'BatchCacheQueriesJob',
-      callback_args: [1000]
+      callback_args: []
     })
 
     crawl_batch.open do
