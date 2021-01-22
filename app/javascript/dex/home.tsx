@@ -11,8 +11,25 @@ export default class Home extends React.Component<any, any>{
 
       return (
           <>
-            <h1 className="title has-text-centered">Dex</h1>
-              <img src={Rolodex}/>
+            <div className="hero">
+              <div className="hero-body">
+                <div className="container has-text-centered">
+                  <div className="title">
+                    Dex
+                  </div>
+                  <div className="subtitle">
+                    The World's Worst Search Engine
+                  </div>
+
+                  <figure className="image is-128x128 is-inline-block">
+                    <img src={Rolodex} />
+                  </figure>
+
+                  <input type="text" className="input is-rounded"/>
+                </div>
+              </div>
+            </div>
+
           </>
         )
     }
