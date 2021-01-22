@@ -2,96 +2,96 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 
+import _ from 'lodash'
+
 // @ts-ignore
 import Rolodex from "rolodex_small.png"
 
 
 export default class Home extends React.Component<any, any>{
-    render() {
+  constructor(props) {
+    super(props)
+    this.state = {
+      searchText: "",
+      matches: []
+    }
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputSubmit = this.handleInputSubmit.bind(this);
+  }
+  render() {
 
       return (
           <>
-            <nav className="navbar is-transparent">
-              <div className="navbar-brand">
-                <a className="navbar-item" href="https://bulma.io">
-                  <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox"
-                       width="112" height="28" />
-                </a>
-                <div className="navbar-burger" data-target="navbarExampleTransparentExample">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              </div>
-
-              <div id="navbarExampleTransparentExample" className="navbar-menu">
-                <div className="navbar-start">
-                  <a className="navbar-item" href="https://bulma.io/">
-                    Home
+            <div className="section">
+              <nav className="navbar is-transparent">
+                <div className="navbar-brand">
+                  <a className="navbar-item" href="/">
+                    <img src={Rolodex} alt="Dex"/>
                   </a>
-                  <div className="navbar-item has-dropdown is-hoverable">
-                    <a className="navbar-link" href="https://bulma.io/documentation/overview/start/">
-                      Docs
-                    </a>
-                    <div className="navbar-dropdown is-boxed">
-                      <a className="navbar-item" href="https://bulma.io/documentation/overview/start/">
-                        Overview
-                      </a>
-                      <a className="navbar-item" href="https://bulma.io/documentation/overview/modifiers/">
-                        Modifiers
-                      </a>
-                      <a className="navbar-item" href="https://bulma.io/documentation/columns/basics/">
-                        Columns
-                      </a>
-                      <a className="navbar-item" href="https://bulma.io/documentation/layout/container/">
-                        Layout
-                      </a>
-                      <a className="navbar-item" href="https://bulma.io/documentation/form/general/">
-                        Form
-                      </a>
-                      <hr className="navbar-divider" />
-                        <a className="navbar-item" href="https://bulma.io/documentation/elements/box/">
-                          Elements
-                        </a>
-                        <a className="navbar-item is-active"
-                           href="https://bulma.io/documentation/components/breadcrumb/">
-                          Components
-                        </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="navbar-end">
                   <div className="navbar-item">
-                    <div className="field is-grouped">
-                      <p className="control">
-                        <a className="bd-tw-button button" data-social-network="Twitter" data-social-action="tweet"
-                           data-social-target="https://bulma.io" target="_blank"
-                           href="https://twitter.com/intent/tweet?text=Bulma: a modern CSS framework based on Flexbox&amp;hashtags=bulmaio&amp;url=https://bulma.io&amp;via=jgthms">
-              <span className="icon">
-                <i className="fab fa-twitter"></i>
-              </span>
-                          <span>
-                Tweet
-              </span>
-                        </a>
-                      </p>
-                      <p className="control">
-                        <a className="button is-primary"
-                           href="https://github.com/jgthms/bulma/releases/download/0.9.1/bulma-0.9.1.zip">
-              <span className="icon">
-                <i className="fas fa-download"></i>
-              </span>
-                          <span>Download</span>
-                        </a>
-                      </p>
-                    </div>
+                    <form onSubmit={this.handleInputSubmit} >
+                      <input type="text" className="input is-rounded" value={this.state.searchText} onChange={this.handleInputChange}/>
+                    </form>
                   </div>
                 </div>
-              </div>
-            </nav>
+              </nav>
+
+              <ul>
+                {_.map(this.state.matches, (value, key) => (
+                  <>
+                    <h3>{key}</h3>
+                    <ol>
+                      {value.map(v => (
+                        <li>
+                          Title: {v.page.title}     <br/>
+                          URL: {v.page.url}         <br/>
+                          Rank: {v.page.rank?.toString().substring(0, 10)}  <br/>
+                          Kind: {v.kind}            <br/>
+                          Distance: {v.distance}    <br/>
+                          Length: {v.length}        <br/>
+                          Full: {v.full ? "true" : "false"}
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                ))}
+              </ul>
+            </div>
           </>
         )
     }
+
+  searchRequest() {
+    fetch('search_cache?' + new URLSearchParams({
+      text: this.state.searchText
+    }))
+      .then(response => response.json())
+      .then(data => {
+        const matches = _.mapValues(data.matches, arr => {
+          const grouped = _.groupBy(arr, 'kind')
+          let titleMatches = grouped['title'] || []
+          let linkMatches = grouped['link'] || []
+          let headerMatches = grouped['header'] || []
+
+          titleMatches = _.sortBy(titleMatches, m => (m.distance + 1) / m.length)
+          linkMatches = _.sortBy(linkMatches, m => (m.distance + 1) / m.length)
+          headerMatches = _.sortBy(headerMatches, m => (m.distance + 1) / m.length)
+
+          return _.flatten([titleMatches, linkMatches, headerMatches])
+        })
+        this.setState({matches})
+        console.log(data)
+      });
+  }
+
+  handleInputChange(e) {
+    this.setState({searchText: e.target.value});
+  }
+
+  handleInputSubmit(e) {
+    e.preventDefault()
+    this.searchRequest()
+  }
 }
 
