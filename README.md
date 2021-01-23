@@ -1,7 +1,7 @@
 # DEX: The World's Worst Search Engine®
 But you might learn something.
 
-https://dex-rails-api.herokuapp.com
+www.theworldsworstsearchengine.com
 
 ## How?
 Using Ruby, a beautiful language that should never be used in systems that need to be fast and efficient.  Also uses Rails, which similarly should never be used for anything like this.  A standard web-app architecture is used: Postgres database, Redis cache, S3 object storage, React front end.
