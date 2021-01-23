@@ -9,12 +9,8 @@ class Dex extends React.Component<any, any>{
     render() {
         return (
           <Switch>
-            <Route path="/search">
-              <Search />
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
+            <Route path="/search" component={Search}></Route>
+            <Route path="/" component={Home}></Route>
           </Switch>
         )
     }

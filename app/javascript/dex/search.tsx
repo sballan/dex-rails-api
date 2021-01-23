@@ -20,7 +20,6 @@ export default class Home extends React.Component<any, any>{
     this.handleInputSubmit = this.handleInputSubmit.bind(this);
   }
   render() {
-
       return (
           <>
             <div className="section">

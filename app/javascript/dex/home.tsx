@@ -7,30 +7,52 @@ import Rolodex from "rolodex_small.png"
 
 
 export default class Home extends React.Component<any, any>{
-    render() {
-
-      return (
-          <>
-            <div className="hero">
-              <div className="hero-body">
-                <div className="container has-text-centered">
-                  <div className="title">
-                    Dex
-                  </div>
-                  <div className="subtitle">
-                    The World's Worst Search Engine
-                  </div>
-
-                  <figure className="image is-128x128 is-inline-block">
-                    <img src={Rolodex} />
-                  </figure>
-
-                  <input type="text" className="input is-rounded"/>
-                </div>
-              </div>
-            </div>
-          </>
-        )
+  constructor(props) {
+    super(props)
+    this.state = {
+      searchText: ""
     }
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputSubmit = this.handleInputSubmit.bind(this);
+  }
+
+  render() {
+
+    return (
+      <>
+        <div className="hero">
+          <div className="hero-body">
+            <div className="container has-text-centered">
+              <div className="title">
+                Dex
+              </div>
+              <div className="subtitle">
+                The World's Worst Search Engine
+              </div>
+
+              <figure className="image is-128x128 is-inline-block">
+                <img src={Rolodex} />
+              </figure>
+
+              <form onSubmit={this.handleInputSubmit} >
+                <input type="text" className="input is-rounded" value={this.state.searchText} onChange={this.handleInputChange}/>
+              </form>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  handleInputChange(e) {
+    this.setState({searchText: e.target.value});
+  }
+
+  handleInputSubmit(e) {
+    e.preventDefault()
+    console.log("test")
+    this.props.history.push(`search?query=${this.state.searchText}`)
+  }
 }
 
