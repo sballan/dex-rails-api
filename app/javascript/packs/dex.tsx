@@ -5,8 +5,6 @@ import { HashRouter, Switch, Route } from "react-router-dom"
 import Home from '../dex/home'
 import Search from '../dex/search'
 
-import "bulma"
-
 class Dex extends React.Component<any, any>{
     render() {
         return (
