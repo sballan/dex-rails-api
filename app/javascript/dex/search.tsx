@@ -19,6 +19,14 @@ export default class Home extends React.Component<any, any>{
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleInputSubmit = this.handleInputSubmit.bind(this);
   }
+
+  componentDidMount() {
+    const params = new URLSearchParams(this.props.location.search)
+    const q = params.get('q') || ""
+    this.setState({searchText: q})
+    this.searchRequest(q)
+  }
+
   render() {
       return (
           <>
@@ -79,9 +87,11 @@ export default class Home extends React.Component<any, any>{
         )
     }
 
-  searchRequest() {
+  searchRequest(q = null) {
+    q = q || this.state.searchText
+
     fetch('search_cache?' + new URLSearchParams({
-      text: this.state.searchText
+      text: q
     }))
       .then(response => response.json())
       .then(data => {
@@ -108,6 +118,7 @@ export default class Home extends React.Component<any, any>{
 
   handleInputSubmit(e) {
     e.preventDefault()
+    this.props.history.push(`search?q=${this.state.searchText}`)
     this.searchRequest()
   }
 }

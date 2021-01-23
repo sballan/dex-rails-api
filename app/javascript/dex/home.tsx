@@ -51,8 +51,7 @@ export default class Home extends React.Component<any, any>{
 
   handleInputSubmit(e) {
     e.preventDefault()
-    console.log("test")
-    this.props.history.push(`search?query=${this.state.searchText}`)
+    this.props.history.push(`search?q=${this.state.searchText}`)
   }
 }
 
