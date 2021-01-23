@@ -1,6 +1,4 @@
 # DEX: The World's Worst Search Engine®
-But you might learn something.
-
 www.theworldsworstsearchengine.com
 
 ## How?
