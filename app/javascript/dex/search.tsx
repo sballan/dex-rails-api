@@ -37,26 +37,44 @@ export default class Home extends React.Component<any, any>{
                 </div>
               </nav>
 
-              <ul>
-                {_.map(this.state.matches, (value, key) => (
-                  <>
-                    <h3>{key}</h3>
-                    <ol>
-                      {value.map(v => (
-                        <li>
-                          Title: {v.page.title}     <br/>
-                          URL: {v.page.url}         <br/>
-                          Rank: {v.page.rank?.toString().substring(0, 10)}  <br/>
-                          Kind: {v.kind}            <br/>
-                          Distance: {v.distance}    <br/>
-                          Length: {v.length}        <br/>
-                          Full: {v.full ? "true" : "false"}
-                        </li>
-                      ))}
-                    </ol>
-                  </>
-                ))}
-              </ul>
+              <div>
+                <ul>
+                  {_.map(this.state.matches, (value, key) => (
+                    <>
+                      <h3>{key}</h3>
+                      <ul>
+                        {value.map(v => (
+                          <li className="box">
+                            <div className="level">
+                              <div className="level-left">
+                                <div>
+                                  <a className="is-size-5 has-text-link" href={v.page.url}>{v.page.title}  </a>
+                                  <p className="is-size-7 has-text-success">{v.page.url}</p>
+                                </div>
+                              </div>
+                              <div className="level-right">
+                                <div className="level-item">
+                                  <div>
+                                    <p>Rank: {v.page.rank?.toString().substring(0, 10)}</p>
+                                    <p>Match: {v.distance}, {v.length}</p>
+                                  </div>
+                                </div>
+                                <div className="level-item">
+                                  <div>
+                                    <p>Kind: {v.kind} </p>
+                                    <p>Full: {v.full ? "true" : "false"}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ))}
+                </ul>
+              </div>
+
             </div>
           </>
         )

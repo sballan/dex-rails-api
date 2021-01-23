@@ -29,7 +29,6 @@ export default class Home extends React.Component<any, any>{
                 </div>
               </div>
             </div>
-
           </>
         )
     }
