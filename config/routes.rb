@@ -6,5 +6,5 @@ Rails.application.routes.draw do
   get 'search_db', to: 'search#search_db'
   get 'search_cache', to: 'search#search_cache'
 
-  root 'static#search_with_react'
+  root 'static#dex'
 end

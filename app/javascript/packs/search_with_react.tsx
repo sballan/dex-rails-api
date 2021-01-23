@@ -22,7 +22,7 @@ class SearchWithReact extends React.Component<any, any>{
                 <input value={this.state.searchText} onChange={this.handleInputChange} />
             </form>
 
-            <h2>Results</h2>
+            <h2 className="title">Results</h2>
 
             <ul>
                 {_.map(this.state.matches, (value, key) => (
