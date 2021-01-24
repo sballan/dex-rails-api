@@ -64,6 +64,11 @@ module IndexService
       page.meta.update(indexed_headers: true)
     end
 
+    def sanitize_query_text(input_string)
+      command = Commands::SanitizeQueryText.new(input_string)
+      command.run!
+    end
+
     private
 
     def index_page_text(page, text, kind, max_length, max_distance)

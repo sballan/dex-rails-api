@@ -7,6 +7,7 @@ class SearchController < ApplicationController
 
   def search_cache
     @text = params[:text]
-    @cache_hits = SearchService::Client.search_cache(@text)
+    sanitized_text = IndexService::Client.sanitize_query_text(@text)
+    @cache_hits = SearchService::Client.search_cache(sanitized_text)
   end
 end
