@@ -67,6 +67,7 @@ module IndexService
     def sanitize_query_text(input_string)
       command = Commands::SanitizeQueryText.new(input_string)
       command.run!
+      command.payload
     end
 
     private
