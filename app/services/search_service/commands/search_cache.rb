@@ -2,7 +2,7 @@ module SearchService::Commands
   class SearchCache < Command::Abstract
     def initialize(text)
       super()
-      @text = text.downcase
+      @text = text.present? ? text.downcase : ""
     end
 
     def run_proc
