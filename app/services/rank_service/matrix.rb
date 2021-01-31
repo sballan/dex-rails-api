@@ -7,11 +7,12 @@ class RankService::Matrix
   #   @return [Array<RankService::Page>]
   attr_reader :rank_pages
 
-  def initialize(rank_pages)
+  def initialize(rank_pages, db_page_count)
     @matrix = nil
     @rank_pages = rank_pages.sort_by(&:position)
     @ev = ::Matrix.column_vector(@rank_pages.map(&:start_rank))
     @iterations = 0
+    @db_page_count = db_page_count
   end
 
   def generate_matrix
@@ -43,7 +44,7 @@ class RankService::Matrix
   def iterate
     @ev = @matrix * @ev
     @ev *= DAMPING
-    @ev += ::Matrix.column_vector([(1.0 - DAMPING) / @matrix.row_size] * @matrix.row_size)
+    @ev += ::Matrix.column_vector([(1.0 - DAMPING) / @db_page_count] * @matrix.row_size)
     @iterations += 1
   end
 end

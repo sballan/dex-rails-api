@@ -21,8 +21,9 @@ module RankService
       GC.start full_mark: true, immediate_sweep: true
       GC.compact
 
-      rank_pages = collect_pages(start_page, max_size)
-      calculate(rank_pages)
+      db_page_count = PageMeta.where.not(rank_status: :dead).count
+      rank_pages = collect_pages(start_page, max_size, db_page_count)
+      calculate(rank_pages, db_page_count)
       update_pages(rank_pages)
 
       start_page.meta.update(rank_status: :success, rank_finished_at: DateTime.now.utc)
@@ -33,14 +34,14 @@ module RankService
 
     private
 
-    def collect_pages(start_page, max_size)
-      command = Commands::CollectPages.new(start_page, max_size)
+    def collect_pages(start_page, max_size, db_page_count)
+      command = Commands::CollectPages.new(start_page, max_size, db_page_count)
       command.run_with_gc!
       command.payload
     end
 
-    def calculate(rank_pages)
-      command = Commands::Calculate.new(rank_pages)
+    def calculate(rank_pages, db_page_count)
+      command = Commands::Calculate.new(rank_pages, db_page_count)
       command.run!
     end
 
