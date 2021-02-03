@@ -22,6 +22,8 @@ gem 'aws-sdk-s3' # to use digital ocean spaces... terrible......
 gem 'sidekiq'
 gem 'html2text'
 gem 'connection_pool' # use to manually share sidekiq connection with sidekiq additions (eg, JobBatch)
+gem 'active_interaction', '~> 4.0'
+gem 'dry-initializer-rails'
 
 # gem "barnes" # For Heroku stats. Pretty expensive.
 gem 'newrelic_rpm'
