@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_20_043213) do
+ActiveRecord::Schema.define(version: 2021_01_31_014705) do
 
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 2021_01_20_043213) do
     t.string "title"
     t.decimal "rank"
     t.string "host"
+    t.index ["rank"], name: "index_pages_on_rank"
     t.index ["url"], name: "index_pages_on_url", unique: true
   end
 
