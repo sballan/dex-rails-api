@@ -14,7 +14,7 @@ class ClockJob < ApplicationJob
     ActiveLock::Lock.with_lock('GlobalClock', nil, ttl: 6.hours) do
       JobBatch::Batch.all.each do |jb|
         begin
-          jb.with_lock do |lock_key|
+          jb.with_lock(nil, retry_time: 0.seconds) do |lock_key|
             next unless jb.jobs.empty? && jb.children.empty?
 
             Rails.logger.info "Batch #{jb.id} is empty, let's handle it."
