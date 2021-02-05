@@ -41,21 +41,21 @@ module JobBatch::Mixin
 
       if jb_job.blank?
         raise "Job performed, but JobBatch::Job #{job.job_id} could not be found in Redis"
-      else
-        # batch = jb_job.batch
-        jb_job.destroy!
       end
 
-      # begin
-      #   batch.with_lock do |lock_key|
-      #     if batch.jobs.empty? && batch.children.empty?
-      #       batch.finished!(lock_key)
-      #     end
-      #   end
-      # rescue => e
-      #   # TODO: don't just rescue any error, if we can't get the lock that's ok
-      #   Rails.logger.error e
-      # end
+      batch = jb_job.batch
+      jb_job.destroy!
+
+      begin
+        batch.with_lock(nil, retry_time: 0.seconds) do |lock_key|
+          if batch.jobs.empty? && batch.children.empty?
+            batch.finished!(lock_key)
+          end
+        end
+      rescue => e
+        # TODO: don't just rescue any error, if we can't get the lock that's ok
+        Rails.logger.error e
+      end
     end
   end
 
