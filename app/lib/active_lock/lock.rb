@@ -2,7 +2,6 @@ module ActiveLock::Lock
   extend self
 
   def with_lock(name, existing_key=nil, opts={}, &block)
-    opts = ActiveLock::Config.lock_default_opts.merge(opts)
     raise ArgumentError.new("Block required") unless block.present?
 
     ret_val = nil
