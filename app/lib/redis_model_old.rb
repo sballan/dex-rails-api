@@ -82,7 +82,6 @@ class RedisModelOld
 
     redis.multi do |multi|
       multi.mapped_hmset(key_for(id), attrs)
-      multi.expire(key_for(id), REDIS_DEFAULT_TTL)
 
       # Call <relation>_insert for each belongs_to relation
       attrs.each do |key, relation_id|
@@ -102,8 +101,6 @@ class RedisModelOld
         inverse_of = belongs_to_klasses[relation_name][:inverse_of]
 
         multi.sadd(relation_klass.relation_key_for(relation_id, inverse_of), id)
-        multi.expire(relation_klass.relation_key_for(relation_id, inverse_of), REDIS_DEFAULT_TTL)
-
       end
     end
 
