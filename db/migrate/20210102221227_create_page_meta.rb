@@ -1,7 +1,7 @@
 class CreatePageMeta < ActiveRecord::Migration[6.0]
   def change
     create_table :page_meta do |t|
-      t.references :page, null: false, index: { unique: true }
+      t.references :page, null: false, index: {unique: true}
 
       t.datetime :fetch_started_at
       t.datetime :fetch_finished_at

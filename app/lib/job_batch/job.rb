@@ -1,11 +1,11 @@
 class JobBatch::Job < RedisModelOld
   REDIS_PREFIX = "JobBatch/Jobs/"
   REDIS_HASH_KEYS = %w[id batch_id active created_at]
-  REDIS_DEFAULT_DATA = ->(id) { { id: id, active: true } }
+  REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true} }
 
-  belongs_to :batch, 'JobBatch::Batch', inverse_of: :jobs, required: true
+  belongs_to :batch, "JobBatch::Batch", inverse_of: :jobs, required: true
 
-  def destroy!(lock_key=nil)
+  def destroy!(lock_key = nil)
     Rails.logger.info "Destroying Job #{id}"
 
     with_lock(lock_key) do
@@ -18,12 +18,12 @@ class JobBatch::Job < RedisModelOld
     end
   end
 
-  def ==(other_job)
-    id == other_job.id && batch.id == other_job.batch.id
+  def ==(other)
+    id == other.id && batch.id == other.batch.id
   end
 
-  def self.create(id, attrs={})
-    raise "id required to create #{self.name}" if id.blank?
+  def self.create(id, attrs = {})
+    raise "id required to create #{name}" if id.blank?
 
     super(id, attrs)
   end
@@ -31,5 +31,4 @@ class JobBatch::Job < RedisModelOld
   def self.redis
     JobBatch.redis
   end
-
 end

@@ -6,9 +6,9 @@ module FetchService::Commands
     end
 
     def run_proc
-      @nokogiri_doc.xpath('//script').remove
-      @nokogiri_doc.xpath('//style').remove
-      output = @nokogiri_doc.to_html.force_encoding('UTF-8')
+      @nokogiri_doc.xpath("//script").remove
+      @nokogiri_doc.xpath("//style").remove
+      output = @nokogiri_doc.to_html.force_encoding("UTF-8")
       result.succeed!(output)
     end
   end

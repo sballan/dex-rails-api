@@ -12,8 +12,8 @@ class RedisModel::Base
     self.class.key_for(id)
   end
 
-  def ==(other_object)
-    return (key == other_object.key) if other_object.respond_to? :key
+  def ==(other)
+    return (key == other.key) if other.respond_to? :key
 
     false
   end
@@ -51,7 +51,7 @@ class RedisModel::Base
     new(id)
   end
 
-  def self.create(id=nil, attrs={})
+  def self.create(id = nil, attrs = {})
     id ||= SecureRandom.uuid
     raise RedisModel::Errors::IdNotUniqueError.new("Cannot create #{name}: it already exists") if exists? id
 
@@ -88,13 +88,13 @@ class RedisModel::Base
   end
 
   def self.exists?(id)
-    with_redis {|r| r.exists?(key_for(id)) }
+    with_redis { |r| r.exists?(key_for(id)) }
   end
 
   # @yield [r] Redis connection
   # @yieldparam [Redis] a Redis connection
   def self.with_redis(&block)
-    raise ArgumentError.new('need block') unless block_given?
+    raise ArgumentError.new("need block") unless block
 
     yield(redis_connection)
   end
@@ -123,7 +123,7 @@ class RedisModel::Base
         raise RedisModel::Errors::ModelConfigurationError.new("field_names must be an Array")
       end
 
-      unless field_names.all? {|fn| fn.is_a? Symbol }
+      unless field_names.all? { |fn| fn.is_a? Symbol }
         raise RedisModel::Errors::ModelConfigurationError.new("field_names must be Symbols")
       end
 

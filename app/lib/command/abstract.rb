@@ -18,7 +18,7 @@ module Command
     rescue Errors::CommandFailed => e
       Rails.logger.error "Caught a failed command. \nError: #{self.class.name}:\n #{e}"
       result.fail!(e)
-    rescue StandardError => e
+    rescue => e
       Rails.logger.warn "Uncaught Error in #{self.class.name}:\n #{e}"
       result.fail!(e)
     rescue Errors::Generic => e
@@ -29,10 +29,14 @@ module Command
       result.start!
       run_proc
       assert_success
-    rescue StandardError => e
+    rescue => e
       # This plugs us into Bugsnag.  Errors capture here will not be double reported if they bubble all the way up.
       Bugsnag.notify(e)
-      e.instance_eval { def skip_bugsnag; true; end }
+      e.instance_eval {
+        def skip_bugsnag
+          true
+        end
+      }
       raise e
     end
 
@@ -85,7 +89,7 @@ module Command
 
     def assert_success
       unless success?
-        backtrace = error.respond_to?(:backtrace) && error.backtrace.present? ? error.backtrace.join("\n") : nil
+        backtrace = (error.respond_to?(:backtrace) && error.backtrace.present?) ? error.backtrace.join("\n") : nil
         command_failure_message = "Command (#{self.class.name}) did not succeed (#{error.class}): \n#{backtrace}"
         raise Command::Errors::CommandFailed.new(command_failure_message, error)
       end

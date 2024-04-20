@@ -2,7 +2,7 @@ module RankService::Commands
   class UpdatePages < Command::Abstract
     def initialize(rank_pages)
       super()
-      @rank_pages_map = rank_pages.to_h {|rp| [rp.id, rp]}
+      @rank_pages_map = rank_pages.to_h { |rp| [rp.id, rp] }
     end
 
     def run_proc

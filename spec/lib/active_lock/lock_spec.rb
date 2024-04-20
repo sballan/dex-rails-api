@@ -6,7 +6,7 @@ describe ActiveLock::Lock do
     allow(ActiveLock::Config).to receive(:redis_connection).and_return(@mock_redis)
   end
 
-  let(:test_lock_name) { 'test_lock_name' }
+  let(:test_lock_name) { "test_lock_name" }
   let(:redis_test_lock_name) { ActiveLock::Config::PREFIX + test_lock_name }
 
   after(:each) do
@@ -34,7 +34,7 @@ describe ActiveLock::Lock do
 
   describe "unlock" do
     it "can unlock existing lock" do
-      key = 'test_lock_key'
+      key = "test_lock_key"
       @mock_redis.set(redis_test_lock_name, key)
       found_key = @mock_redis.get(redis_test_lock_name)
       expect(found_key).to eql(key)
@@ -46,8 +46,8 @@ describe ActiveLock::Lock do
     end
 
     it "returns false with wrong key" do
-      correct_key = 'test_lock_key'
-      incorrect_key = 'bad_key'
+      correct_key = "test_lock_key"
+      incorrect_key = "bad_key"
       @mock_redis.set(redis_test_lock_name, correct_key)
 
       success = ActiveLock::Lock.unlock(test_lock_name, incorrect_key)
@@ -59,7 +59,7 @@ describe ActiveLock::Lock do
   context "private methods" do
     describe "write_lock" do
       it "writes the correct key" do
-        key = 'test_lock_key'
+        key = "test_lock_key"
         ActiveLock::Lock.send(:write_lock, test_lock_name, key)
         found_key = @mock_redis.get(redis_test_lock_name)
         expect(found_key).to eql(key)
@@ -68,7 +68,7 @@ describe ActiveLock::Lock do
 
     describe "fetch_lock_key" do
       it "fetches the correct key" do
-        key = 'test_lock_key'
+        key = "test_lock_key"
         @mock_redis.set(redis_test_lock_name, key)
         found_key = ActiveLock::Lock.send(:fetch_lock_key, test_lock_name)
         expect(key).to eql(found_key)
@@ -77,12 +77,12 @@ describe ActiveLock::Lock do
 
     describe "delete_lock" do
       it "deletes correct lock" do
-        other_test_lock_name = 'other_text_lock_name'
+        other_test_lock_name = "other_text_lock_name"
         other_redis_test_lock_name = ActiveLock::Config::PREFIX + other_test_lock_name
-        other_key = 'other_test_lock_key'
+        other_key = "other_test_lock_key"
         @mock_redis.set(other_redis_test_lock_name, other_key)
 
-        key = 'test_lock_key'
+        key = "test_lock_key"
         @mock_redis.set(redis_test_lock_name, key)
         ActiveLock::Lock.send(:delete_lock, test_lock_name)
 

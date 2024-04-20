@@ -1,7 +1,7 @@
 module ActiveLock::Lock
   extend self
 
-  def with_lock(name, existing_key=nil, opts={}, &block)
+  def with_lock(name, existing_key = nil, opts = {}, &block)
     raise ArgumentError.new("Block required") unless block.present?
 
     ret_val = nil
@@ -12,7 +12,7 @@ module ActiveLock::Lock
       raise ActiveLock::Errors::FailedToLockError.new("Used incorrect existing key")
     else
       key = lock(name, opts)
-      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") if (key == false)
+      raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") if key == false
 
       ret_val = block.call(key)
 
@@ -23,7 +23,7 @@ module ActiveLock::Lock
     ret_val
   end
 
-  def lock(name, opts={})
+  def lock(name, opts = {})
     opts = ActiveLock::Config.lock_default_opts.merge(opts)
     ttl, retry_time, retry_wait = opts.values_at(:ttl, :retry_time, :retry_wait)
 

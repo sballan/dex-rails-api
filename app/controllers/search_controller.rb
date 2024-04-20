@@ -1,5 +1,4 @@
 class SearchController < ApplicationController
-
   def search_db
     @text = params[:text]
     @pages = SearchService::Client.search_db(@text)

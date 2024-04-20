@@ -5,7 +5,7 @@ module Command
 
     class CommandInvalid < Generic
       attr_reader :base_error
-      def initialize(message, base_error=nil)
+      def initialize(message, base_error = nil)
         super(message)
         @base_error = base_error
       end
@@ -13,7 +13,7 @@ module Command
 
     class CommandFailed < Generic
       attr_reader :base_error
-      def initialize(message, base_error=nil)
+      def initialize(message, base_error = nil)
         super(message)
         @base_error = base_error
       end

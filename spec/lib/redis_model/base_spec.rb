@@ -7,8 +7,8 @@ describe RedisModel::Base do
     allow(ActiveLock::Config).to receive(:redis_connection).and_return(@mock_redis)
   end
 
-  context 'ActiveLock::Lockable' do
-    describe 'lock' do
+  context "ActiveLock::Lockable" do
+    describe "lock" do
       it
     end
   end
@@ -25,12 +25,10 @@ describe RedisModel::Base do
       expect(@mock_redis.exists?(key)).to be_truthy
     end
 
-
     it "can be found" do
       m = RedisModel::Base.find(model.id)
       expect(m.id).to eql(model.id)
     end
-
 
     it "can have data" do
       model = RedisModel::Base.create

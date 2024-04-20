@@ -26,10 +26,10 @@ class Page < ApplicationRecord
   }
 
   scope :by_links_from_count, -> {
-    left_joins(:links_from).group(:id).order('COUNT(links.id) DESC')
+    left_joins(:links_from).group(:id).order("COUNT(links.id) DESC")
   }
 
   scope :for_query_text, ->(match_array) {
-    includes(:queries).merge(::Query.text_like_any(match_array)).references(:queries).group('pages.id', 'queries.id')
+    includes(:queries).merge(::Query.text_like_any(match_array)).references(:queries).group("pages.id", "queries.id")
   }
 end

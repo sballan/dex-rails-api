@@ -29,7 +29,7 @@ module RankService::Commands
         Rails.logger.debug "Added page #{current_page.url}"
 
         pages_map[current_page.id][:links_added] = true
-        current_page = pages_map.find {|_k, v| v[:links_added] == false}
+        current_page = pages_map.find { |_k, v| v[:links_added] == false }
         current_page = current_page.blank? ? nil : current_page.last[:page]
       end
 

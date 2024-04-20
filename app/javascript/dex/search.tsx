@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 
 // @ts-ignore
-import Rolodex from "rolodex_small.png"
+import Rolodex from "../images/rolodex.png"
 
 
 export default class Home extends React.Component<any, any>{

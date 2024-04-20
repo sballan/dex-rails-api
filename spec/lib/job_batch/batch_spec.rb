@@ -36,15 +36,15 @@ describe JobBatch::Batch do
       batch = JobBatch::Batch.create(batch_id)
       job = JobBatch::Job.create(job_id, batch_id: batch.id)
 
-      has_job = batch.jobs.any? {|j| j.id == job_id }
+      has_job = batch.jobs.any? { |j| j.id == job_id }
       expect(has_job).to be_truthy
     end
   end
 
   describe "key" do
     it "returns the key for the Batch" do
-      job = JobBatch::Batch.new 'test_id'
-      expect(job.key).to eql('JobBatch/Batches/test_id/record')
+      job = JobBatch::Batch.new "test_id"
+      expect(job.key).to eql("JobBatch/Batches/test_id/record")
     end
   end
 

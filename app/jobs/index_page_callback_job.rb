@@ -8,8 +8,8 @@ class IndexPageCallbackJob < ApplicationJob
     index_fields.symbolize_keys!
 
     success = index_fields[:title] == page_to_index.meta.indexed_title &&
-              index_fields[:links] == page_to_index.meta.indexed_links &&
-              index_fields[:headers] == page_to_index.meta.indexed_headers
+      index_fields[:links] == page_to_index.meta.indexed_links &&
+      index_fields[:headers] == page_to_index.meta.indexed_headers
 
     page_to_index.meta.index_status = success ? :success : :failure
     page_to_index.meta.index_finished_at = DateTime.now.utc

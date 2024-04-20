@@ -41,7 +41,7 @@ module CacheService::Commands
             rank: page_match.page.rank || 0
           }
         }
-      end.sort_by {|pm| pm[:page][:rank] }.reverse
+      end.sort_by { |pm| pm[:page][:rank] }.reverse
     end
   end
 end
