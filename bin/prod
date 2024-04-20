@@ -10,4 +10,4 @@ export PORT="${PORT:-3000}"
 
 export RAILS_ENV=production
 
-exec foreman start -f Procfile.dev "$@"
+exec foreman start -f Procfile.prod "$@"
