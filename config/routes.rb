@@ -5,12 +5,12 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", :as => :rails_health_check
 
-  require "sidekiq/web"
-  mount Sidekiq::Web => "/sidekiq"
-
   get "info", to: "info#index"
   get "search_db", to: "search#search_db"
   get "search_cache", to: "search#search_cache"
 
   root "static#dex"
+
+  require "sidekiq/web"
+  mount Sidekiq::Web => "/sidekiq"
 end
