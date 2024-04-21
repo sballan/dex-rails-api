@@ -4,8 +4,8 @@ production:
 :queues:
   - [default, 64]
   - [cache, 32]
-  - [fetch, 16]
+  - [rank, 4]
   - [index, 4]
-  - [crawl, 2]
-  - [rank, 1]
+  - [fetch, 2]
+  - [crawl, 1]
 
