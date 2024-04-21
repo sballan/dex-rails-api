@@ -1,6 +1,6 @@
-:concurrency: 1
-production:
-  :concurrency: 3
+concurrency: 15
+development:
+  :concurrency: 1
 :queues:
   - [default, 64]
   - [cache, 32]
