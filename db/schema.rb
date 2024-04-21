@@ -11,9 +11,12 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "links", force: :cascade do |t|
-    t.integer "from_id", null: false
-    t.integer "to_id", null: false
+    t.bigint "from_id", null: false
+    t.bigint "to_id", null: false
     t.string "text"
     t.index ["from_id"], name: "index_links_on_from_id"
     t.index ["to_id", "from_id", "text"], name: "index_links_on_to_id_and_from_id_and_text", unique: true
@@ -21,8 +24,8 @@ ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
   end
 
   create_table "page_matches", force: :cascade do |t|
-    t.integer "query_id", null: false
-    t.integer "page_id", null: false
+    t.bigint "query_id", null: false
+    t.bigint "page_id", null: false
     t.string "kind"
     t.boolean "full"
     t.integer "distance"
@@ -35,7 +38,7 @@ ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
   end
 
   create_table "page_meta", force: :cascade do |t|
-    t.integer "page_id", null: false
+    t.bigint "page_id", null: false
     t.datetime "fetch_started_at", precision: nil
     t.datetime "fetch_finished_at", precision: nil
     t.datetime "index_started_at", precision: nil
