@@ -21,19 +21,10 @@ test:
   adapter: sqlite3
   database: db/test.sqlite3
 
-staging:
-  <<: *default
-  adapter: postgresql
-  database: dex-pages-rails-production
-  url: <%= ENV['DATABASE_URL'] %>
-  encoding: unicode
-  prepared_statements: false
-  advisory_locks: false
-
 production:
   <<: *default
   adapter: postgresql
-  database: dex-pages-rails-production
+  database: default-db
   url: <%= ENV['DATABASE_URL'] %>
   encoding: unicode
   prepared_statements: false
