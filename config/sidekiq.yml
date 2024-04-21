@@ -4,8 +4,8 @@ development:
 :queues:
   - [default, 64]
   - [cache, 32]
-  - [rank, 4]
-  - [index, 4]
-  - [fetch, 2]
-  - [crawl, 1]
+  - [rank, 8]
+  - [crawl, 4]
+  - [index, 2]
+  - [fetch, 1]
 
