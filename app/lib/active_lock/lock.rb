@@ -14,7 +14,12 @@ module ActiveLock::Lock
       key = lock(name, opts)
       raise ActiveLock::Errors::FailedToLockError.new("Failed to acquire lock") if key == false
 
-      ret_val = block.call(key)
+      begin
+        ret_val = block.call(key)
+      rescue => e
+        unlock(name, key)
+        raise e
+      end
 
       unlock_success = unlock(name, key)
       raise ActiveLock::Errors::FailedToUnlockError.new("Failed to unlock") unless unlock_success

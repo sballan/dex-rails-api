@@ -11,7 +11,7 @@ class ClockJob < ApplicationJob
     start_time = Time.now
     Rails.logger.info "Clock Tick started"
 
-    ActiveLock::Lock.with_lock("GlobalClock", nil, ttl: 6.hours) do
+    ActiveLock::Lock.with_lock("GlobalClock", nil, ttl: 30.minutes) do
       JobBatch::Batch.all.each do |jb|
         begin
           jb.with_lock(nil, retry_time: 0.seconds) do |lock_key|
