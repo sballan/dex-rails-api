@@ -55,7 +55,7 @@ module IndexService::Commands
       matches = []
       base_index = 0
       full_match_string = @words_array.join(" ")
-      while(base_index + skip_sequence.size) <= @words_array.size do
+      while (base_index + skip_sequence.size) <= @words_array.size
         current_match_array = []
         skip_sequence.each_with_index do |skip, index|
           next if skip

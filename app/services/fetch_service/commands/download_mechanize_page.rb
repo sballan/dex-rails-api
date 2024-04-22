@@ -7,7 +7,7 @@ module FetchService::Commands
     end
 
     def run_proc
-      raise Command::Errors::CommandFailed, 'Page is nil' if mechanize_page.nil?
+      raise Command::Errors::CommandFailed, "Page is nil" if mechanize_page.nil?
       raise Command::Errors::CommandInvalid, "Only html pages are supported" unless mechanize_page.is_a?(Mechanize::Page)
 
       result.succeed!(mechanize_page)

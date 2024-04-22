@@ -17,7 +17,7 @@ module SearchService::Commands
       matches_set.each do |match|
         page_matches = CacheService::Client.download_page_matches(match)
 
-        if(page_matches.present?)
+        if page_matches.present?
           cache_hits[match] = page_matches
         else
           Rails.logger.debug "Could not find match for #{match}"

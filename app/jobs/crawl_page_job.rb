@@ -21,7 +21,7 @@ class CrawlPageJob < ApplicationJob
 
     crawl_batch = JobBatch::Batch.create(
       nil,
-      callback_klass: 'CrawlPageCallbackJob',
+      callback_klass: "CrawlPageCallbackJob",
       callback_args: [page_to_crawl.id]
     )
 

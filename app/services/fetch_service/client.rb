@@ -1,4 +1,4 @@
-require 'net/http'
+require "net/http"
 
 module FetchService
   MAX_FETCH_TIME = ENV.fetch("MAX_FETCH_TIME", 1.hour).to_i.seconds
@@ -10,18 +10,18 @@ module FetchService
     # Typically, Page fetching is queued by a crawl...EXCEPT for when a Site needs to get fetched.
     def tick(&block)
       PageMeta.where(fetch_status: :active, fetch_started_at: DateTime.new(0)..MAX_FETCH_TIME.ago)
-          .update_all(fetch_status: :failure, fetch_finished_at: DateTime.now.utc)
+        .update_all(fetch_status: :failure, fetch_finished_at: DateTime.now.utc)
 
       # NOTE: This is the pain we have for not putting site_id on Page. Still not sure about this decision.
-      page_ids = (
-          Site.where(scrape_active: true)
-              .all
-              .map do |s|
-            s.fetch_home_page
-          end.select do |p|
-            !p.meta.fetch_success?
-          end.map(&:id)
-      )
+      page_ids =
+        Site.where(scrape_active: true)
+          .all
+          .map do |s|
+          s.fetch_home_page
+        end.select do |p|
+          !p.meta.fetch_success? && !p.meta.fetch_dead?
+        end.map(&:id)
+
       block.call(page_ids)
     end
 
@@ -37,7 +37,7 @@ module FetchService
       host = URI(page.url).host
       ActiveLock::Lock.with_lock("Host/#{host}", nil, ttl: MAX_REFRESH_TIME) do
         page_file = refresh_page(page)
-        sleep 2
+        sleep 2 # does this give some extension time to finish releaseing memory or something?
       end
 
       return nil if page_file.blank?
@@ -50,7 +50,6 @@ module FetchService
         fetch_status: :success,
         fetch_finished_at: DateTime.now.utc
       })
-
     rescue => e
       page.update!(meta_attributes: {
         fetch_status: :failure,

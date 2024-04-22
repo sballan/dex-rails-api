@@ -1,16 +1,16 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe Page, type: :model do
-  context 'Basics' do
-    let(:url) { 'http://www.google.com' }
+  context "Basics" do
+    let(:url) { "http://www.google.com" }
     let(:page) { Page.create(url: url) }
 
-    it 'can be created with a url' do
+    it "can be created with a url" do
       expect(page).to be_truthy
     end
   end
 
-  context 'Links' do
+  context "Links" do
     let(:page1) { Page.create(url: "https://www.page1.com") }
     let(:page2) { Page.create(url: "https://www.page2.com") }
     let(:page3) { Page.create(url: "https://www.page3.com") }
@@ -18,7 +18,7 @@ describe Page, type: :model do
     let(:link1) { Link.create(from: page1, to: page2) }
     let(:link2) { Link.create(from: page3, to: page1) }
 
-    it 'can have a link to other pages' do
+    it "can have a link to other pages" do
       page1.links_to = [link1]
       page1.save
 
@@ -28,7 +28,7 @@ describe Page, type: :model do
       expect(page1.links_to.first).to_not eql(link2)
     end
 
-    it 'can be linked to from other pages' do
+    it "can be linked to from other pages" do
       page1.links_from = [link2]
       page1.save
 
@@ -39,8 +39,8 @@ describe Page, type: :model do
     end
   end
 
-  context 'Scopes' do
-    describe 'by_site' do
+  context "Scopes" do
+    describe "by_site" do
       before(:example) do
         @page1 = Page.create!(url: "http://www.test.com")
         @page2 = Page.create!(url: "http://www.test.com/some/path")
@@ -49,17 +49,17 @@ describe Page, type: :model do
         @site = Site.create!(home_url: "http://www.test.com", host: "www.test.com")
       end
 
-      it 'can find the home page for the site' do
+      it "can find the home page for the site" do
         pages = Page.by_site(@site)
         expect(pages).to include(@page1)
       end
 
-      it 'can find an arbitrary page for the site' do
+      it "can find an arbitrary page for the site" do
         pages = Page.by_site(@site)
         expect(pages).to include(@page2)
       end
 
-      it 'does not find pages for other sites' do
+      it "does not find pages for other sites" do
         pages = Page.by_site(@site)
         expect(pages).to_not include(@page4)
       end

@@ -20,18 +20,18 @@ module FetchService::Commands
 
       parsed_page = {
         title: doc.title.blank? ? nil : doc.title,
-        body: Html2Text.convert(doc.to_html.force_encoding('UTF-8')),
+        body: Html2Text.convert(doc.to_html.force_encoding("UTF-8")),
         headers: [],
         links: []
       }
 
-      doc.css('a').each do |link_node|
-        next if link_node['href'].blank?
+      doc.css("a").each do |link_node|
+        next if link_node["href"].blank?
 
         begin
           parsed_page[:links] << {
-              url: URI.parse(@url).merge(URI.parse(link_node['href'])).to_s,
-              text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
+            url: URI.parse(@url).merge(URI.parse(link_node["href"])).to_s,
+            text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
           }
         rescue URI::InvalidURIError
           # TODO: revisit how we're parsing this URL
@@ -39,7 +39,7 @@ module FetchService::Commands
         end
       end
 
-      doc.css('h1').each do |header_node|
+      doc.css("h1").each do |header_node|
         next if header_node.text.blank?
 
         parsed_page[:headers] << header_node.text

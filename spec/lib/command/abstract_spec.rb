@@ -1,8 +1,8 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe Command::Abstract do
-  context 'Basics' do
-    it 'can be subclassed with a run_proc implementation' do
+  context "Basics" do
+    it "can be subclassed with a run_proc implementation" do
       class BasicsTestCommand < Command::Abstract
         def run_proc
           true
@@ -14,7 +14,7 @@ describe Command::Abstract do
     end
   end
 
-  context 'Execution' do
+  context "Execution" do
     class ExecutionTestCommand < Command::Abstract
       def initialize(foo)
         super()
@@ -22,10 +22,10 @@ describe Command::Abstract do
       end
 
       def run_proc
-        if @foo == 'should_fail'
-          return result.fail!
-        elsif @foo == 'should_error'
-          raise 'Error!'
+        if @foo == "should_fail"
+          result.fail!
+        elsif @foo == "should_error"
+          raise "Error!"
         else
           @foo = "bar: #{@foo}"
           result.succeed!(@foo)

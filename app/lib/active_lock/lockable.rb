@@ -5,7 +5,7 @@ module ActiveLock::Lockable
     send(self.class.lock_id_name)
   end
 
-  def lock(opts={})
+  def lock(opts = {})
     ActiveLock::Lock.lock(lock_id, opts)
   end
 
@@ -13,8 +13,8 @@ module ActiveLock::Lockable
     ActiveLock::Lock.unlock(lock_id, key)
   end
 
-  def with_lock(existing_key=nil, opts={}, &block)
-    ActiveLock::Lock.with_lock(lock_id, existing_key, opts, &block)
+  def with_lock(existing_key = nil, opts = {}, &)
+    ActiveLock::Lock.with_lock(lock_id, existing_key, opts, &)
   end
 
   class_methods do

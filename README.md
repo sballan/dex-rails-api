@@ -1,17 +1,24 @@
-# DEX: The World's Worst Search Engine®
-www.theworldsworstsearchengine.com
+# README
 
-## How?
-Using Ruby, a beautiful language that should never be used in systems that need to be fast and efficient.  Also uses Rails, which similarly should never be used for anything like this.  A standard web-app architecture is used: Postgres database, Redis cache, S3 object storage, React front end.
+This README would normally document whatever steps are necessary to get the
+application up and running.
 
-Shoestring budget as a design choice:  the whole thing can run on Heroku free dynos, using a persistence layer that costs about $15/month.
+Things you may want to cover:
 
-## Why?
-Because building a competitive search engine is impossible anyhow.  By building this in Ruby and Rails, the engine can both be understood by a student and interesting enough to actually get worked on as a side project.
+* Ruby version
 
-## What does it (will it) do?
-It'll be able to search some very small corner of the web, either configured by me or by a user.  Search results will be fast, accurate, and might even be (a little) useful.
+* System dependencies
 
-More importantly, the project explores the requirements of web search, and the real world difficulties of building such a system.
+* Configuration
 
+* Database creation
 
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...

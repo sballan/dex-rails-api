@@ -1,5 +1,5 @@
 class ClockJob < ApplicationJob
-  CLOCK_INTERVAL = ENV.fetch('CLOCK_INTERVAL', 1.minute).to_i
+  CLOCK_INTERVAL = ENV.fetch("CLOCK_INTERVAL", 1.minute).to_i
 
   queue_as :default
 
@@ -11,7 +11,7 @@ class ClockJob < ApplicationJob
     start_time = Time.now
     Rails.logger.info "Clock Tick started"
 
-    ActiveLock::Lock.with_lock('GlobalClock', nil, ttl: 6.hours) do
+    ActiveLock::Lock.with_lock("GlobalClock", nil, ttl: 30.minutes) do
       JobBatch::Batch.all.each do |jb|
         begin
           jb.with_lock(nil, retry_time: 0.seconds) do |lock_key|
@@ -31,8 +31,8 @@ class ClockJob < ApplicationJob
       # To start off, we synchronously fetch all unsuccessful home pages for our sites
       FetchService::Client.tick do |page_ids|
         if page_ids.present?
-          Page.where(id: page_ids).find_each do |page|
-            FetchService::Client.fetch(page)
+          page_ids.each do |page_id|
+            FetchPageJob.perform_later(page_id)
           end
         else
           Rails.logger.info "No Sites have a need for fetching"
@@ -41,7 +41,7 @@ class ClockJob < ApplicationJob
 
       CrawlService::Client.tick do |page_ids|
         if page_ids.present?
-          page_ids.each {|id| CrawlPageJob.perform_later(id) }
+          page_ids.each { |id| CrawlPageJob.perform_later(id) }
         else
           Rails.logger.info "No pages are crawl_ready"
         end
@@ -49,7 +49,7 @@ class ClockJob < ApplicationJob
 
       IndexService::Client.tick do |page_ids|
         if page_ids.present?
-          page_ids.each {|id| IndexPageJob.perform_later(id) }
+          page_ids.each { |id| IndexPageJob.perform_later(id) }
         else
           Rails.logger.info "No pages are index_ready"
         end
@@ -57,7 +57,7 @@ class ClockJob < ApplicationJob
 
       RankService::Client.tick do |page_ids|
         if page_ids.present?
-          page_ids.each {|id| RankPageJob.perform_later(id) }
+          page_ids.each { |id| RankPageJob.perform_later(id) }
         else
           Rails.logger.info "No pages are rank_ready"
         end

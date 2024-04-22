@@ -1,4 +1,4 @@
-require 'matrix'
+require "matrix"
 
 class RankService::Matrix
   DAMPING = 0.85

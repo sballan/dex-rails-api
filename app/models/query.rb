@@ -10,7 +10,7 @@ class Query < ApplicationRecord
     where(arel_table[:text].matches_any(matches_array))
   }
 
-  scope :never_cached, ->() {
+  scope :never_cached, -> {
     where(cached_at: CACHE_EPOCH)
   }
 

@@ -38,8 +38,8 @@ xdescribe IndexService::Commands::IndexPage do
       end
 
       it "creates a PageMatch for each Query" do
-        q1 = Query.find_by_text 'test'
-        q2 = Query.find_by_text 'title'
+        q1 = Query.find_by_text "test"
+        q2 = Query.find_by_text "title"
 
         pm1 = PageMatch.find_by_query_id q1.id
         pm2 = PageMatch.find_by_query_id q2.id
@@ -70,7 +70,6 @@ xdescribe IndexService::Commands::IndexPage do
         titles = Set.new(queries.map(&:text))
         expect(titles).to eql(Set.new(%w[test this title]))
       end
-
     end
   end
 end

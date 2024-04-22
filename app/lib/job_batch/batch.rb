@@ -1,13 +1,13 @@
 class JobBatch::Batch < RedisModelOld
   REDIS_PREFIX = "JobBatch/Batches/"
   REDIS_HASH_KEYS = %w[active callback_klass callback_args created_at]
-  REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true,} }
+  REDIS_DEFAULT_DATA = ->(id) { {id: id, active: true} }
 
-  belongs_to :parent, 'JobBatch::Batch', inverse_of: :children
-  has_many :children, 'JobBatch::Batch', inverse_of: :parent
-  has_many :jobs, 'JobBatch::Job', inverse_of: :batches
+  belongs_to :parent, "JobBatch::Batch", inverse_of: :children
+  has_many :children, "JobBatch::Batch", inverse_of: :parent
+  has_many :jobs, "JobBatch::Job", inverse_of: :batches
 
-  def destroy!(lock_key=nil)
+  def destroy!(lock_key = nil)
     Rails.logger.info "Destroying Batch #{id}"
 
     with_lock(lock_key) do
@@ -20,7 +20,7 @@ class JobBatch::Batch < RedisModelOld
     # parent is a relation, so we need to grab it before using multi
   end
 
-  def finished!(lock_key=nil)
+  def finished!(lock_key = nil)
     Rails.logger.info "Finishing Batch #{id}"
     b_p = parent
 
@@ -33,7 +33,7 @@ class JobBatch::Batch < RedisModelOld
 
       if callback_klass.respond_to?(:perform_later)
         Rails.logger.info "Finished Batch #{id}, about to queue callback #{callback_klass_name}"
-        callback_klass.perform_later *callback_args
+        callback_klass.perform_later(*callback_args)
       elsif callback_klass.present?
         raise "Batch #{id} tried to use an invalid callback"
       end
@@ -58,7 +58,7 @@ class JobBatch::Batch < RedisModelOld
     Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL] = nil
   end
 
-  def self.create(id=nil, attrs={})
+  def self.create(id = nil, attrs = {})
     attrs[:callback_klass] = attrs[:callback_klass].to_s
     attrs[:callback_args] = attrs[:callback_args].to_json if attrs[:callback_args].is_a? Array
     raise "Invalid callback args" unless attrs[:callback_args].is_a?(String) || attrs[:callback_args].nil?
@@ -70,13 +70,10 @@ class JobBatch::Batch < RedisModelOld
   def self.opened_batch
     if Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL].present?
       new(Thread.current[JobBatch::THREAD_OPEN_BATCH_SYMBOL])
-    else
-      nil
     end
   end
 
   def self.redis
     JobBatch.redis
   end
-
 end

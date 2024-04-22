@@ -19,12 +19,10 @@ describe RedisModelOld do
       expect(@mock_redis.exists?(key)).to be_truthy
     end
 
-
     it "can be found" do
       m = RedisModelOld.find(model.id)
       expect(m.id).to eql(model.id)
     end
-
 
     it "can have data" do
       model = RedisModelOld.create
@@ -57,14 +55,15 @@ describe RedisModelOld do
 
   context "Subclasses" do
     class MockAuthor < RedisModelOld; end
+
     class MockBook < RedisModelOld; end
 
     class MockAuthor < RedisModelOld
-      has_many :books, 'MockBook', inverse_of: :author
+      has_many :books, "MockBook", inverse_of: :author
     end
 
     class MockBook < RedisModelOld
-      belongs_to :author, 'MockAuthor', inverse_of: :books
+      belongs_to :author, "MockAuthor", inverse_of: :books
     end
 
     describe "belongs_to" do
@@ -72,7 +71,7 @@ describe RedisModelOld do
         author = MockAuthor.create
         book = MockBook.create nil, author_id: author.id
         expect(book.author == author).to be_truthy
-        #expect(book.author).to eql(author)
+        # expect(book.author).to eql(author)
       end
     end
   end

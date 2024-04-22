@@ -7,8 +7,8 @@ describe RankService::Matrix do
       p2 = RankService::Page.new(id: 3, position: 2, start_rank: 1.0 / 3.0)
       p3 = RankService::Page.new(id: 47, position: 3, start_rank: 1.0 / 3.0)
 
-      p1.back_links = { 2 => p2 }
-      p2.back_links = { 1 => p1, 3 => p3 }
+      p1.back_links = {2 => p2}
+      p2.back_links = {1 => p1, 3 => p3}
       [p1, p2, p3]
     }
 

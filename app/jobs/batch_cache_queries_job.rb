@@ -3,14 +3,14 @@ class BatchCacheQueriesJob < ApplicationJob
 
   queue_as :cache
 
-  def perform(iter=1, size=1000)
-    if iter > 1
-      batch_attrs = {
-        callback_klass: 'BatchCacheQueriesJob',
+  def perform(iter = 1, size = 1000)
+    batch_attrs = if iter > 1
+      {
+        callback_klass: "BatchCacheQueriesJob",
         callback_args: [iter - 1, size]
       }
     else
-      batch_attrs = {}
+      {}
     end
 
     query_batch = JobBatch::Batch.create(nil, batch_attrs)
@@ -21,7 +21,7 @@ class BatchCacheQueriesJob < ApplicationJob
     query_ids.concat(Query.cached_before(1.week.ago).limit(size / 2).pluck(:id))
 
     query_batch.open do
-      query_ids.each {|id| CacheQueryJob.perform_later(id)}
+      query_ids.each { |id| CacheQueryJob.perform_later(id) }
     end
   end
 end

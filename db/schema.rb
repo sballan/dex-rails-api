@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_31_014705) do
-
+ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
     t.integer "to_id", null: false
@@ -22,33 +21,33 @@ ActiveRecord::Schema.define(version: 2021_01_31_014705) do
   end
 
   create_table "page_matches", force: :cascade do |t|
-    t.bigint "query_id", null: false
-    t.bigint "page_id", null: false
+    t.integer "query_id", null: false
+    t.integer "page_id", null: false
     t.string "kind"
     t.boolean "full"
     t.integer "distance"
     t.integer "length"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["page_id"], name: "index_page_matches_on_page_id"
     t.index ["query_id", "page_id", "kind", "full", "distance", "length"], name: "index_page_matches_on_query_page_kind_full_distance_length", unique: true
     t.index ["query_id"], name: "index_page_matches_on_query_id"
   end
 
   create_table "page_meta", force: :cascade do |t|
-    t.bigint "page_id", null: false
-    t.datetime "fetch_started_at"
-    t.datetime "fetch_finished_at"
-    t.datetime "index_started_at"
-    t.datetime "index_finished_at"
-    t.datetime "rank_started_at"
-    t.datetime "rank_finished_at"
+    t.integer "page_id", null: false
+    t.datetime "fetch_started_at", precision: nil
+    t.datetime "fetch_finished_at", precision: nil
+    t.datetime "index_started_at", precision: nil
+    t.datetime "index_finished_at", precision: nil
+    t.datetime "rank_started_at", precision: nil
+    t.datetime "rank_finished_at", precision: nil
     t.integer "fetch_status", default: 0
     t.integer "index_status", default: 0
     t.integer "rank_status", default: 0
     t.integer "crawl_status", default: 0
-    t.datetime "crawl_started_at"
-    t.datetime "crawl_finished_at"
+    t.datetime "crawl_started_at", precision: nil
+    t.datetime "crawl_finished_at", precision: nil
     t.boolean "indexed_title", default: false
     t.boolean "indexed_links", default: false
     t.boolean "indexed_headers", default: false
@@ -70,9 +69,9 @@ ActiveRecord::Schema.define(version: 2021_01_31_014705) do
 
   create_table "queries", force: :cascade do |t|
     t.string "text", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "cached_at", default: "0000-01-01 00:00:00"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "cached_at", precision: nil, default: "0000-01-01 00:00:00"
     t.index ["text"], name: "index_queries_on_text", unique: true
   end
 
@@ -81,9 +80,9 @@ ActiveRecord::Schema.define(version: 2021_01_31_014705) do
     t.string "host", null: false
     t.boolean "scrape_active", default: false
     t.string "refresh_job_id"
-    t.datetime "refresh_job_started_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "refresh_job_started_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["home_url"], name: "index_sites_on_home_url", unique: true
     t.index ["host"], name: "index_sites_on_host", unique: true
   end

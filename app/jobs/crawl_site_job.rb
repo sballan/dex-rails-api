@@ -3,12 +3,12 @@ class CrawlSiteJob < ApplicationJob
 
   queue_as :crawl
 
-  def perform(site_id, depth, limit=100)
+  def perform(site_id, depth, limit = 100)
     site = Site.find(site_id)
     page_ids = Page.by_site(site).limit(limit).pluck(:id)
 
     crawl_batch = JobBatch::Batch.create(nil, {
-      callback_klass: 'BatchCacheQueriesJob',
+      callback_klass: "BatchCacheQueriesJob",
       callback_args: []
     })
 

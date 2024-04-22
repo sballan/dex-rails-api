@@ -31,8 +31,8 @@ class IndexPageJob < ApplicationJob
       end
     else
       # Otherwise, see if we're 1 link away from an active Site, and if so grab the title
-      linked_to_hosts = page_to_index.pages_linked_to.pluck(:url).map {|url| URI(url).host }
-      linked_from_hosts = page_to_index.pages_linked_from.pluck(:url).map {|url| URI(url).host }
+      linked_to_hosts = page_to_index.pages_linked_to.pluck(:url).map { |url| URI(url).host }
+      linked_from_hosts = page_to_index.pages_linked_from.pluck(:url).map { |url| URI(url).host }
       connected_sites = Site.where(scrape_active: true, host: [linked_to_hosts, linked_from_hosts].flatten)
 
       if connected_sites.any?
@@ -42,7 +42,7 @@ class IndexPageJob < ApplicationJob
 
     index_batch = JobBatch::Batch.create(
       nil,
-      callback_klass: 'IndexPageCallbackJob',
+      callback_klass: "IndexPageCallbackJob",
       callback_args: [page_to_index.id, fields_to_index]
     )
 

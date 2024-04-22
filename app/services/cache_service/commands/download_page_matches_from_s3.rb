@@ -6,8 +6,8 @@ module CacheService::Commands
     end
 
     def run_proc
-      namespace = ENV.fetch('DO_PAGE_MATCHES_NAMESPACE', '/page_matches')
-      client = S3Client.new(ENV['DO_DEFAULT_BUCKET'], namespace)
+      namespace = ENV.fetch("DO_DEFAULT_NAME_SPACE", "dev") + "/page_matches"
+      client = S3Client.new(ENV["DO_DEFAULT_BUCKET"], namespace)
       key = Base64.urlsafe_encode64(@query_text)
       body = client.read(key: key).body.read
 
