@@ -31,8 +31,8 @@ class ClockJob < ApplicationJob
       # To start off, we synchronously fetch all unsuccessful home pages for our sites
       FetchService::Client.tick do |page_ids|
         if page_ids.present?
-          Page.where(id: page_ids).find_each do |page|
-            FetchService::Client.fetch(page)
+          page_ids.each do |page_id|
+            FetchPageJob.perform_later(page_id)
           end
         else
           Rails.logger.info "No Sites have a need for fetching"

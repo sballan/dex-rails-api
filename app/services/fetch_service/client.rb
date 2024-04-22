@@ -19,7 +19,7 @@ module FetchService
           .map do |s|
           s.fetch_home_page
         end.select do |p|
-          !p.meta.fetch_success?
+          !p.meta.fetch_success? && !p.meta.fetch_dead?
         end.map(&:id)
 
       block.call(page_ids)
@@ -37,7 +37,7 @@ module FetchService
       host = URI(page.url).host
       ActiveLock::Lock.with_lock("Host/#{host}", nil, ttl: MAX_REFRESH_TIME) do
         page_file = refresh_page(page)
-        sleep 2
+        sleep 2 # does this give some extension time to finish releaseing memory or something?
       end
 
       return nil if page_file.blank?
