@@ -1,6 +1,3 @@
-concurrency: 15
-development:
-  :concurrency: 1
 :queues:
   - [default, 64]
   - [cache, 32]
