@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: pages
+#
+#  id    :integer          not null, primary key
+#  host  :string
+#  rank  :decimal(, )
+#  title :string
+#  url   :string
+#
+# Indexes
+#
+#  index_pages_on_rank  (rank)
+#  index_pages_on_url   (url) UNIQUE
+#
 class Page < ApplicationRecord
   validates_presence_of :url
 
