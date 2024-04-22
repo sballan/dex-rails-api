@@ -24,7 +24,7 @@ gem "html2text"
 gem "connection_pool" # use to manually share sidekiq connection with sidekiq additions (eg, JobBatch)
 
 # gem "barnes" # For Heroku stats. Pretty expensive.
-gem "newrelic_rpm"
+# gem "newrelic_rpm"
 gem "bugsnag", "~> 6.18"
 gem "dotenv-rails"
 
