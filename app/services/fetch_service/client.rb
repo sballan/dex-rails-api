@@ -19,7 +19,7 @@ module FetchService
           .map do |s|
           s.fetch_home_page
         end.select do |p|
-          !p.meta.fetch_success? && !p.meta.fetch_dead?
+          p.meta.fetch_ready?
         end.map(&:id)
 
       block.call(page_ids)
@@ -56,7 +56,7 @@ module FetchService
         fetch_finished_at: DateTime.now.utc
       })
 
-      raise e
+      raise e unless e.is_a?(Command::Errors::CommandFailed)
     end
 
     def download_parsed_page(page)
