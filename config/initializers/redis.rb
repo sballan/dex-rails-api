@@ -4,6 +4,8 @@
 # NOTE: I was never able to get this to work with a manually created ConnctionPool.  It would freeze up sometimes
 # while queueing jobs with perform_later.  I never figured out why.
 
+Redis.exists_returns_integer = false
+
 default_redis_url = ENV["REDIS_URL"] || nil
 default_redis_connection = Redis.new(url: default_redis_url)
 default_redis_pool_concurrency = ENV.fetch("RAILS_MAX_THREADS", 5).to_i
