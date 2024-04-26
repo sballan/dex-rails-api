@@ -57,7 +57,7 @@ class ClockJob < ApplicationJob
 
       RankService::Client.tick do |page_ids|
         if page_ids.present?
-          page_ids.each { |id| RankPageJob.perform_later(id) }
+          page_ids.each { |id| RankPageJob.perform_later(id, 1000) }
         else
           Rails.logger.info "No pages are rank_ready"
         end
