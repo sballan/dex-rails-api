@@ -49,12 +49,12 @@ class SiteScraper
   def fetch_page(page)
     Rails.logger.info "Fetching Page(#{page.url})"
 
-    if page.meta.fetch_dead?
+    if page.meta&.fetch_dead?
       Rails.logger.info "Skipping fetch of Page(#{page.url}) as it's status is dead"
       return nil
     end
 
-    if page.meta.fetch_success? && page.meta.fetch_finished_at > 1.week.ago
+    if page.meta&.fetch_success? && page.meta.fetch_finished_at > 1.week.ago
       Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched successfully recently"
       return false
     end
