@@ -31,7 +31,7 @@ class SiteScraper
           end
           next_pages += page.reload.pages_linked_to
 
-          index_page(page)
+          index_page(page) if fetch_result
 
           rank_page(page)
         end
@@ -53,9 +53,9 @@ class SiteScraper
       return nil
     end
 
-    if page.meta.fetch_finished_at > 1.minute.ago
+    if page.meta.fetch_finished_at > 1.week.ago
       Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched recently"
-      return nil
+      return false
     end
 
     FetchService::Client.fetch(page)
