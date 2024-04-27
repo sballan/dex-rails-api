@@ -32,7 +32,7 @@ class SiteScraper
         end
         next_pages += page.reload.pages_linked_to
 
-        index_page(page) if fetch_result
+        index_page(page)
 
         rank_page(page)
       rescue => e
