@@ -54,8 +54,8 @@ class SiteScraper
       return nil
     end
 
-    if page.meta.fetch_finished_at > 1.week.ago
-      Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched recently"
+    if page.meta.fetch_success? && page.meta.fetch_finished_at > 1.week.ago
+      Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched successfully recently"
       return false
     end
 
