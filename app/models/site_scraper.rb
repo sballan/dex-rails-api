@@ -14,30 +14,29 @@ class SiteScraper
     processed_pages = Set.new
 
     while current_depth < max_depth
-      begin
-        current_depth += 1
-        next_pages = []
+      current_depth += 1
+      next_pages = []
 
-        current_pages.each do |page|
-          next if processed_pages.include?(page.id)
-          processed_pages << page.id
+      current_pages.each do |page|
+        next if processed_pages.include?(page.id)
+        processed_pages << page.id
 
-          Rails.logger.info "Scraping Page(#{page.url}) at depth #{current_depth}"
+        Rails.logger.info "Scraping Page(#{page.url}) at depth #{current_depth}"
 
-          fetch_result = fetch_page(page)
-          if fetch_result.nil?
-            Rails.logger.error "Failed to fetch Page(#{page.id})"
-            next
-          end
-          next_pages += page.reload.pages_linked_to
-
-          index_page(page) if fetch_result
-
-          rank_page(page)
+        fetch_result = fetch_page(page)
+        if fetch_result.nil?
+          Rails.logger.error "Failed to fetch Page(#{page.url})"
+          next
         end
+        next_pages += page.reload.pages_linked_to
+
+        index_page(page) if fetch_result
+
+        rank_page(page)
       rescue => e
         Rails.logger.error "Error scraping depth #{current_depth}: #{e}"
       end
+
       total_pages_scraped += 1
       current_pages = next_pages
     end
@@ -49,7 +48,7 @@ class SiteScraper
     Rails.logger.info "Fetching Page(#{page.url})"
 
     if page.meta.fetch_dead?
-      Rails.logger.info "Skipping fetch of Page(#{page.id}) as it's status is dead"
+      Rails.logger.info "Skipping fetch of Page(#{page.url}) as it's status is dead"
       return nil
     end
 
