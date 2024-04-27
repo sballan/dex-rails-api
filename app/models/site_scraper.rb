@@ -1,4 +1,6 @@
 class SiteScraper
+  SITE_SCRAPER_RANK_PAGES = ENV.fetch("SITE_SCRAPER_RANK_PAGES", 1000).to_i
+
   attr_reader :site
 
   def initialize(site)
@@ -81,6 +83,6 @@ class SiteScraper
   def rank_page(page)
     Rails.logger.info "Ranking Page(#{page.url})"
 
-    RankService::Client.rank_from_start_page(page, 1000)
+    RankService::Client.rank_from_start_page(page, SITE_SCRAPER_RANK_PAGES)
   end
 end
