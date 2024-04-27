@@ -16,9 +16,9 @@ module RankService::Commands
       }
 
       while current_page.present? && pages_map.size < @max_pages
-        break unless (pages_map.size + current_page.links_from.count) < @max_pages
+        current_page_link_ids = current_page.links_from.pluck(:id).shuffle[0..(@max_pages - pages_map.size)]
 
-        current_page.links_from.in_batches(load: :from).each_record do |link|
+        current_page.links_from.where(id: current_page_link_ids).in_batches(load: :from).each_record do |link|
           pages_map[link.from.id] ||= {
             page: link.from,
             links_added: false
@@ -26,7 +26,7 @@ module RankService::Commands
           break unless pages_map.size < @max_pages
         end
 
-        Rails.logger.debug "Added page #{current_page.url}"
+        Rails.logger.debug "RankService::Commands::CollectPages Added page #{current_page.url}"
 
         pages_map[current_page.id][:links_added] = true
         current_page = pages_map.find { |_k, v| v[:links_added] == false }
