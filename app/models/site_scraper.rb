@@ -11,12 +11,17 @@ class SiteScraper
     current_depth = 0
     current_pages = [@home_page]
 
+    processed_pages = Set.new
+
     while current_depth < max_depth
       begin
         current_depth += 1
         next_pages = []
 
         current_pages.each do |page|
+          next if processed_pages.include?(page.id)
+          processed_pages << page.id
+
           Rails.logger.info "Scraping Page(#{page.url}) at depth #{current_depth}"
 
           fetch_result = fetch_page(page)
@@ -43,7 +48,12 @@ class SiteScraper
   def fetch_page(page)
     Rails.logger.info "Fetching Page(#{page.url})"
 
-    if page.meta.fetch_finished_at > 10.minutes.ago
+    if page.meta.fetch_dead?
+      Rails.logger.info "Skipping fetch of Page(#{page.id}) as it's status is dead"
+      return nil
+    end
+
+    if page.meta.fetch_finished_at > 1.minute.ago
       Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched recently"
       return nil
     end
