@@ -43,7 +43,7 @@ module IndexService
     end
 
     def index_page_links(page, max_length = 3, max_distance = 2)
-      link_texts = page.links_from.where.not(text: [nil, ""]).pluck(:text)
+      link_texts = page.links_from.where.not(text: [nil, ""]).pluck(:text).uniq
       return if link_texts.blank?
 
       link_texts.each do |link_text|

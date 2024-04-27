@@ -63,6 +63,16 @@ class SiteScraper
   end
 
   def index_page(page)
+    if page.meta.index_dead?
+      Rails.logger.info "Skipping index of Page(#{page.url}) as it's status is dead"
+      return nil
+    end
+
+    if page.meta.index_finished_at && page.meta.index_finished_at > page.meta.fetch_finished_at
+      Rails.logger.info "Skipping index of Page(#{page.url}) as it was indexed recently"
+      return false
+    end
+
     Rails.logger.info "Indexing Page(#{page.url})"
 
     Rails.logger.info "Indexing Page(#{page.url}): Title"
