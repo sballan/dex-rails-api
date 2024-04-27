@@ -35,17 +35,23 @@ module RankService
     private
 
     def collect_pages(start_page, max_size, db_page_count)
+      Rails.logger.debug("RankService collect_pages with start_page: #{start_page.id}, max_size: #{max_size}, db_page_count: #{db_page_count}")
+
       command = Commands::CollectPages.new(start_page, max_size, db_page_count)
       command.run_with_gc!
       command.payload
     end
 
     def calculate(rank_pages, db_page_count)
+      Rails.logger.debug("RankService calculate with #{rank_pages.size} pages and #{db_page_count} db pages")
+
       command = Commands::Calculate.new(rank_pages, db_page_count)
       command.run!
     end
 
     def update_pages(rank_pages)
+      Rails.logger.debug("RanksService update_pages with #{rank_pages.size} pages")
+
       command = Commands::UpdatePages.new(rank_pages)
       command.run_with_gc!
     end
