@@ -1,11 +1,12 @@
 class SiteScraper
   SITE_SCRAPER_RANK_PAGES = ENV.fetch("SITE_SCRAPER_RANK_PAGES", 1000).to_i
 
-  attr_reader :site
+  attr_reader :site, :current_page
 
   def initialize(site)
     @site = site
     @home_page = site.fetch_home_page
+    @current_page = nil
   end
 
   def scrape_to_depth(max_depth = 3)
@@ -20,66 +21,79 @@ class SiteScraper
       next_pages = []
 
       current_pages.each do |page|
+        @current_page = page
+
         next if processed_pages.include?(page.id)
         processed_pages << page.id
 
-        Rails.logger.info "Scraping Page(#{page.url}) at depth #{current_depth}"
+        log_info "Scraping at depth #{current_depth}"
 
         fetch_result = fetch_page(page)
         if fetch_result.nil?
-          Rails.logger.error "Failed to fetch Page(#{page.url})"
+          log_error "Failed to fetch"
           next
         end
         next_pages += page.reload.pages_linked_to
 
         index_page(page)
-
         rank_page(page)
+
+        total_pages_scraped += 1
       rescue => e
-        Rails.logger.error "Error scraping depth #{current_depth}: #{e}"
+        log_error "Error scraping depth #{current_depth}: #{e}"
       end
 
-      total_pages_scraped += 1
       current_pages = next_pages
     end
 
-    Rails.logger.info "Scraped #{total_pages_scraped} pages to depth #{max_depth}"
+    log_info "Scraped #{total_pages_scraped} pages to depth #{max_depth}"
   end
 
   def fetch_page(page)
-    Rails.logger.info "Fetching Page(#{page.url})"
-
     if page.meta&.fetch_dead?
-      Rails.logger.info "Skipping fetch of Page(#{page.url}) as it's status is dead"
+      log_info "Skipping fetch because its status is dead"
+      return nil
+    end
+
+    if page.meta&.fetch_active?
+      log_info "Skipping fetch because status is active"
       return nil
     end
 
     if page.meta&.fetch_success? && page.meta.fetch_finished_at > 1.week.ago
-      Rails.logger.info "Skipping fetch of Page(#{page.id}) as it was fetched successfully recently"
+      log_info "Skipping fetch because it was fetched recently"
       return false
     end
 
+    log_info "Starting Fetch"
     FetchService::Client.fetch(page)
   end
 
   def index_page(page)
     if page.meta.index_dead?
-      Rails.logger.info "Skipping index of Page(#{page.url}) as it's status is dead"
+      log_info "Skipping index because status is dead"
+      return nil
+    end
+
+    if page.meta.index_active?
+      log_info "Skipping index because status is active"
       return nil
     end
 
     if page.meta.index_finished_at && page.meta.index_finished_at > page.meta.fetch_finished_at
-      Rails.logger.info "Skipping index of Page(#{page.url}) as it was indexed recently"
+      log_info "Skipping index because it was indexed after the last fetch"
       return false
     end
 
-    Rails.logger.info "Indexing Page(#{page.url})"
+    log_info "Starting Index"
+    page.meta.index_status = :active
+    page.save!
 
-    Rails.logger.info "Indexing Page(#{page.url}): Title"
+    log_info "Indexing title"
     IndexService::Client.index_page_title(page)
-    Rails.logger.info "Indexing Page(#{page.url}): Links"
+    log_info "Indexing links"
     IndexService::Client.index_page_links(page)
-    Rails.logger.info "Indexing Page(#{page.url}): Headers"
+    log_info "Indexing headers"
     IndexService::Client.index_page_headers(page)
 
     page.reload
@@ -91,8 +105,34 @@ class SiteScraper
   end
 
   def rank_page(page)
-    Rails.logger.info "Ranking Page(#{page.url})"
+    if page.meta.rank_dead?
+      log_info "Skipping rank because status is dead"
+      return nil
+    end
+
+    if page.meta.rank_active?
+      log_info "Skipping rank because status is active"
+      return nil
+    end
+
+    if page.meta.rank_finished_at && page.meta.rank_finished_at > 1.day.ago
+      log_info "Skipping rank because it was ranked too recently"
+      return false
+    end
+
+    log_info "Starting Rank"
+    page.meta.rank_status = :active
+    page.save!
 
     RankService::Client.rank_from_start_page(page, SITE_SCRAPER_RANK_PAGES)
+  end
+
+  def log_info(message)
+    Rails.logger.info("#{Time.zone.now}: [INFO] [#{current_page.url}] #{message}")
+  end
+
+  def log_error(message, error = nil)
+    error_message = error ? "\n#{error.message}" : ""
+    Rails.logger.error("#{Time.zone.now}: [ERROR] [#{current_page.url}] #{message}#{error_message}")
   end
 end
