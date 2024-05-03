@@ -48,7 +48,7 @@ export default class Home extends React.Component<any, any>{
                 <ul>
                   {_.map(this.state.matches, (value, key) => (
                     <>
-                      <h3>{key}</h3>
+                      <h3 class="title is-3">{key}</h3>
                       <ul>
                         {value.map(v => (
                           <li className="box">
@@ -100,12 +100,14 @@ export default class Home extends React.Component<any, any>{
           let titleMatches = grouped['title'] || []
           let linkMatches = grouped['link'] || []
           let headerMatches = grouped['header'] || []
+          let paragraphMatches = grouped['paragraph'] || []
 
           titleMatches = _.sortBy(titleMatches, m => (m.distance + 1) / m.length)
           linkMatches = _.sortBy(linkMatches, m => (m.distance + 1) / m.length)
           headerMatches = _.sortBy(headerMatches, m => (m.distance + 1) / m.length)
+          paragraphMatches = _.sortBy(paragraphMatches, m => (m.distance + 1) / m.length)
 
-          return _.flatten([titleMatches, linkMatches, headerMatches])
+          return _.flatten([titleMatches, linkMatches, headerMatches, paragraphMatches])
         })
         this.setState({matches})
         console.log(data)
