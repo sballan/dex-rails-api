@@ -63,7 +63,7 @@ module IndexService
       page.meta.update(indexed_headers: true)
     end
 
-    def index_page_paragraphs(page, max_length = 1, max_distance = 1)
+    def index_page_paragraphs(page, max_length = 2, max_distance = 1)
       parsed_page = FetchService::Client.download_parsed_page(page)
 
       parsed_page[:paragraphs].each do |paragraph|
