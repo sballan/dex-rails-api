@@ -1,5 +1,6 @@
 class SiteScraper
   SITE_SCRAPER_RANK_PAGES = ENV.fetch("SITE_SCRAPER_RANK_PAGES", 1000).to_i
+  SITE_SCRAPER_FETCH_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_FETCH_REFRESH_SECONDS", 1.week.to_i).to_i
 
   attr_reader :site, :current_page
 
@@ -60,7 +61,7 @@ class SiteScraper
       return nil
     end
 
-    if page.meta&.fetch_success? && page.meta.fetch_finished_at > 1.week.ago
+    if page.meta&.fetch_success? && page.meta.fetch_finished_at > SITE_SCRAPER_FETCH_REFRESH_SECONDS.seconds.ago
       log_info "Skipping fetch because it was fetched recently"
       return false
     end
