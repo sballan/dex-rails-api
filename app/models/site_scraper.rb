@@ -95,6 +95,8 @@ class SiteScraper
     IndexService::Client.index_page_links(page)
     log_info "Indexing headers"
     IndexService::Client.index_page_headers(page)
+    log_info "Indexing paragraphs"
+    IndexService::Client.index_page_paragraphs(page)
 
     page.reload
 

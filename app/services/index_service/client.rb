@@ -63,6 +63,17 @@ module IndexService
       page.meta.update(indexed_headers: true)
     end
 
+    def index_page_paragraphs(page, max_length = 1, max_distance = 1)
+      parsed_page = FetchService::Client.download_parsed_page(page)
+
+      parsed_page[:paragraphs].each do |paragraph|
+        index_page_text(page, paragraph, "paragraph", max_length, max_distance)
+      end
+
+      # TODO: do the migration for this!
+      # page.meta.update(indexed_paragraphs: true)
+    end
+
     def sanitize_query_text(input_string)
       command = Commands::SanitizeQueryText.new(input_string)
       command.run!
