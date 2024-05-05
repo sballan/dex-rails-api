@@ -14,6 +14,19 @@ class SiteScraper::Downloader
 
   def initialize(page)
     @page = page
+    @cached_page_file = nil
+  end
+
+  def cache
+    @cached_page_file ||= mechanize_page
+  end
+
+  def cached?
+    @cached_page_file.present?
+  end
+
+  def flush!
+    @cached_page_file = nil
   end
 
   def extract_html
