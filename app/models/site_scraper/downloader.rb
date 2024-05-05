@@ -1,11 +1,11 @@
-class SiteScraper::Fetcher
-  class FetcherError < StandardError
+class SiteScraper::Downloader
+  class DownloaderError < StandardError
   end
 
-  class PermanentFailure < FetcherError
+  class PermanentFailure < DownloaderError
   end
 
-  class TemporaryFailure < FetcherError
+  class TemporaryFailure < DownloaderError
   end
 
   DOWNLOAD_LOCK_TIME = 60.seconds
@@ -14,10 +14,6 @@ class SiteScraper::Fetcher
 
   def initialize(page)
     @page = page
-  end
-
-  def fetch
-    extract_html
   end
 
   def extract_html
@@ -30,8 +26,8 @@ class SiteScraper::Fetcher
   def mechanize_page
     mechanize_page = download_page
 
-    raise FetcherError("Page is nil") if @mechanize_page.nil?
-    raise FetcherError("Only html pages are supported") unless mechanize_page.is_a?(Mechanize::Page)
+    raise DownloaderError("Page is nil") if @mechanize_page.nil?
+    raise DownloaderError("Only html pages are supported") unless mechanize_page.is_a?(Mechanize::Page)
 
     mechanize_page
   rescue Mechanize::RobotsDisallowedError => e
