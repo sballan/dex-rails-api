@@ -1,5 +1,6 @@
 class SiteScraper
   SITE_SCRAPER_RANK_PAGES = ENV.fetch("SITE_SCRAPER_RANK_PAGES", 1000).to_i
+  SITE_SCRAPER_RANK_REFRESH_SECCONDS = ENV.fetch("SITE_SCRAPER_RANK_REFRESH_SECCONDS", 1.day.to_i).to_i
   SITE_SCRAPER_FETCH_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_FETCH_REFRESH_SECONDS", 1.week.to_i).to_i
 
   attr_reader :site, :current_page
@@ -97,7 +98,7 @@ class SiteScraper
     log_info "Indexing headers"
     IndexService::Client.index_page_headers(page)
     log_info "Indexing paragraphs"
-    IndexService::Client.index_page_paragraphs(page)
+    IndexService::Client.index_page_paragraphs(page, 6, 4)
 
     page.reload
 
@@ -118,7 +119,7 @@ class SiteScraper
       return nil
     end
 
-    if page.meta.rank_finished_at && page.meta.rank_finished_at > 1.day.ago
+    if page.meta.rank_finished_at && page.meta.rank_finished_at > SITE_SCRAPER_RANK_REFRESH_SECCONDS.second.ago
       log_info "Skipping rank because it was ranked too recently"
       return false
     end
