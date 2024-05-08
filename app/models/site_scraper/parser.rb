@@ -10,8 +10,11 @@ class SiteScraper::Parser
 
   attr_reader :parsed_page
 
+  private attr_reader :downloader
+
   def initialize(downloader)
     @downloader = downloader
+    @doc = nil
     @parsed_page = {
       title: nil,
       body: nil,
@@ -19,7 +22,6 @@ class SiteScraper::Parser
       links: [],
       paragraphs: []
     }
-    @doc = nil
   end
 
   def doc
