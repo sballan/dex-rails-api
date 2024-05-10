@@ -16,7 +16,7 @@ class SiteScraper::Linker
     @links_by_url = nil
   end
 
-  def index
+  def link
     insert_link_pages(insert_link_pages_attributes)
     update_links_by_url_with_to_ids
     insert_links(links_by_url.values)

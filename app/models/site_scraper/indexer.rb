@@ -8,17 +8,14 @@ class SiteScraper::Indexer
   class TemporaryFailure < IndexerError
   end
 
-  attr_reader :page, :words, :parser
+  attr_reader :page, :parser
 
-  def initialize(page, input_string, parser)
+  def initialize(page, parser)
     @page = page
     @parser = parser
-    @words = sanitize_query_text(input_string)
   end
 
   def index
-    return if words.blank?
-
     Rails.logger.debug "Starting IndexPage for Page(#{@page.id})"
 
     parser.parse

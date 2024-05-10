@@ -51,6 +51,56 @@ class SiteScraper
     log_info "Scraped #{total_pages_scraped} pages to depth #{max_depth}"
   end
 
+  def scrape_to_depth2(max_depth = 3)
+    total_pages_scraped = 0
+    current_depth = 0
+    current_pages = [@home_page]
+
+    processed_pages = Set.new
+
+    while current_depth < max_depth
+      current_depth += 1
+      next_pages = []
+
+      current_pages.each do |page|
+        @current_page = page
+
+        next if processed_pages.include?(page.id)
+        processed_pages << page.id
+
+        log_info "Scraping at depth #{current_depth}"
+
+        downloader = Downloader.new(page)
+
+        if downloader.cache.nil?
+          log_error "Failed to download"
+          next
+        end
+        parser = Parser.new(downloader)
+        parser.parse
+
+        linker = Linker.new(page, parser)
+        linker.link
+
+        next_pages += page.reload.pages_linked_to
+
+        indexer = Indexer.new(page, parser)
+        indexer.index
+
+        index_page(page)
+        rank_page(page)
+
+        total_pages_scraped += 1
+      rescue => e
+        log_error "Error scraping depth #{current_depth}: #{e}"
+      end
+
+      current_pages = next_pages
+    end
+
+    log_info "Scraped #{total_pages_scraped} pages to depth #{max_depth}"
+  end
+
   def fetch_page(page)
     if page.meta&.fetch_dead?
       log_info "Skipping fetch because its status is dead"
