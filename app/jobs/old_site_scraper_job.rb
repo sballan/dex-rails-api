@@ -5,7 +5,7 @@ class OldSiteScraperJob < ApplicationJob
     site_id ||= Site.first.id
     site = Site.find(site_id)
 
-    scraper = SiteScraper.new(site)
+    scraper = OldSiteScraper.new(site)
     scraper.scrape_to_depth(depth)
   end
 end
