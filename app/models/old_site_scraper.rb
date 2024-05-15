@@ -98,7 +98,7 @@ class OldSiteScraper
     log_info "Indexing headers"
     IndexService::Client.index_page_headers(page)
     log_info "Indexing paragraphs"
-    IndexService::Client.index_page_paragraphs(page, 6, 4)
+    IndexService::Client.index_page_paragraphs(page, 3, 1)
 
     page.reload
 
