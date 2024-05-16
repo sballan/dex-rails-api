@@ -1,5 +1,5 @@
 class QueueFullCacheQueryJob < ApplicationJob
-  queue_as :cache
+  queue_as :default
 
   def perform
     counter = 0
