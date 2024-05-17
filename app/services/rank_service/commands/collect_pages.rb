@@ -16,11 +16,11 @@ module RankService::Commands
       }
 
       while current_page.present? && pages_map.size < @max_pages
-        current_page_link_ids = current_page.links_from.pluck(:id).shuffle[0..(@max_pages - pages_map.size)]
+        current_page_link_ids = current_page.pages_linked_from.pluck(:id).shuffle[0..(@max_pages - pages_map.size)]
 
-        current_page.links_from.where(id: current_page_link_ids).in_batches(load: :from).each_record do |link|
-          pages_map[link.from.id] ||= {
-            page: link.from,
+        current_page.pages_linked_from.where(id: current_page_link_ids).in_batches.each_record do |page|
+          pages_map[page.id] ||= {
+            page: page,
             links_added: false
           }
           break unless pages_map.size < @max_pages

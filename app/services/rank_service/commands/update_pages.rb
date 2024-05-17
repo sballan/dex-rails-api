@@ -6,14 +6,18 @@ module RankService::Commands
     end
 
     def run_proc
-      Page.where(id: @rank_pages_map.keys).find_each do |page|
-        page.with_lock do
+      Page.where(id: @rank_pages_map.keys).in_batches do |rel|
+        attributes_to_update = []
+        rel.each do |page|
           ranked_page = @rank_pages_map[page.id]
           new_rank = ranked_page.finish_rank
           new_rank = (new_rank + page.rank / 2.0) if page.rank.present?
           page.rank = new_rank.to_f
-          page.save
+
+          attributes_to_update << page.attributes.slice("id", "rank")
         end
+
+        Page.upsert_all(attributes_to_update, unique_by: :id)
       end
 
       result.succeed!
