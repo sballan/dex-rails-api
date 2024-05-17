@@ -1,5 +1,5 @@
 class CacheQueryJob < ApplicationJob
-  include JobBatch::Mixin
+  # include JobBatch::Mixin
 
   queue_as :cache
 
