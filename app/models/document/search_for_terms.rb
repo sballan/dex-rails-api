@@ -1,4 +1,4 @@
-class Document::QuerySearchForTerms
+class Document::SearchForTerms
   attr_reader :terms, :proximity
   def initialize(terms, proximity)
     @terms = terms

@@ -14,6 +14,6 @@ class Document < ApplicationRecord
   accepts_nested_attributes_for :postings, allow_destroy: true
 
   def self.search_for_terms(terms, proximity)
-    Document::QuerySearchForTerms.new(terms, proximity).call
+    Document::SearchForTerms.new(terms, proximity).call
   end
 end
