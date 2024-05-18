@@ -10,7 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
+  create_table "documents", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "links", force: :cascade do |t|
     t.integer "from_id", null: false
     t.integer "to_id", null: false
@@ -67,6 +72,17 @@ ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
     t.index ["url"], name: "index_pages_on_url", unique: true
   end
 
+  create_table "postings", force: :cascade do |t|
+    t.integer "term_id", null: false
+    t.integer "document_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_postings_on_document_id"
+    t.index ["term_id", "position", "document_id"], name: "index_postings_on_term_id_and_position_and_document_id", unique: true
+    t.index ["term_id"], name: "index_postings_on_term_id"
+  end
+
   create_table "queries", force: :cascade do |t|
     t.string "text", null: false
     t.datetime "created_at", null: false
@@ -87,8 +103,15 @@ ActiveRecord::Schema[7.1].define(version: 2021_01_31_014705) do
     t.index ["host"], name: "index_sites_on_host", unique: true
   end
 
+  create_table "terms", force: :cascade do |t|
+    t.string "term", null: false
+    t.index ["term"], name: "index_terms_on_term", unique: true
+  end
+
   add_foreign_key "links", "pages", column: "from_id"
   add_foreign_key "links", "pages", column: "to_id"
   add_foreign_key "page_matches", "pages"
   add_foreign_key "page_matches", "queries"
+  add_foreign_key "postings", "documents"
+  add_foreign_key "postings", "terms"
 end
