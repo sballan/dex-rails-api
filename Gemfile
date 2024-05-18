@@ -26,6 +26,8 @@ gem "connection_pool" # use to manually share sidekiq connection with sidekiq ad
 # gem "newrelic_rpm"
 gem "bugsnag", "~> 6.18"
 gem "dotenv-rails"
+gem "rack-mini-profiler"
+gem "stackprof"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"

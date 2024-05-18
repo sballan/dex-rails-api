@@ -227,6 +227,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.3)
     rack (3.0.10)
+    rack-mini-profiler (3.3.1)
+      rack (>= 1.2.0)
     rack-protection (4.0.0)
       base64 (>= 0.1.0)
       rack (>= 3.0.0, < 4)
@@ -338,6 +340,7 @@ GEM
     sqlite3 (1.7.3-aarch64-linux)
     sqlite3 (1.7.3-arm64-darwin)
     sqlite3 (1.7.3-x86_64-linux)
+    stackprof (0.2.26)
     standard (1.35.1)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
@@ -407,6 +410,7 @@ DEPENDENCIES
   pg
   pry-rails
   puma (>= 5.0)
+  rack-mini-profiler
   rails (~> 7.1.3, >= 7.1.3.2)
   redis (= 4.3.0)
   rspec-rails
@@ -416,6 +420,7 @@ DEPENDENCIES
   spring
   sprockets-rails
   sqlite3 (~> 1.4)
+  stackprof
   standard
   stimulus-rails
   turbo-rails
