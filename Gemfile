@@ -73,6 +73,8 @@ group :test do
   gem "webdrivers"
   gem "mock_redis"
   gem "simplecov"
+  gem "factory_bot_rails"
+  # gem "database_cleaner-active_record"
 end
 
 gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]

@@ -25,7 +25,6 @@ class Posting < ApplicationRecord
   belongs_to :term
 
   validates :position, presence: true
-  validates :document_id, presence: true
-  validates :term_id, presence: true
-  validates :term_id, uniqueness: {scope: %i[position document_id]}
+  validates :document, presence: true
+  validates :term, presence: true
 end

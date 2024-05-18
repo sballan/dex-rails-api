@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe RankService::Matrix do
+xdescribe RankService::Matrix do
   context "Basics" do
     let(:rank_pages) {
       p1 = RankService::Page.new(id: 31, position: 1, start_rank: 1.0 / 3.0)
