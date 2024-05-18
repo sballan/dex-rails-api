@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Term::CreateFromText, type: :model do
-  describe "#call" do
+  describe "#create_terms" do
     let(:text) { "Some text for testing" }
     let(:term_create_from_text) { Term::CreateFromText.new(text) }
 
