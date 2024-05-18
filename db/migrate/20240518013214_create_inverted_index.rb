@@ -9,8 +9,8 @@ class CreateInvertedIndex < ActiveRecord::Migration[7.1]
     end
 
     create_table :postings do |t|
-      t.references :term, null: false, foreign_key: true
-      t.references :document, null: false, foreign_key: true
+      t.references :term, null: false, foreign_key: {on_delete: :cascade}
+      t.references :document, null: false, foreign_key: {on_delete: :cascade}
       t.integer :position, null: false
       t.timestamps
     end

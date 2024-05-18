@@ -79,7 +79,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["document_id"], name: "index_postings_on_document_id"
-    t.index ["term_id", "position", "document_id"], name: "index_postings_on_term_id_and_position_and_document_id", unique: true
+    t.index ["term_id", "document_id", "position"], name: "index_postings_on_term_id_and_document_id_and_position", unique: true
     t.index ["term_id"], name: "index_postings_on_term_id"
   end
 
@@ -112,6 +112,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
   add_foreign_key "links", "pages", column: "to_id"
   add_foreign_key "page_matches", "pages"
   add_foreign_key "page_matches", "queries"
-  add_foreign_key "postings", "documents"
-  add_foreign_key "postings", "terms"
+  add_foreign_key "postings", "documents", on_delete: :cascade
+  add_foreign_key "postings", "terms", on_delete: :cascade
 end

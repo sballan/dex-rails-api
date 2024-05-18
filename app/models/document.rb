@@ -7,4 +7,7 @@
 #  updated_at :datetime         not null
 #
 class Document < ApplicationRecord
+  has_many :postings, dependent: :destroy
+
+  validates :postings, presence: true
 end

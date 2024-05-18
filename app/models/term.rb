@@ -10,4 +10,8 @@
 #  index_terms_on_term  (term) UNIQUE
 #
 class Term < ApplicationRecord
+  has_many :postings, dependent: :destroy
+
+  validates :term, presence: true
+  validates :term, uniqueness: true
 end
