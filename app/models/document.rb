@@ -9,8 +9,6 @@
 class Document < ApplicationRecord
   has_many :postings, dependent: :destroy
 
-  validates :postings, presence: true
-
   accepts_nested_attributes_for :postings, allow_destroy: true
 
   def self.search_for_terms(terms, proximity)

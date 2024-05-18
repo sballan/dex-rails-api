@@ -1,9 +1,10 @@
 class Term::CreateFromText
-  attr_reader :text, :term_positions
+  attr_reader :text, :terms, :positions_map
 
   def initialize(text)
     @text = text
-    @term_positions = nil
+    @terms = nil
+    @positions_map = nil
   end
 
   def create_terms
@@ -15,10 +16,14 @@ class Term::CreateFromText
     return existing_terms if new_terms.empty?
 
     Term.insert_all(new_terms.map { |term| {term: term} })
-    terms = existing_terms.values + Term.where(term: new_terms).to_a
-    @term_positions = terms.index_by(&:term)
+    @terms = existing_terms.values + Term.where(term: new_terms)
 
-    terms
+    raise("Some terms were not created") unless @terms.size == token_positions.size
+
+    @positions_map = {}
+    @terms.each do |term|
+      @positions_map[term.id] = token_positions[term.term]
+    end
   end
 
   private
