@@ -38,7 +38,7 @@ class OldSiteScraper
         next_pages += page.reload.pages_linked_to
 
         insert_document(page)
-        index_page(page)
+        # index_page(page)
         rank_page(page)
 
         total_pages_scraped += 1
@@ -110,10 +110,10 @@ class OldSiteScraper
   end
 
   def insert_document(page)
-    if page.document && page.document.created_at > page.meta.fetch_finished_at
-      log_info "Skipping document insert because a document was inserted after the last fetch"
-      return false
-    end
+    # if page.document && page.document.created_at > page.meta.fetch_finished_at
+    #   log_info "Skipping document insert because a document was inserted after the last fetch"
+    #   return false
+    # end
 
     log_info "Starting Document insert"
     parsed_page = FetchService::Client.download_parsed_page(page)

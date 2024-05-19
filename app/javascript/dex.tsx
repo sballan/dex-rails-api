@@ -5,12 +5,14 @@ import 'bulma/css/bulma.css'
 
 import Home from './dex/home'
 import Search from './dex/search'
+import DocSearch from './dex/doc_search'
 
 class Dex extends React.Component<any, any>{
     render() {
         return (
           <Switch>
             <Route path="/search" component={Search}></Route>
+            <Route path="/doc_search" component={DocSearch}></Route>
             <Route path="/" component={Home}></Route>
           </Switch>
         )

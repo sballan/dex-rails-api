@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get "info", to: "info#index"
   get "search_db", to: "search#search_db"
   get "search_cache", to: "search#search_cache"
+  get "search_documents", to: "search#search_documents"
 
   root "static#dex"
 
