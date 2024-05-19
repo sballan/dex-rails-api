@@ -117,10 +117,15 @@ class OldSiteScraper
 
     log_info "Starting Document insert"
     parsed_page = FetchService::Client.download_parsed_page(page)
-    text = parsed_page[:title] + " " + parsed_page[:headers].join(" ") + parsed_page[:paragraphs].join(" ")
+
+    text = ""
+    text += parsed_page[:title] + " "
+    text += parsed_page[:headers].join(" ") if parsed_page[:headers].is_a?(Array)
+    text += parsed_page[:paragraphs].join(" ") if parsed_page[:paragraphs].is_a?(Array)
+
     document_creator = Document::CreateFromText.new(text)
     document_creator.process_and_persist
-˚
+
     page.document&.postings&.delete_all
     page.document&.destroy!
     page.document = document_creator.document
