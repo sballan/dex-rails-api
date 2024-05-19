@@ -120,7 +120,8 @@ class OldSiteScraper
     text = parsed_page[:title] + " " + parsed_page[:headers].join(" ") + parsed_page[:paragraphs].join(" ")
     document_creator = Document::CreateFromText.new(text)
     document_creator.process_and_persist
-
+˚
+    page.document&.postings&.delete_all
     page.document&.destroy!
     page.document = document_creator.document
     page.save!
