@@ -22,3 +22,9 @@ Page.create(url: "https://en.wikipedia.org/wiki/Main_Page", meta_attributes: {fe
 
 Site.create(home_url: "https://news.ycombinator.com", host: "news.ycombinator.com", scrape_active: true)
 Page.create(url: "https://news.ycombinator.com", meta_attributes: {fetch_status: :ready})
+
+Site.create(home_url: "http://www.beatlesinterviews.org", host: "beatlesinterviews.org", scrape_active: true)
+Page.create(url: "http://www.beatlesinterviews.org", meta_attributes: {fetch_status: :ready})
+
+Site.create( home_url: "http://www.themoviedb.org", host: "themoviedb.org", scrape_active: true)
+Page.create(url: "http://www.themoviedb.org", meta_attributes: {fetch_status: :ready})
