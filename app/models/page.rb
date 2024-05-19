@@ -58,6 +58,6 @@ class Page < ApplicationRecord
 
   def self.search_for_text(text, proximity = 1)
     documents = Document.search_for_text(text, proximity)
-    Page.where(document: documents).order(rank: :desc)
+    Page.where(document_id: documents.pluck(:id)).order(rank: :desc)
   end
 end
