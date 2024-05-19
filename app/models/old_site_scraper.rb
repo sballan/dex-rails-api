@@ -126,10 +126,12 @@ class OldSiteScraper
     document_creator = Document::CreateFromText.new(text)
     document_creator.process_and_persist
 
-    page.document&.postings&.delete_all
-    page.document&.destroy!
+    old_document = page.document
     page.document = document_creator.document
     page.save!
+
+    old_document&.postings&.delete_all
+    old_document&.destroy!
   end
 
   def rank_page(page)
