@@ -31,7 +31,7 @@ class Document::SearchForText
 
     query += " " + joins.join(" ") + " WHERE " + conditions.join(" AND ")
 
-    query += " \n" + "LIMIT 25"
+    query += " \n" + "LIMIT 1000"
 
     # Prepare the parameters
     proximity_params = Array.new(term_ids.size - 1, proximity)
