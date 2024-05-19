@@ -7,11 +7,11 @@ class Document::SearchForTerms
 
   def call
     term_ids = Term.where(term: terms).pluck(:id)
-    return [] if term_ids.size < 2
+    return [] if term_ids.size < 1
 
     # Start building the SQL query
     query = <<~SQL
-      SELECT p1.document_id
+      SELECT DISTINCT p1.document_id
       FROM postings p1
     SQL
     conditions = []

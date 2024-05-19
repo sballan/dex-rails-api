@@ -13,9 +13,10 @@ class Term::CreateFromText
     existing_terms = Term.where(term: tokens).index_by(&:term)
     new_terms = tokens - existing_terms.keys
 
-    return existing_terms if new_terms.empty?
+    if new_terms.any?
+      Term.insert_all(new_terms.map { |term| {term: term} })
+    end
 
-    Term.insert_all(new_terms.map { |term| {term: term} })
     @terms = existing_terms.values + Term.where(term: new_terms)
 
     raise("Some terms were not created") unless @terms.size == token_positions.size

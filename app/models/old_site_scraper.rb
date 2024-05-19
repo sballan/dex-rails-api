@@ -37,6 +37,7 @@ class OldSiteScraper
         end
         next_pages += page.reload.pages_linked_to
 
+        insert_document(page)
         index_page(page)
         rank_page(page)
 
@@ -105,6 +106,23 @@ class OldSiteScraper
     success = page.meta.indexed_title && page.meta.indexed_links && page.meta.indexed_headers
     page.meta.index_status = success ? :success : :failure
     page.meta.index_finished_at = DateTime.now.utc
+    page.save!
+  end
+
+  def insert_document(page)
+    if page.document && page.document.created_at > page.meta.fetch_finished_at
+      log_info "Skipping document insert because a document was inserted after the last fetch"
+      return false
+    end
+
+    log_info "Starting Document insert"
+    parsed_page = FetchService::Client.download_parsed_page(page)
+    text = parsed_page[:title] + " " + parsed_page[:headers].join(" ") + parsed_page[:paragraphs].join(" ")
+    document_creator = Document::CreateFromText.new(text)
+    document_creator.process_and_persist
+
+    page.document&.destroy!
+    page.document = document_creator.document
     page.save!
   end
 

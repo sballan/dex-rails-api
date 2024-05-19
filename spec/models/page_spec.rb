@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: pages
+#
+#  id          :integer          not null, primary key
+#  host        :string
+#  rank        :decimal(, )
+#  title       :string
+#  url         :string
+#  document_id :integer
+#
+# Indexes
+#
+#  index_pages_on_document_id  (document_id)
+#  index_pages_on_rank         (rank)
+#  index_pages_on_url          (url) UNIQUE
+#
+# Foreign Keys
+#
+#  document_id  (document_id => documents.id)
+#
 require "rails_helper"
 
 describe Page, type: :model do

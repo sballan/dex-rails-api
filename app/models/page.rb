@@ -2,19 +2,27 @@
 #
 # Table name: pages
 #
-#  id    :integer          not null, primary key
-#  host  :string
-#  rank  :decimal(, )
-#  title :string
-#  url   :string
+#  id          :integer          not null, primary key
+#  host        :string
+#  rank        :decimal(, )
+#  title       :string
+#  url         :string
+#  document_id :integer
 #
 # Indexes
 #
-#  index_pages_on_rank  (rank)
-#  index_pages_on_url   (url) UNIQUE
+#  index_pages_on_document_id  (document_id)
+#  index_pages_on_rank         (rank)
+#  index_pages_on_url          (url) UNIQUE
+#
+# Foreign Keys
+#
+#  document_id  (document_id => documents.id)
 #
 class Page < ApplicationRecord
   validates_presence_of :url
+
+  belongs_to :document, optional: true, dependent: :destroy
 
   has_one :meta, class_name: "PageMeta", dependent: :destroy
   accepts_nested_attributes_for :meta, update_only: true

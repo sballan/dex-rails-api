@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_18_232519) do
   create_table "documents", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -68,6 +68,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
     t.string "title"
     t.decimal "rank"
     t.string "host"
+    t.integer "document_id"
+    t.index ["document_id"], name: "index_pages_on_document_id"
     t.index ["rank"], name: "index_pages_on_rank"
     t.index ["url"], name: "index_pages_on_url", unique: true
   end
@@ -112,6 +114,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_18_013214) do
   add_foreign_key "links", "pages", column: "to_id"
   add_foreign_key "page_matches", "pages"
   add_foreign_key "page_matches", "queries"
+  add_foreign_key "pages", "documents"
   add_foreign_key "postings", "documents", on_delete: :cascade
   add_foreign_key "postings", "terms", on_delete: :cascade
 end

@@ -55,11 +55,13 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "debug").to_sym
+
   # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
+  config.active_record.verbose_query_logs = config.log_level == :debug
 
   # Highlight code that enqueued background job in logs.
-  config.active_job.verbose_enqueue_logs = true
+  config.active_job.verbose_enqueue_logs = config.log_level == :debug
 
   # Suppress logger output for asset requests.
   config.assets.quiet = true

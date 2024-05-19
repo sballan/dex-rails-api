@@ -7,6 +7,7 @@
 #  updated_at :datetime         not null
 #
 class Document < ApplicationRecord
+  has_one :page
   has_many :postings, dependent: :destroy
 
   accepts_nested_attributes_for :postings, allow_destroy: true
