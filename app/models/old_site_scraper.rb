@@ -1,6 +1,6 @@
 class OldSiteScraper
   SITE_SCRAPER_RANK_PAGES = ENV.fetch("SITE_SCRAPER_RANK_PAGES", 1000).to_i
-  SITE_SCRAPER_RANK_REFRESH_SECCONDS = ENV.fetch("SITE_SCRAPER_RANK_REFRESH_SECCONDS", 1.day.to_i).to_i
+  SITE_SCRAPER_RANK_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_RANK_REFRESH_SECONDS", 1.day.to_i).to_i
   SITE_SCRAPER_FETCH_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_FETCH_REFRESH_SECONDS", 1.week.to_i).to_i
 
   attr_reader :site, :current_page
@@ -145,7 +145,7 @@ class OldSiteScraper
       return nil
     end
 
-    if page.meta.rank_finished_at && page.meta.rank_finished_at > SITE_SCRAPER_RANK_REFRESH_SECCONDS.second.ago
+    if page.meta.rank_finished_at && page.meta.rank_finished_at > SITE_SCRAPER_RANK_REFRESH_SECONDS.second.ago
       log_info "Skipping rank because it was ranked too recently"
       return false
     end
