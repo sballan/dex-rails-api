@@ -28,14 +28,20 @@ module FetchService::Commands
 
       }
 
+      url_without_fragment = URI.parse(@url).tap { |uri| uri.fragment = nil }.to_s
+
       doc.css("a").each do |link_node|
         next if link_node["href"].blank?
 
         begin
-          # uri = URI.parse(link_node["href"])
-          # uri.fragment = nil
+          uri = URI.parse(@url).merge(URI.parse(link_node["href"]))
+          uri.fragment = nil
+
+          # Skip if the link is to the same page
+          next if uri.to_s == url_without_fragment
+
           parsed_page[:links] << {
-            url: URI.parse(@url).merge(URI.parse(link_node["href"])).to_s,
+            url: uri.to_s,
             text: link_node.content.blank? ? nil : link_node.content.strip.gsub(/\s+/, " ")
           }
         rescue URI::InvalidURIError
