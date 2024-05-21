@@ -41,7 +41,7 @@ class OldSiteScraper
         end
         next_pages += page.reload.pages_linked_to
 
-        # insert_document(page)
+        insert_document(page)
         # index_page(page)
         rank_page(page)
 
