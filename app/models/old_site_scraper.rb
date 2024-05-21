@@ -3,11 +3,15 @@ class OldSiteScraper
   SITE_SCRAPER_RANK_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_RANK_REFRESH_SECONDS", 1.day.to_i).to_i
   SITE_SCRAPER_FETCH_REFRESH_SECONDS = ENV.fetch("SITE_SCRAPER_FETCH_REFRESH_SECONDS", 1.week.to_i).to_i
 
-  attr_reader :site, :current_page
+  attr_reader :current_page
 
   def initialize(site)
-    @site = site
-    @home_page = site.fetch_home_page
+    @home_page = if site.is_a?(Site)
+      @site.fetch_home_page
+    else
+      site # Assume it's a page
+    end
+
     @current_page = nil
   end
 
@@ -37,7 +41,7 @@ class OldSiteScraper
         end
         next_pages += page.reload.pages_linked_to
 
-        insert_document(page)
+        # insert_document(page)
         # index_page(page)
         rank_page(page)
 
