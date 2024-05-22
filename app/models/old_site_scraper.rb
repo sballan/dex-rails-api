@@ -7,7 +7,7 @@ class OldSiteScraper
 
   def initialize(site)
     @home_page = if site.is_a?(Site)
-      @site.fetch_home_page
+      site.fetch_home_page
     else
       site # Assume it's a page
     end
