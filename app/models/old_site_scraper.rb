@@ -123,7 +123,7 @@ class OldSiteScraper
     parsed_page = FetchService::Client.download_parsed_page(page)
 
     text = ""
-    text += parsed_page[:title] + " "
+    text += parsed_page[:title].to_s + " "
     text += parsed_page[:headers].join(" ") if parsed_page[:headers].is_a?(Array)
     text += parsed_page[:paragraphs].join(" ") if parsed_page[:paragraphs].is_a?(Array)
 
